@@ -78,6 +78,11 @@
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
     "windows": {
+      "/SmartDashboard/Arm//Arm Sim": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Field": {
         "OdometryPose": {
           "arrowColor": [
@@ -119,8 +124,10 @@
   },
   "NetworkTables": {
     "transitory": {
-      "FMSInfo": {
-        "open": true
+      "LiveWindow": {
+        ".status": {
+          "open": true
+        }
       },
       "Monologue": {
         "drivebase": {
@@ -146,14 +153,10 @@
             "open": true
           },
           "open": true
-        },
-        "open": true
+        }
       },
       "SmartDashboard": {
-        "open": true,
-        "swerve": {
-          "open": true
-        }
+        "open": true
       }
     }
   },

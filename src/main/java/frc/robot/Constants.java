@@ -39,11 +39,25 @@ public final class Constants {
 
   public final class CANIDConstants {
 
+    /**
+     * Drive and angle constants are for reference only
+     * They are specigfied in the YAGSL module JSON filkes
+     */
+    public static final int flDrive = 3;
+    public static final int frDrive = 4;
+    public static final int blDrive = 5;
+    public static final int brDrive = 6;
+
+    public static final int flAngle = 7;
+    public static final int frAngle = 8;
+    public static final int blAngle = 9;
+    public static final int brAngle = 10;
+
     public static final int leftElevatorID = 20;
     public static final int rightElevatorID = 21;
     public static final int algaeintakeID = 22;
     public static final int coralintakeID = 23;
-    
+
   }
 
   public static final class DrivebaseConstants {

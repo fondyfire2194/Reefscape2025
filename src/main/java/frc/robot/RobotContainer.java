@@ -27,6 +27,7 @@ import frc.robot.commands.auto.DriveToNearestReefZone;
 import frc.robot.commands.swervedrive.auto.DriveToAlgaeProcessor;
 import frc.robot.commands.swervedrive.auto.DriveToNearestCoralStation;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import monologue.Logged;
@@ -42,6 +43,8 @@ import swervelib.SwerveInputStream;
  * trigger mappings) should be declared here.
  */
 public class RobotContainer implements Logged {
+
+        ArmSubsystem arm = new ArmSubsystem();
 
         SendableChooser<Command> autoChooser;
 

@@ -6,7 +6,8 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -44,6 +45,10 @@ public class LimelightVision extends SubsystemBase {
 
   final int[] autoTagFilter = new int[] { 10, 11, 6, 7, 8, 9, 21, 22, 17, 18, 19, 20 };
 
+  Alert flCameraAlert = new Alert("FrontLeftCameraProblem", AlertType.kWarning);
+  Alert frCameraAlert = new Alert("FrontRightCameraProblem", AlertType.kError);
+  Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
+
   public LimelightVision() {
 
     if (VisionConstants.CameraConstants.frontLeftCamera.isUsed) {
@@ -52,6 +57,7 @@ public class LimelightVision extends SubsystemBase {
 
     if (VisionConstants.CameraConstants.frontRightCamera.isUsed)
       setCamToRobotOffset(VisionConstants.CameraConstants.frontRightCamera);
+
   }
 
   public void setAprilTagFilter(String camname) {
@@ -64,11 +70,16 @@ public class LimelightVision extends SubsystemBase {
 
   public void setPOILeft(String camname) {
     LimelightHelpers.SetFidcuial3DOffset(camname, FieldConstants.centerToReefBranch, 0, 0);
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    flCameraAlert.set(limelightExistsfl == false);
+    frCameraAlert.set(limelightExistsfr == false);
+    rearCameraAlert.set(limelightExistsr == false);
 
     if (loopctr > 2)
       loopctr = 0;

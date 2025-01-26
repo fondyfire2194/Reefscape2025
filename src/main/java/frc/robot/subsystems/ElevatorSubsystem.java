@@ -40,11 +40,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   public final double UPPER_POSITION_LIMIT = 0;
 
   public final double LOWER_POSITION_LIMIT = 0;
-  public final double kCarriageMass = 4.0; // kg
+  public final double kCarriageMass = Units.lbsToKilograms(10); // kg
 
   // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
   public final double kMinElevatorHeightMeters = 0.0;
-  public final double kMaxElevatorHeightMeters = 10.25;
+  public final double kMaxElevatorHeightMeters = Units.inchesToMeters(70);
 
   // Standard classes for controlling our elevator
   ElevatorFeedforward m_feedforward = new ElevatorFeedforward(
