@@ -23,11 +23,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.FieldConstants.Side;
+import frc.robot.commands.Arm.JogArm;
+import frc.robot.commands.Arm.PositionHoldArm;
+import frc.robot.commands.Elevator.JogElevator;
+import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.DriveToNearestReefZone;
 import frc.robot.commands.swervedrive.auto.DriveToAlgaeProcessor;
 import frc.robot.commands.swervedrive.auto.DriveToNearestCoralStation;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ElevatorArmSim;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import monologue.Logged;
@@ -46,10 +52,15 @@ public class RobotContainer implements Logged {
 
         ArmSubsystem arm = new ArmSubsystem();
 
+        ElevatorSubsystem elevator = new ElevatorSubsystem();
+
+        ElevatorArmSim elasim;
+
         SendableChooser<Command> autoChooser;
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
         final CommandXboxController driverXbox = new CommandXboxController(0);
+        final CommandXboxController coDriverXbox = new CommandXboxController(1);
 
         // The robot's subsystems and commands are defined here...
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -144,6 +155,17 @@ public class RobotContainer implements Logged {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
+
+                if (RobotBase.isSimulation())
+                        elasim = new ElevatorArmSim(elevator, arm);
+
+                if (RobotBase.isSimulation())
+                        elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+                        if (RobotBase.isSimulation())
+                        arm.setDefaultCommand(new PositionHoldArm(arm));
+
+               
+
                 // Configure the trigger bindings
                 configureBindings();
                 // reefZoneChange.onTrue(rumble(driverXbox, RumbleType.kLeftRumble, 1))
@@ -204,7 +226,7 @@ public class RobotContainer implements Logged {
 
                         driverXbox.povUp().onTrue(Commands.none());
                         driverXbox.povLeft().onTrue(Commands.none());
-                        ;
+
                         driverXbox.povRight().onTrue(Commands.none());
                         driverXbox.povDown().onTrue(Commands.none());
 
@@ -215,7 +237,7 @@ public class RobotContainer implements Logged {
                                         drivebase.driveToPose(
                                                         new Pose2d(new Translation2d(6, 3.8),
                                                                         Rotation2d.fromDegrees(180))));
-                        driverXbox.y().whileTrue(Commands.none());
+                        driverXbox.y().onTrue(Commands.runOnce(() -> elevator.setTargetInches(50)));
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
@@ -243,6 +265,16 @@ public class RobotContainer implements Logged {
                                                         .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
                 }
+
+                coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));
+                coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
+                coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setTargetInches(50)));
+                coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setTargetInches(30)));
+
+                coDriverXbox.x().onTrue(arm.setTargetCommand(45));
+                coDriverXbox.b ().onTrue(arm.setTargetCommand(0));
+
+                
 
         }
 

@@ -4,90 +4,74 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANIDConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-  // This gearbox represents a gearbox containing 1 Neo
-  
+  private double maxMotorRPM = 5700;
 
-  public final double kElevatorKp = 5;
-  public final double kElevatorKi = 0;
-  public final double kElevatorKd = 0;
+  public final double kElevatorGearing = 50.0;
 
-  public final double kElevatorkS = 0.0; // volts (V)
-  public final double kElevatorkG = 0.762; // volts (V)
-  public final double kElevatorkV = 0.762; // volt per velocity (V/(m/s))
-  public final double kElevatorkA = 0.0; // volt per acceleration (V/(m/s²))
+  // assume 10:1 gearing 50 tooth pulley 2mm pitch 1 rev pulley =100mm = 1 rev
+  // motor
+  // = 10mm
+  public double positionConversionFactor = 1 / kElevatorGearing;
+  public double velocityConversionFactor = positionConversionFactor / 60;
 
-  public final static double kElevatorGearing = 10.0;
-  public final static double kElevatorDrumRadius = Units.inchesToMeters(2.0);
+  public double maxVelocityMPS = maxMotorRPM * velocityConversionFactor;// 570/60 = 95
 
-  public final double UPPER_POSITION_LIMIT = 0;
+  public final double elevatorKp = .005;
+  public final double elevatorKi = 0;
+  public final double elevatorKd = 0;
 
-  public final double LOWER_POSITION_LIMIT = 0;
-  public final double kCarriageMass = Units.lbsToKilograms(10); // kg
+  public final double kCarriageMass = Units.lbsToKilograms(1); // kg
 
   // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
-  public final double kMinElevatorHeightMeters = 0.0;
-  public final double kMaxElevatorHeightMeters = Units.inchesToMeters(70);
-
-  // Standard classes for controlling our elevator
-  ElevatorFeedforward m_feedforward = new ElevatorFeedforward(
-      kElevatorkS,
-      kElevatorkG,
-      kElevatorkV,
-      kElevatorkA);
-
-  double elevatorKp;
-  double elevatorKi;
-  double elevatorKd;
+  public final double minElevatorHeightMeters = 0.25;
+  public final double maxElevatorHeightMeters = 2.8;//
 
   public final SparkMax m_leftMotor = new SparkMax(CANIDConstants.leftElevatorID, MotorType.kBrushless);
 
-  private final RelativeEncoder m_leftEncoder = m_leftMotor.getEncoder();
+  private SparkClosedLoopController leftClosedLoopController = m_leftMotor.getClosedLoopController();
 
   public final SparkMax m_rightMotor = new SparkMax(CANIDConstants.rightElevatorID, MotorType.kBrushless);
 
-  private final RelativeEncoder m_rightEncoder = m_rightMotor.getEncoder();
+  private SparkClosedLoopController rightClosedLoopController = m_leftMotor.getClosedLoopController();
 
-  public TrapezoidProfile.Constraints constraints;
-
-  public ProfiledPIDController leftPidController;
-  public ProfiledPIDController rightPidController;
   public static double TRAJECTORY_VEL = 20;
   public static double TRAJECTORY_ACCEL = 20;
-  public static double positionConversionFactor = 2;
-  public static double velocityConversionFactor = positionConversionFactor / 60;
+  public static double drumRadius = .164;// meters
 
   public int posrng;
 
-  private double leftPidOut;
+  // private boolean shutDownElevatorPositioning;
 
-  private boolean shutDownElevatorPositioning;
+  public boolean atUpperLimit;
 
-  private double powerDownLimit;
+  public boolean atLowerLimit;
 
-  private double powerUpLimit;
+  double elevatorCurrentTarget;
 
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
+
+    SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     SparkMaxConfig rightConfig = new SparkMaxConfig();
 
@@ -95,10 +79,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         .smartCurrentLimit(40)
         .closedLoopRampRate(0.25).closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pid(kElevatorKp, kElevatorKi, kElevatorKd)
+        .p(0.01)
         .outputRange(-1, 1).maxMotion
-        .maxVelocity(10)// Elevator.convertDistanceToRotations(Meters.of(1)).per(Second).in(RPM))
-        .maxAcceleration(20);
+        // Set MAXMotion parameters for position control
+        .maxVelocity(50)
+        .maxAcceleration(100)
+        .allowedClosedLoopError(0.5);
+
     leftConfig.encoder
         .positionConversionFactor(positionConversionFactor)
         .velocityConversionFactor(velocityConversionFactor);
@@ -107,27 +94,32 @@ public class ElevatorSubsystem extends SubsystemBase {
         .smartCurrentLimit(40)
         .closedLoopRampRate(0.25).closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pid(kElevatorKp, kElevatorKi, kElevatorKd)
+        // Set PID values for position control
+        .p(0.1)
         .outputRange(-1, 1).maxMotion
-        .maxVelocity(10)// Elevator.convertDistanceToRotations(Meters.of(1)).per(Second).in(RPM))
-        .maxAcceleration(20);
+        // Set MAXMotion parameters for position control
+        .maxVelocity(4200)
+        .maxAcceleration(6000)
+        .allowedClosedLoopError(0.5);      
+
     rightConfig.encoder
         .positionConversionFactor(positionConversionFactor)
         .velocityConversionFactor(velocityConversionFactor);
+
     m_leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
     m_rightMotor.configure(rightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
-   
-    constraints = new TrapezoidProfile.Constraints(TRAJECTORY_VEL, TRAJECTORY_ACCEL);
-    leftPidController = new ProfiledPIDController(elevatorKp, elevatorKi, elevatorKd, constraints);
-    rightPidController = new ProfiledPIDController(elevatorKp, elevatorKi, elevatorKd, constraints);
-
+    resetPosition(0);
+    setTargetMeters(minElevatorHeightMeters);
   }
 
   /**
    * Advance the simulation.
    */
   public void simulationPeriodic() {
+    SmartDashboard.putNumber("Elevator/posiiton", getLeftPositionMeters());
+    SmartDashboard.putNumber("Elevator/Vel", getLeftVelocity());
+    SmartDashboard.putNumber("Elevator/APPO", m_leftMotor.getAppliedOutput());
 
   }
 
@@ -137,11 +129,23 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @return Height in meters
    */
   public double getLeftPositionInches() {
-    return m_leftEncoder.getPosition();
+    return Units.metersToInches(getLeftPositionMeters());
   }
 
   public double getRightPositionInches() {
-    return m_rightEncoder.getPosition();
+    return Units.metersToInches(getLeftPositionMeters());
+  }
+
+  public double getLeftPositionMeters() {
+    return minElevatorHeightMeters + m_leftMotor.getEncoder().getPosition();
+  }
+
+  public double getRightPositionMeters() {
+    return minElevatorHeightMeters + m_leftMotor.getEncoder().getPosition();
+  }
+
+  public double getLeftVelocity() {
+    return m_rightMotor.getEncoder().getVelocity();
   }
 
   public double getAverageHeight() {
@@ -165,67 +169,48 @@ public class ElevatorSubsystem extends SubsystemBase {
    * Stop the control loop and motor output.
    */
   public void stop() {
-    m_leftMotor.set(0.0);
-    m_rightMotor.set(0.0);
-
-  }
-
-  /**
-   * Update telemetry, including the mechanism visualization.
-   */
-  public void updateTelemetry() {
+    m_leftMotor.setVoltage(0.0);
+    m_rightMotor.setVoltage(0.0);
 
   }
 
   public void position() {
 
     posrng++;
+    leftClosedLoopController.setReference(
+        elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
+    rightClosedLoopController.setReference(
+        elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
+  }
 
-    boolean elevatorHigh = getLeftPositionInches() >= kMaxElevatorHeightMeters
-        || getRightPositionInches() >= kMaxElevatorHeightMeters;
-    boolean elevatorLow = getLeftPositionInches() <= kMinElevatorHeightMeters
-        || getRightPositionInches() <= kMinElevatorHeightMeters;
+  public void resetPosition(double val) {
+    m_leftMotor.getEncoder().setPosition(val);
+    m_rightMotor.getEncoder().setPosition(val);
 
-    leftPidOut = leftPidController.calculate(getLeftPositionInches());
-
-    double leftPowerVal = clamp(leftPidOut, -powerDownLimit, powerUpLimit);
-
-    if (!shutDownElevatorPositioning && (leftPowerVal > 0 && !elevatorHigh || leftPowerVal < 0 && !elevatorLow))
-      m_leftMotor.set(leftPowerVal);
-    else
-      m_leftMotor.set(0);
-
-    double rightPidOut = rightPidController.calculate(getRightPositionInches());
-
-    double rightPowerVal = clamp(rightPidOut, -powerDownLimit, powerUpLimit);
-
-    if (!shutDownElevatorPositioning && (rightPowerVal > 0 && !elevatorHigh || rightPowerVal < 0 && !elevatorLow))
-      m_rightMotor.set(rightPowerVal);
-    else
-      m_rightMotor.set(0);
   }
 
   @Override
   public void periodic() {
+    atUpperLimit = getLeftPositionMeters() >= maxElevatorHeightMeters
+        || getRightPositionMeters() >= maxElevatorHeightMeters;
 
-    updateTelemetry();
+    atLowerLimit = getLeftPositionMeters() <= minElevatorHeightMeters
+        || (getRightPositionMeters() <= minElevatorHeightMeters
+            && RobotBase.isReal());
+
+    SmartDashboard.putBoolean("Elevator/onUpperLimit", atUpperLimit);
+    SmartDashboard.putBoolean("Elevator/onLowerLimit", atLowerLimit);
+
   }
 
-  public void setTargetInches(double temp) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setTargetInches'");
+  public void setTargetInches(double inches) {
+    elevatorCurrentTarget = Units.inchesToMeters(inches);
+    SmartDashboard.putNumber("Elevator/current target", elevatorCurrentTarget);
   }
 
-  /**
-   * Returns value clamped between low and high boundaries.
-   *
-   * @param value Value to clamp.
-   * @param low   The lower boundary to which to clamp value.
-   * @param high  The higher boundary to which to clamp value.
-   */
-  public static double clamp(double value, double low, double high) {
-    return Math.max(low, Math.min(value, high));
-  }
+  public void setTargetMeters(double meters) {
+    elevatorCurrentTarget = meters;
 
+  }
 
 }

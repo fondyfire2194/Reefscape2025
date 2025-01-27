@@ -24,10 +24,9 @@ public class PositionHoldArm extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-      SmartDashboard.putNumber("BegPos",m_arm.getAngle().in(Degrees));
-      m_arm.armController.reset(m_arm.getAngle().in(Radians));
-      m_arm.armController.setGoal(m_arm.getAngle().in(Radians));
-  
+      
+      m_arm.setTarget(m_arm.getAngle());
+     
     }
   
     // Called every time the scheduler runs while the command is scheduled.
@@ -39,7 +38,7 @@ public class PositionHoldArm extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-      m_arm.setGoal(Degrees.of(m_arm.getAngle().in(Degrees)));
+      m_arm.setTarget(m_arm.getAngle());
   
     }
   

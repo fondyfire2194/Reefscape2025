@@ -62,6 +62,7 @@
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Arm//Arm Sim": "Mechanism2d",
+      "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -78,7 +79,7 @@
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
     "windows": {
-      "/SmartDashboard/Arm//Arm Sim": {
+      "/SmartDashboard/Elevator Sim": {
         "window": {
           "visible": true
         }
@@ -156,6 +157,12 @@
         }
       },
       "SmartDashboard": {
+        "Elevator": {
+          "open": true
+        },
+        "Encoders": {
+          "open": true
+        },
         "open": true
       }
     }

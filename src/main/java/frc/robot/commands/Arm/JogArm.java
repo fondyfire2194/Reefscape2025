@@ -4,10 +4,8 @@
 
 package frc.robot.commands.Arm;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,7 +17,6 @@ public class JogArm extends Command {
   /** Creates a new JogArm. */
   private ArmSubsystem m_arm;
   private CommandXboxController m_controller;
- public Angle simAngleRadsInc = Radians.of(.001);
 
   public JogArm(ArmSubsystem arm, CommandXboxController controller) {
     m_arm = arm;
@@ -33,43 +30,54 @@ public class JogArm extends Command {
 
     m_arm.enableArm = false;
     m_arm.enableArm = false;
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    boolean allowDown = m_arm.getAngle().in(Degrees) > (m_arm.minAngle.in(Degrees))
-        || m_controller.getHID().getBackButton();
-
-    boolean allowUp = m_arm.getAngle().in(Degrees) < (m_arm.maxAngle.in(Degrees))
-        || m_controller.getHID().getBackButton();
-
-    double yval = -m_controller.getLeftY() / 10;
-
+    boolean allowDown = true;
+    boolean allowUp = true;
     if (RobotBase.isReal()) {
-      if (yval > 0 && allowUp || yval < 0 && allowDown) {
+      allowUp = m_arm.getAngle().gt(m_arm.minAngle)
+          || m_controller.getHID().getBackButton();
 
-        m_arm.appliedVolts = yval * RobotController.getBatteryVoltage();
-        SmartDashboard.putNumber("ArmVoltsJog", m_arm.appliedVolts);
-        m_arm.armMotor.setVoltage(m_arm.appliedVolts);
-      } else {
-        m_arm.armMotor.setVoltage(0);
-      }
-    } else
+      allowDown = m_arm.getAngle().lt(m_arm.maxAngle)
+          || m_controller.getHID().getBackButton();
+    }
 
+    else {
+      allowUp = m_arm.armMotor.getEncoder().getPosition()
+         < (m_arm.maxAngle.in(Radians))
+          || m_controller.getHID().getBackButton();
+
+      allowDown = m_arm.armMotor.getEncoder().getPosition()
+       > (m_arm.minAngle.in(Radians))
+          || m_controller.getHID().getBackButton();
+
+    }
+
+    double yval = -m_controller.getLeftY() / 2;
+
+    SmartDashboard.putNumber("Arm/VoltsJog", m_arm.appliedVolts);
+  
+   
     if (yval > 0 && allowUp || yval < 0 && allowDown) {
 
-      m_arm.simAngleRads.plus(simAngleRadsInc);
-    } 
-    
-    m_arm.setGoal(m_arm.getAngle());
+      m_arm.appliedVolts = yval * RobotController.getBatteryVoltage();
+
+      m_arm.armMotor.setVoltage(m_arm.appliedVolts);
+
+    } else {
+      m_arm.armMotor.setVoltage(0);
+    }
+
+    m_arm.setTarget(m_arm.getAngle());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-  
 
     m_arm.enableArm = true;
   }

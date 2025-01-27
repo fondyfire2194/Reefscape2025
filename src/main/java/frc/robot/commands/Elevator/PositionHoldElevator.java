@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands.Elevator;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ElevatorSubsystem;
 
@@ -18,8 +17,8 @@ public class PositionHoldElevator extends Command {
   @Override
   public void initialize() {
       elevator.posrng = 911;
-      double temp = elevator.getLeftPositionInches();
-      elevator.setTargetInches(temp);
+      double temp = elevator.getLeftPositionMeters();
+      elevator.setTargetMeters(temp);
   }
 
   @Override
