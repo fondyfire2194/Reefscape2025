@@ -103,7 +103,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     private int inPositionCtr;
 
-    private double armCurrentTarget;
+    public double armCurrentTarget;
 
     public ArmSubsystem() {
 

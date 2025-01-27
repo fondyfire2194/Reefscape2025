@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -22,7 +23,7 @@ public class CommandFactory {
 
         SwerveSubsystem m_swerve;
 
-        public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator) {
+        public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm) {
                 m_swerve = swerve;
         }
 
@@ -57,4 +58,60 @@ public class CommandFactory {
                 }
         }
 
+        public enum Setpoint {
+                kFeederStation,
+                kLevel1,
+                kLevel2,
+                kLevel3,
+                kLevel4;
+        }
+
+        public static final class ElevatorSetpoints {
+                public static final int kFeederStation = 0;
+                public static final int kLevel1 = 0;
+                public static final int kLevel2 = 0;
+                public static final int kLevel3 = 100;
+                public static final int kLevel4 = 150;
+        }
+
+        public static final class ArmSetpoints {
+                public static final double kFeederStation = 33;
+                public static final double kLevel1 = 0;
+                public static final double kLevel2 = 2;
+                public static final double kLevel3 = 2;
+                public static final double kLevel4 = 19;
+        }
+
+        /**
+         * Command to set the subsystem setpoint. This will set the arm and elevator to
+         * their predefined
+         * positions for the given setpoint.
+         */
+        public Command setSetpointCommand(Setpoint setpoint, ElevatorSubsystem elevator, ArmSubsystem arm) {
+                return Commands.runOnce(
+                                () -> {
+                                        switch (setpoint) {
+                                                case kFeederStation:
+                                                        arm.armCurrentTarget = ArmSetpoints.kFeederStation;
+                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kFeederStation;
+                                                        break;
+                                                case kLevel1:
+                                                        arm.armCurrentTarget = ArmSetpoints.kLevel1;
+                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel1;
+                                                        break;
+                                                case kLevel2:
+                                                        arm.armCurrentTarget = ArmSetpoints.kLevel2;
+                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel2;
+                                                        break;
+                                                case kLevel3:
+                                                        arm.armCurrentTarget = ArmSetpoints.kLevel3;
+                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel3;
+                                                        break;
+                                                case kLevel4:
+                                                        arm.armCurrentTarget = ArmSetpoints.kLevel4;
+                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel4;
+                                                        break;
+                                        }
+                                });
+        }
 }

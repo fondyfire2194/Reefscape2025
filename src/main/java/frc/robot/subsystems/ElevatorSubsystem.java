@@ -64,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public boolean atLowerLimit;
 
-  double elevatorCurrentTarget;
+  public double elevatorCurrentTarget;
 
   /**
    * Subsystem constructor.
