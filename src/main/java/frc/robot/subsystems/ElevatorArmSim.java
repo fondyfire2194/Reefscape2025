@@ -60,7 +60,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
         m_elevatorGearbox,
         m_elevator.kElevatorGearing,
         SimulationRobotConstants.kCarriageMass,
-        SimulationRobotConstants.kElevatorDrumRadius,
+        m_elevator.kElevatorDrumRadius,
         m_elevator.minElevatorHeightMeters,
         m_elevator.maxElevatorHeightMeters,
         true,

@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.swervedrive.auto.FindCurrentReefZoneBlue;
-import frc.robot.commands.swervedrive.auto.FindCurrentReefZoneRed;
+import frc.robot.commands.auto.FindCurrentReefZoneBlue;
+import frc.robot.commands.auto.FindCurrentReefZoneRed;
 import monologue.Logged;
 import monologue.Monologue;
 import monologue.Annotations.Log;
@@ -162,9 +162,9 @@ public class Robot extends TimedRobot implements Logged {
     m_robotContainer.drivebase.inhibitVision = false;
 
     if (m_robotContainer.drivebase.isRedAlliance())
-      new FindCurrentReefZoneRed(m_robotContainer.drivebase).schedule();
+      new frc.robot.commands.auto.FindCurrentReefZoneRed(m_robotContainer.drivebase, m_robotContainer.ls).schedule();
     if (m_robotContainer.drivebase.isBlueAlliance())
-      new FindCurrentReefZoneBlue(m_robotContainer.drivebase).schedule();
+      new frc.robot.commands.auto.FindCurrentReefZoneBlue(m_robotContainer.drivebase, m_robotContainer.ls).schedule();
 
   }
 

@@ -28,14 +28,15 @@ import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.DriveToNearestReefZone;
-import frc.robot.commands.swervedrive.auto.DriveToAlgaeProcessor;
-import frc.robot.commands.swervedrive.auto.DriveToNearestCoralStation;
+import frc.robot.commands.auto.DriveToAlgaeProcessor;
+import frc.robot.commands.auto.DriveToNearestCoralStation;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.LedStrip;
 import monologue.Logged;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -56,6 +57,8 @@ public class RobotContainer implements Logged {
 
         ElevatorArmSim elasim;
 
+        LedStrip ls=new LedStrip();
+        
         SendableChooser<Command> autoChooser;
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -161,10 +164,8 @@ public class RobotContainer implements Logged {
 
                 if (RobotBase.isSimulation())
                         elevator.setDefaultCommand(new PositionHoldElevator(elevator));
-                        if (RobotBase.isSimulation())
+                if (RobotBase.isSimulation())
                         arm.setDefaultCommand(new PositionHoldArm(arm));
-
-               
 
                 // Configure the trigger bindings
                 configureBindings();
@@ -272,9 +273,7 @@ public class RobotContainer implements Logged {
                 coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setTargetInches(30)));
 
                 coDriverXbox.x().onTrue(arm.setTargetCommand(45));
-                coDriverXbox.b ().onTrue(arm.setTargetCommand(0));
-
-                
+                coDriverXbox.b().onTrue(arm.setTargetCommand(0));
 
         }
 

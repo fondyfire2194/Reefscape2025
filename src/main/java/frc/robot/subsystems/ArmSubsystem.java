@@ -83,7 +83,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     private AngularVelocity maxrevpermin = RPM.of(5700);
 
-    public double gearReduction = 60;
+    public double gearReduction = 40;
     public double armLength = Units.inchesToMeters(40);
     public double armMass = 4.3;
     double radperencderrev = 2 * Math.PI / gearReduction;

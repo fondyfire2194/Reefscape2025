@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.LedStrip;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class FindCurrentReefZoneBlue extends Command {
@@ -25,9 +26,10 @@ public class FindCurrentReefZoneBlue extends Command {
   double minusYBorder;
   boolean zoneFound;
   int tst;
-
-  public FindCurrentReefZoneBlue(SwerveSubsystem swerve) {
+LedStrip m_ledStrip;
+  public FindCurrentReefZoneBlue(SwerveSubsystem swerve,LedStrip ledStrip ) {
     m_swerve = swerve;
+    m_ledStrip = ledStrip;
 
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -44,6 +46,7 @@ public class FindCurrentReefZoneBlue extends Command {
   @Override
   public void execute() {
     zoneFound = false;
+    m_swerve.reefZone = 0;
     m_swerve.reefZoneTag = 0;
     robotPose = m_swerve.getPose();
     robotX = robotPose.getX();
@@ -53,29 +56,35 @@ public class FindCurrentReefZoneBlue extends Command {
     if (checkABZone()) {
       m_swerve.reefZoneTag = 18;
       zoneFound = true;
+      m_swerve.reefZone=1;
     }
-    if (!zoneFound && checkGHZone()) {
+    if (!zoneFound && robotX < FieldConstants.FIELD_LENGTH / 2 && checkGHZone()) {
       m_swerve.reefZoneTag = 21;
       zoneFound = true;
+      m_swerve.reefZone=4;
     }
 
     if (!zoneFound && checkCDZone()) {
       m_swerve.reefZoneTag = 17;
       zoneFound = true;
+      m_swerve.reefZone=6;
     }
 
     if (!zoneFound && checkEFZone()) {
       m_swerve.reefZoneTag = 22;
       zoneFound = true;
+      m_swerve.reefZone=5;
     }
     if (!zoneFound && checkIJZone()) {
       m_swerve.reefZoneTag = 20;
       zoneFound = true;
+      m_swerve.reefZone=3;
     }
 
     if (!zoneFound && checkKLZone()) {
       m_swerve.reefZoneTag = 19;
       zoneFound = true;
+      m_swerve.reefZone=2;
     }
 
     m_swerve.plusBorderPose = new Pose2d(robotX, plusYBorder, new Rotation2d());
@@ -84,6 +93,8 @@ public class FindCurrentReefZoneBlue extends Command {
     m_swerve.lockPoseChange = true;
     m_swerve.reefTargetPose = m_swerve.getTagPose(m_swerve.reefZoneTag).toPose2d();
     m_swerve.lockPoseChange = false;
+
+    m_ledStrip.setViewOneColor(m_swerve.reefZone);
   }
 
   boolean checkABZone() {
@@ -123,11 +134,11 @@ public class FindCurrentReefZoneBlue extends Command {
   }
 
   boolean checkEFZone() {
-    return robotX > FieldConstants.blueReefMidFromCenterFieldX && robotY < FieldConstants.FIELD_WIDTH / 2;
+    return robotX < FieldConstants.FIELD_LENGTH / 2 && robotX > FieldConstants.blueReefMidFromCenterFieldX && robotY < FieldConstants.FIELD_WIDTH / 2;
   }
 
   boolean checkIJZone() {
-    return robotX > FieldConstants.blueReefMidFromCenterFieldX && robotY > FieldConstants.FIELD_WIDTH / 2;
+    return robotX < FieldConstants.FIELD_LENGTH / 2 && robotX > FieldConstants.blueReefMidFromCenterFieldX && robotY > FieldConstants.FIELD_WIDTH / 2;
   }
 
   boolean checkKLZone() {

@@ -24,7 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private double maxMotorRPM = 5700;
 
-  public final double kElevatorGearing = 50.0;
+  public final double kElevatorGearing = (62 / 9) * (22 / 16);// 9.4722222
 
   // assume 10:1 gearing 50 tooth pulley 2mm pitch 1 rev pulley =100mm = 1 rev
   // motor
@@ -39,6 +39,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public final double elevatorKd = 0;
 
   public final double kCarriageMass = Units.lbsToKilograms(1); // kg
+
+  public final double kElevatorDrumRadius = Units.inchesToMeters(1.757 / 2);
 
   // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
   public final double minElevatorHeightMeters = 0.25;
@@ -100,7 +102,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         // Set MAXMotion parameters for position control
         .maxVelocity(4200)
         .maxAcceleration(6000)
-        .allowedClosedLoopError(0.5);      
+        .allowedClosedLoopError(0.5);
 
     rightConfig.encoder
         .positionConversionFactor(positionConversionFactor)
