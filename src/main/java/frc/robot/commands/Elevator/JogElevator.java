@@ -5,6 +5,7 @@
 package frc.robot.commands.Elevator;
 
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -35,30 +36,31 @@ public class JogElevator extends Command {
         if (Math.abs(stickValue) < deadband)
             stickValue = 0;
 
-        double leftPower = stickValue / 2;
-        double rightPower = stickValue / 2;
+        double leftPower = stickValue ;
+        double rightPower = stickValue;
 
         boolean overrideLimits = gamepad.start().getAsBoolean();
 
         if (overrideLimits ||
-                (leftPower > 0 && !elevator.atUpperLimit || rightPower > 0 && !elevator.atUpperLimit
-                        || leftPower < 0 && !elevator.atLowerLimit || rightPower < 0 && !elevator.atLowerLimit)) {
-            elevator.m_leftMotor.setVoltage(leftPower * RobotController.getBatteryVoltage());
-            elevator.m_rightMotor.setVoltage(leftPower * RobotController.getBatteryVoltage());
+                (leftPower > 0 && !elevator.atUpperLimit || rightPower > 0 && !elevator.atUpperLimit)
+                || leftPower < 0 && !elevator.atLowerLimit || rightPower < 0 && !elevator.atLowerLimit) {
+            elevator.leftMotor.set(leftPower);
+    
 
         } else {
-            elevator.m_leftMotor.setVoltage(0);
-            elevator.m_rightMotor.setVoltage(0);
+            elevator.leftMotor.set(0);
+            elevator.rightMotor.set(0);
         }
-
-        elevator.setTargetMeters(elevator.getLeftPositionMeters());
+        SmartDashboard.putNumber("Elevator/jogttes", leftPower);
+        SmartDashboard.putNumber("Elevator/APPO", elevator.leftMotor.getAppliedOutput());
+        elevator.setGoalMeters(elevator.getLeftPositionMeters());
     }
 
     @Override
     public void end(boolean interrupted) {
-        elevator.setTargetMeters(elevator.getLeftPositionMeters());
-        elevator.m_leftMotor.setVoltage(0);
-        elevator.m_rightMotor.setVoltage(0);
+        elevator.setGoalMeters(elevator.leftMotor.getEncoder().getPosition());
+        elevator.leftMotor.setVoltage(0);
+        elevator.rightMotor.setVoltage(0);
         // gamepad.rumble(250);
     }
 

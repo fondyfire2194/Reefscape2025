@@ -238,7 +238,7 @@ public class RobotContainer implements Logged {
                                         drivebase.driveToPose(
                                                         new Pose2d(new Translation2d(6, 3.8),
                                                                         Rotation2d.fromDegrees(180))));
-                        driverXbox.y().onTrue(Commands.runOnce(() -> elevator.setTargetInches(50)));
+                        driverXbox.y().onTrue(Commands.none());
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
@@ -269,11 +269,13 @@ public class RobotContainer implements Logged {
 
                 coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));
                 coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
-                coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setTargetInches(50)));
-                coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setTargetInches(30)));
+                coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setGoalInches(67)));
+                coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setGoalInches(10)));
 
-                coDriverXbox.x().onTrue(arm.setTargetCommand(45));
-                coDriverXbox.b().onTrue(arm.setTargetCommand(0));
+                coDriverXbox.povDownLeft().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(50)));
+                coDriverXbox.povDownRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
+                coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-50)));
+                coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(25)));
 
         }
 

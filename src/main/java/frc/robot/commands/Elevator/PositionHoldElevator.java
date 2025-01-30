@@ -18,7 +18,7 @@ public class PositionHoldElevator extends Command {
   public void initialize() {
       elevator.posrng = 911;
       double temp = elevator.getLeftPositionMeters();
-      elevator.setTargetMeters(temp);
+      elevator.setGoalMeters(temp);
   }
 
   @Override

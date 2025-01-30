@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ArmSubsystem;
@@ -28,58 +27,35 @@ public class JogArm extends Command {
   @Override
   public void initialize() {
 
-    m_arm.enableArm = false;
-    m_arm.enableArm = false;
 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    boolean allowDown = true;
-    boolean allowUp = true;
-    if (RobotBase.isReal()) {
-      allowUp = m_arm.getAngle().gt(m_arm.minAngle)
-          || m_controller.getHID().getBackButton();
-
-      allowDown = m_arm.getAngle().lt(m_arm.maxAngle)
-          || m_controller.getHID().getBackButton();
-    }
-
-    else {
-      allowUp = m_arm.armMotor.getEncoder().getPosition()
-         < (m_arm.maxAngle.in(Radians))
-          || m_controller.getHID().getBackButton();
-
-      allowDown = m_arm.armMotor.getEncoder().getPosition()
-       > (m_arm.minAngle.in(Radians))
-          || m_controller.getHID().getBackButton();
-
-    }
-
-    double yval = -m_controller.getLeftY() / 2;
-
-    SmartDashboard.putNumber("Arm/VoltsJog", m_arm.appliedVolts);
-  
    
-    if (yval > 0 && allowUp || yval < 0 && allowDown) {
 
-      m_arm.appliedVolts = yval * RobotController.getBatteryVoltage();
+    double yval = -m_controller.getLeftY() / 5;
 
-      m_arm.armMotor.setVoltage(m_arm.appliedVolts);
+   
+    if (yval > 0 && !m_arm.atUpperLimit || yval < 0 && !m_arm.atLowerLimit) {
+
+      double appliedVolts = yval * RobotController.getBatteryVoltage();
+
+      m_arm.armMotor.setVoltage(appliedVolts);
 
     } else {
       m_arm.armMotor.setVoltage(0);
     }
 
-    m_arm.setTarget(m_arm.getAngle());
+ 
+    m_arm.setGoalRadians(m_arm.getAngle().in(Radians));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
 
-    m_arm.enableArm = true;
   }
 
   // Returns true when the command should end.
