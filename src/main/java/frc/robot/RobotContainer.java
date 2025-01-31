@@ -57,8 +57,8 @@ public class RobotContainer implements Logged {
 
         ElevatorArmSim elasim;
 
-        LedStrip ls=new LedStrip();
-        
+        LedStrip ls = new LedStrip();
+
         SendableChooser<Command> autoChooser;
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -272,9 +272,9 @@ public class RobotContainer implements Logged {
                 coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setGoalInches(67)));
                 coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setGoalInches(10)));
 
-                coDriverXbox.povDownLeft().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(50)));
-                coDriverXbox.povDownRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
-                coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-50)));
+                coDriverXbox.povLeft().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(50)));
+                coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
+                coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(100)));
                 coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(25)));
 
         }

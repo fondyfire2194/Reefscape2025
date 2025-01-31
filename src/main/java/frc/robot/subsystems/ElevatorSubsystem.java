@@ -89,7 +89,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public boolean atLowerLimit;
 
-  public double elevatorCurrentTarget;
+  
 
 
   /**
@@ -254,12 +254,5 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   }
 
-  public void setTarget(double inches) {
-
-    elevatorCurrentTarget = inches;
-    if (RobotBase.isSimulation())
-      elevatorCurrentTarget = Units.inchesToMeters(inches);
-    SmartDashboard.putNumber("Elevator/current target", elevatorCurrentTarget);
-  }
 
 }

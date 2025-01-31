@@ -92,24 +92,24 @@ public class CommandFactory {
                                 () -> {
                                         switch (setpoint) {
                                                 case kFeederStation:
-                                                      //  arm.armCurrentTarget = ArmSetpoints.kFeederStation;
-                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kFeederStation;
+                                                        arm.setGoalDegrees(ArmSetpoints.kFeederStation);
+                                                        elevator.setGoalInches(ElevatorSetpoints.kFeederStation);
                                                         break;
                                                 case kLevel1:
-                                                       // arm.armCurrentTarget = ArmSetpoints.kLevel1;
-                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel1;
+                                                        arm.setGoalDegrees(ArmSetpoints.kLevel1);
+                                                        elevator.setGoalInches(ElevatorSetpoints.kLevel1);
                                                         break;
                                                 case kLevel2:
-                                                      //  arm.armCurrentTarget = ArmSetpoints.kLevel2;
-                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel2;
+                                                arm.setGoalDegrees(ArmSetpoints.kLevel2);
+                                                elevator.setGoalInches(ElevatorSetpoints.kLevel2);
                                                         break;
                                                 case kLevel3:
-                                                       // arm.armCurrentTarget = ArmSetpoints.kLevel3;
-                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel3;
+                                                arm.setGoalDegrees( ArmSetpoints.kLevel3);
+                                                elevator.setGoalInches( ElevatorSetpoints.kLevel3);
                                                         break;
                                                 case kLevel4:
-                                                       // arm.armCurrentTarget = ArmSetpoints.kLevel4;
-                                                        elevator.elevatorCurrentTarget = ElevatorSetpoints.kLevel4;
+                                                arm.setGoalDegrees(ArmSetpoints.kLevel4);
+                                                elevator.setGoalInches( ElevatorSetpoints.kLevel4);
                                                         break;
                                         }
                                 });

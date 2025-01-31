@@ -47,12 +47,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     public boolean presetOnce;
 
-    public final Angle minAngle = Degrees.of(-40); // -50.1 deg from horiz
-    public final Angle maxAngle = Degrees.of(80); // 40.9 deg from horiz
+    public final Angle minAngle = Degrees.of(0); // -50.1 deg from horiz
+    public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
 
     public double gearReduction = 40;
     public double armLength = Units.inchesToMeters(20);
-    public double armMass = 4.3;
+    public double armMass = Units.lbsToKilograms(4.3);
     double radperencderrev = 2 * Math.PI / gearReduction;
 
     double posConvFactor = radperencderrev;
@@ -70,14 +70,14 @@ public class ArmSubsystem extends SubsystemBase {
     public final double armKv = 10 / maxradpersec;
     public final double armKa = 0;
 
-    public final double armKp = 0.1;
+    public final double armKp = 0.9;
     public final double armKi = 0.;
     public final double armKd = 0;
 
-    public final Angle armStartupOffset = minAngle;
+    public final Angle armStartupOffset =Radians.of(0);
 
-    double TRAJECTORY_VEL = .8;
-    double TRAJECTORY_ACCEL = 2;
+    double TRAJECTORY_VEL = 2;
+    double TRAJECTORY_ACCEL = 3;
 
     private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -92,6 +92,9 @@ public class ArmSubsystem extends SubsystemBase {
     public ArmSubsystem() {
 
         SmartDashboard.putNumber("Arm/maxdegpersec", maxdegrespersec);
+        SmartDashboard.putNumber("Arm/poscf", posConvFactor);
+        SmartDashboard.putNumber("Arm/maxradpersec", maxradpersec);
+     
 
         armConfig = new SparkMaxConfig();
 
@@ -109,11 +112,18 @@ public class ArmSubsystem extends SubsystemBase {
                 .p(armKp)
                 .outputRange(-1, 1).maxMotion
                 // Set MAXMotion parameters for position control
-                .maxVelocity(20)
-                .maxAcceleration(100)
+                .maxVelocity(10)
+                .maxAcceleration(10)
                 .allowedClosedLoopError(0.25);
 
         armConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+
+        armConfig
+        .softLimit.forwardSoftLimit(2.5)
+        .reverseSoftLimit(0)
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimitEnabled(false);
+
 
         armConfig.signals.primaryEncoderPositionPeriodMs(5);
 
@@ -158,6 +168,9 @@ public class ArmSubsystem extends SubsystemBase {
             inPositionCtr++;
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
+
+        SmartDashboard.putNumber("Arm/setpos", nextSetpoint.position);
+        SmartDashboard.putNumber("Arm/setvel", nextSetpoint.velocity);
 
         double leftff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
 
@@ -210,7 +223,7 @@ public class ArmSubsystem extends SubsystemBase {
         // m_angle.mut_replace(offsetAngle, Radians); // NOTE: the encoder must be
         // configured with distancePerPulse in //
         // // terms // // of radians
-        return offsetAngle.plus(Radians.of(rawAngle));
+        return Radians.of(rawAngle);
     }
 
     public double getRadsPerSec() {

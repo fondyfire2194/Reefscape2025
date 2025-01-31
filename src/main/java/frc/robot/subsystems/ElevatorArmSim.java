@@ -183,7 +183,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
   /** Stop the control loop and motor output. */
   public void stop() {
-    m_elevator.elevatorCurrentTarget = m_elevator.leftMotor.getEncoder().getPosition();
+   // m_elevator.elevatorCurrentTarget = m_elevator.leftMotor.getEncoder().getPosition();
     m_elevator.leftMotor.setVoltage(0.0);
   }
 
