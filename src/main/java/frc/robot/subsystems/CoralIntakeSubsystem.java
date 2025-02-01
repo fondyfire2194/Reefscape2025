@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Factories.CommandFactory.CoralSetpoints;
 
 public class CoralIntakeSubsystem extends SubsystemBase {
 
@@ -30,23 +31,21 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   public SparkClosedLoopController coralintakeController;
   SparkMaxConfig coralintakeConfig;
 
-  public SparkLimitSwitch m_coralDetectSwitch;
+  public SparkLimitSwitch coralDetectSwitch;
 
-  public boolean coralintakeMotorConnected;
+  public double targetRPM;
 
   public final double coralintakeKp = .00002; // P gains caused oscilliation
   public final double coralintakeKi = 0.0;
   public final double coralintakeKd = 0.00;
   public final double coralintakeKFF = .95 / 11000;
 
-  private AngularVelocity coralIntakeSpeed = RPM.of(500);
-
   /** Creates a new coralintake. */
   public CoralIntakeSubsystem() {
 
     coralintakeMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
     coralintakeController = coralintakeMotor.getClosedLoopController();
-    m_coralDetectSwitch = coralintakeMotor.getForwardLimitSwitch();
+    coralDetectSwitch = coralintakeMotor.getForwardLimitSwitch();
     coralintakeConfig = new SparkMaxConfig();
 
     coralintakeConfig
@@ -79,9 +78,16 @@ public class CoralIntakeSubsystem extends SubsystemBase {
     return Commands.runOnce(() -> stopMotor(), this);
   }
 
-  public void coralintakeToSwitch() {
+  public void coralintakeToSwitch(double RPM) {
     enableLimitSwitch(false);
-    runAtVelocity(coralIntakeSpeed.in(RPM));
+    runAtVelocity(RPM);
+  }
+
+  public Command coralintakeToSwitchCommand() {
+    return Commands.run(() -> coralintakeToSwitch(CoralSetpoints.kFeederStation))
+        .until(() -> coralAtIntake())
+        .andThen(stopCoralIntakeCommand());
+
   }
 
   public void runAtVelocity(double rpm) {
@@ -89,8 +95,16 @@ public class CoralIntakeSubsystem extends SubsystemBase {
       coralintakeController.setReference(rpm, ControlType.kVelocity);
   }
 
+  public Command runAtVelocityCommand() {
+    return Commands.runOnce(() -> runAtVelocity(targetRPM));
+  }
+
+  public Command setTargetRPM(double rpm) {
+    return Commands.runOnce(() -> targetRPM = rpm);
+  }
+
   public boolean coralAtIntake() {
-    return m_coralDetectSwitch.isPressed();
+    return coralDetectSwitch.isPressed();
   }
 
   @Override

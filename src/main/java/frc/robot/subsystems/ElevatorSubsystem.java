@@ -46,6 +46,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public double positionConversionFactor = metersPerMotorRev;
   public double velocityConversionFactor = positionConversionFactor / 60;
 
+  public double elevatorToGround = 6;
+
   public double maxVelocityMPS = meterspersecondsprocket;
 
   public final double elevatorKp = .95;
@@ -186,13 +188,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   }
 
-  public void setGoalMeters(double targetMeters) {
-    m_goal.position = targetMeters;
+   public void setGoalMeters(double targetMeters) {
+    m_goal.position = targetMeters-Units.inchesToMeters(elevatorToGround);
   }
 
   public void setGoalInches(double targetInches) {
     double targetMeters = Units.inchesToMeters(targetInches);
-    m_goal.position = targetMeters;
+    m_goal.position = targetMeters - elevatorToGround;
     currentSetpoint.position=leftEncoder.getPosition();
     // inPositionCtr = 0;
   }

@@ -47,7 +47,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public boolean presetOnce;
 
-    public final Angle minAngle = Degrees.of(0); // -50.1 deg from horiz
+    public final Angle minAngle = Degrees.of(0); // pointing down
     public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
 
     public double gearReduction = 40;
@@ -201,6 +201,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     }
 
+    public Command setGoalDegreesCommand(double targetDegrees) {
+        return Commands.runOnce(() -> setGoalDegrees(targetDegrees));
+
+    }
+
     public double getMotorEncoderAngleRadians() {
         return armMotor.getEncoder().getPosition();
     }
@@ -219,10 +224,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Angle getAngle() {
         double rawAngle = armMotor.getEncoder().getPosition();
-        Angle offsetAngle = armStartupOffset;
-        // m_angle.mut_replace(offsetAngle, Radians); // NOTE: the encoder must be
-        // configured with distancePerPulse in //
-        // // terms // // of radians
         return Radians.of(rawAngle);
     }
 

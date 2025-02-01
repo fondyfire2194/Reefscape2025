@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.CoralIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -22,9 +24,19 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class CommandFactory {
 
         SwerveSubsystem m_swerve;
+        ElevatorSubsystem m_elevator;
+        ArmSubsystem m_arm;
+        CoralIntakeSubsystem m_coral;
+        AlgaeIntakeSubsystem m_algae;
 
-        public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm) {
+        public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
+                        CoralIntakeSubsystem coral, AlgaeIntakeSubsystem algae) {
                 m_swerve = swerve;
+                m_algae = algae;
+                m_arm = arm;
+                m_elevator = elevator;
+                m_coral = coral;
+
         }
 
         public Command rumble(CommandXboxController controller, RumbleType type, double timeout) {
@@ -67,49 +79,70 @@ public class CommandFactory {
         }
 
         public static final class ElevatorSetpoints {
-                public static final int kFeederStation = 0;
-                public static final int kLevel1 = 0;
-                public static final int kLevel2 = 0;
-                public static final int kLevel3 = 100;
-                public static final int kLevel4 = 150;
+                public static final int kFeederStation = 5;
+                public static final int kLevel1 = 5;
+                public static final int kLevel2 = 10;
+                public static final int kLevel3 = 20;
+                public static final int kLevel4 = 40;
+        
         }
 
         public static final class ArmSetpoints {
-                public static final double kFeederStation = 33;
-                public static final double kLevel1 = 0;
-                public static final double kLevel2 = 2;
-                public static final double kLevel3 = 2;
-                public static final double kLevel4 = 19;
+                public static final double kFeederStation = 5;
+                public static final double kLevel1 = 80;
+                public static final double kLevel2 = 80;
+                public static final double kLevel3 = 80;
+                public static final double kLevel4 = 90;
         }
+
+        public static final class CoralSetpoints{
+                public static final double kFeederStation = 1100;
+                public static final double kReefPlaceL123 = -1100;
+                public static final double kReefPlaceL4 = -2000;
+                public static final double kStop = 0;
+        }
+
+        public static final class AlgaeSetpoints{
+                public static final double kReefPickUpL123 = -1100;
+                public static final double kDiliver = 2000;
+                public static final double kStop = 0;
+        }
+
 
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
          * positions for the given setpoint.
          */
-        public Command setSetpointCommand(Setpoint setpoint, ElevatorSubsystem elevator, ArmSubsystem arm) {
+        public Command setSetpointCommand(Setpoint setpoint) {
                 return Commands.runOnce(
                                 () -> {
                                         switch (setpoint) {
                                                 case kFeederStation:
-                                                        arm.setGoalDegrees(ArmSetpoints.kFeederStation);
-                                                        elevator.setGoalInches(ElevatorSetpoints.kFeederStation);
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kFeederStation);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kFeederStation);
+                                                        
+
                                                         break;
                                                 case kLevel1:
-                                                        arm.setGoalDegrees(ArmSetpoints.kLevel1);
-                                                        elevator.setGoalInches(ElevatorSetpoints.kLevel1);
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel1);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel1);
+                                                       
                                                         break;
                                                 case kLevel2:
-                                                arm.setGoalDegrees(ArmSetpoints.kLevel2);
-                                                elevator.setGoalInches(ElevatorSetpoints.kLevel2);
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel2);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel2);
+                                                        
                                                         break;
                                                 case kLevel3:
-                                                arm.setGoalDegrees( ArmSetpoints.kLevel3);
-                                                elevator.setGoalInches( ElevatorSetpoints.kLevel3);
+                                                m_arm.setGoalDegrees(ArmSetpoints.kLevel3);
+                                                m_elevator.setGoalInches(ElevatorSetpoints.kLevel3);
+                                               
                                                         break;
                                                 case kLevel4:
-                                                arm.setGoalDegrees(ArmSetpoints.kLevel4);
-                                                elevator.setGoalInches( ElevatorSetpoints.kLevel4);
+                                                m_arm.setGoalDegrees(ArmSetpoints.kLevel4);
+                                                m_elevator.setGoalInches(ElevatorSetpoints.kLevel4);
+                                                
                                                         break;
                                         }
                                 });

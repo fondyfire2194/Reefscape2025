@@ -92,13 +92,9 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
         new MechanismLigament2d(
             "Arm",
             SimulationRobotConstants.kArmLength * SimulationRobotConstants.kPixelsPerMeter,
-            0 - arm.minAngle.in(Degrees)));
+            180 ));
 
-    m_armLig2d_1 = m_elevatorLig2d.append(
-        new MechanismLigament2d(
-            "Arm1",
-            SimulationRobotConstants.kArmLength * 2 / 3 * SimulationRobotConstants.kPixelsPerMeter,
-            0 - arm.minAngle.in(Degrees)));
+
 
     elevator.resetPosition(0);
     arm.resetEncoder(0);
@@ -114,23 +110,17 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
                 * m_elevator.leftMotor.getEncoder().getPosition());
 
     m_armLig2d.setAngle(
-        180
+        130
             - ( // mirror the angles so they display in the correct direction
             Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
                 +
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
-            - 90 // subtract 90 degrees to account for the elevator
+            // subtract 90 degrees to account for the elevator
     );
 
-    m_armLig2d_1.setAngle(
-        180
-            - ( // mirror the angles so they display in the correct direction
-            Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
-                + Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
-            + 90 // subtract 90 degrees to account for the elevator
-    );
+ 
 
-    SmartDashboard.putNumber("Arm/SimAngle", -m_armLig2d.getAngle() + 90);
+    SmartDashboard.putNumber("Arm/SimAngle", m_armLig2d.getAngle());
     SmartDashboard.putBoolean("Arm/SimUpperLim", m_armSim.hasHitUpperLimit());
     SmartDashboard.putBoolean("Arm/SimLowerLim", m_armSim.hasHitLowerLimit());
     SmartDashboard.putNumber("Arm/SimAmps", m_armSim.getCurrentDrawAmps());

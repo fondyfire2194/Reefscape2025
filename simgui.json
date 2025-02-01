@@ -162,7 +162,7 @@
         }
       },
       "SmartDashboard": {
-        "Elevator": {
+        "Arm": {
           "open": true
         },
         "Encoders": {
