@@ -46,7 +46,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public double positionConversionFactor = metersPerMotorRev;
   public double velocityConversionFactor = positionConversionFactor / 60;
 
-  public double elevatorToGround = 6;
+  public double elevatorToGroundInches = Units.inchesToMeters(6);
 
   public double maxVelocityMPS = meterspersecondsprocket;
 
@@ -56,10 +56,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public final double elevatorKs = .06;
   public final double elevatorKg = 1.1;
-  public final double elevatorKv = 10;
+  public final double elevatorKv = 8;
   public final double elevatorKa = 0.08;
 
-  public final double kCarriageMass = Units.lbsToKilograms(10); // kg
+  public final double kCarriageMass = Units.lbsToKilograms(1); // kg
 
   public final Distance minElevatorHeight = Inches.of(5);
   public final Distance maxElevatorHeight = Inches.of(70);//
@@ -71,9 +71,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public final SparkMax rightMotor = new SparkMax(CANIDConstants.rightElevatorID, MotorType.kBrushless);
   public final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
-
-  double TRAJECTORY_VEL=.8;
-  double TRAJECTORY_ACCEL=2;
+  double TRAJECTORY_VEL = .8;
+  double TRAJECTORY_ACCEL = 2;
 
   private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -90,9 +89,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean atUpperLimit;
 
   public boolean atLowerLimit;
-
-  
-
 
   /**
    * Subsystem constructor.
@@ -148,7 +144,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         .outputRange(-1, 1);
 
-    rightConfig.encoder
+    rightConfig
+
+        .encoder
 
         .positionConversionFactor(positionConversionFactor)
 
@@ -188,22 +186,24 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   }
 
-   public void setGoalMeters(double targetMeters) {
-    m_goal.position = targetMeters-Units.inchesToMeters(elevatorToGround);
+  public double getGoalInches() {
+    return m_goal.position;
+  }
+
+  public void setGoalMeters(double targetMeters) {
+    m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
   }
 
   public void setGoalInches(double targetInches) {
     double targetMeters = Units.inchesToMeters(targetInches);
-    m_goal.position = targetMeters - elevatorToGround;
-    currentSetpoint.position=leftEncoder.getPosition();
+    m_goal.position = targetMeters - elevatorToGroundInches;
+    SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
+    currentSetpoint.position = leftEncoder.getPosition();
     // inPositionCtr = 0;
   }
 
   public double getLeftPositionMeters() {
-    if (RobotBase.isReal()) {
-      return leftEncoder.getPosition();
-    } else
-      return leftEncoder.getPosition();// + minElevatorHeight.in(Meters);
+    return leftEncoder.getPosition();
   }
 
   public double getLeftPositionInches() {
@@ -225,7 +225,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     leftClosedLoopController.setReference(
         nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
-    
 
     SmartDashboard.putNumber("ElTrp/setpos", nextSetpoint.position);
 
@@ -254,7 +253,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/posgoal", m_goal.position);
     SmartDashboard.putNumber("Elevator/poserror", m_goal.position - getLeftPositionMeters());
 
-  }
+    SmartDashboard.putNumber("Elevator/kvcalc",
+        RobotController.getBatteryVoltage() / leftMotor.getEncoder().getVelocity());
 
+  }
 
 }

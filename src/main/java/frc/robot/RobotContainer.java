@@ -225,29 +225,8 @@ public class RobotContainer implements Logged {
                                         .onTrue(Commands.runOnce(() -> drivebase
                                                         .resetOdometry(new Pose2d(8, 4, new Rotation2d()))));
                 }
-                if (DriverStation.isTest()) {
-                        // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides
-                        // drive command above!
 
-                        driverXbox.b().onTrue(Commands.none());
-                        driverXbox.x().onTrue(Commands.none());
-                        driverXbox.y().onTrue(Commands.none());
-
-                        driverXbox.start().onTrue(Commands.none());
-
-                        driverXbox.back().onTrue(Commands.none());
-
-                        driverXbox.leftBumper().onTrue(Commands.none());
-
-                        driverXbox.rightBumper().onTrue(Commands.none());
-
-                        driverXbox.povUp().onTrue(Commands.none());
-                        driverXbox.povLeft().onTrue(Commands.none());
-
-                        driverXbox.povRight().onTrue(Commands.none());
-                        driverXbox.povDown().onTrue(Commands.none());
-
-                } else {
+                if (DriverStation.isTeleop()) {
                         driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
                         driverXbox.b().whileTrue(
@@ -288,17 +267,7 @@ public class RobotContainer implements Logged {
                                                         new Pose2d(7.372, 6.692, new Rotation2d(Math.PI)))));
 
                 }
-                if (DriverStation.isTest()) {
-                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));
-                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
-                        coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setGoalInches(67)));
-                        coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setGoalInches(10)));
-
-                        coDriverXbox.povLeft().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(50)));
-                        coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
-                        coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(100)));
-                        coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(25)));
-                } else {
+                if (DriverStation.isTeleop()) {
                         coDriverXbox.a().onTrue(
                                         new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel1),
                                                         coral.setTargetRPM(CoralSetpoints.kReefPlaceL123)));
@@ -310,6 +279,18 @@ public class RobotContainer implements Logged {
                         coDriverXbox.y().onTrue(new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel4),
                                         coral.setTargetRPM(CoralSetpoints.kReefPlaceL4)));
 
+                }
+
+                if (DriverStation.isTest()) {
+                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));
+                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
+                        coDriverXbox.y().onTrue(Commands.runOnce(() -> elevator.setGoalInches(67)));
+                        coDriverXbox.a().onTrue(Commands.runOnce(() -> elevator.setGoalInches(10)));
+
+                        coDriverXbox.povLeft().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(50)));
+                        coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
+                        coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(100)));
+                        coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(25)));
                 }
 
         }

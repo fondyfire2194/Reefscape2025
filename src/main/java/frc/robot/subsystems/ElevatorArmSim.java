@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SimulationRobotConstants;
@@ -72,7 +71,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
     m_elevatorLig2d = m_mech2dRoot.append(
         new MechanismLigament2d("Elevator",
-            (m_elevator.minElevatorHeight.in(Meters)),
+            (m_elevator.minElevatorHeight.in(Meters)* 100*SimulationRobotConstants.kPixelsPerMeter),
             90));
 
     m_armSim = new SingleJointedArmSim(
@@ -92,9 +91,13 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
         new MechanismLigament2d(
             "Arm",
             SimulationRobotConstants.kArmLength * SimulationRobotConstants.kPixelsPerMeter,
-            180 ));
+            0));
 
-
+    m_armLig2d_1 = m_elevatorLig2d.append(
+        new MechanismLigament2d(
+            "Arm1",
+            SimulationRobotConstants.kArmLength/5 * SimulationRobotConstants.kPixelsPerMeter,
+            0));
 
     elevator.resetPosition(0);
     arm.resetEncoder(0);
@@ -115,12 +118,21 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
             Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
                 +
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
-            // subtract 90 degrees to account for the elevator
+    // subtract 90 degrees to account for the elevator
     );
 
- 
+    m_armLig2d_1.setAngle(
+     - 50
+          - ( // mirror the angles so they display in the correct direction
+          Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
+              +
+              Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
+  // subtract 90 degrees to account for the elevator
+  );
 
     SmartDashboard.putNumber("Arm/SimAngle", m_armLig2d.getAngle());
+    SmartDashboard.putNumber("Arm/SimEncoder", m_armMotorSim.getPosition());
+
     SmartDashboard.putBoolean("Arm/SimUpperLim", m_armSim.hasHitUpperLimit());
     SmartDashboard.putBoolean("Arm/SimLowerLim", m_armSim.hasHitLowerLimit());
     SmartDashboard.putNumber("Arm/SimAmps", m_armSim.getCurrentDrawAmps());
@@ -152,7 +164,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     double vmps = m_elevatorSim.getVelocityMetersPerSecond();
 
     // if (m_elevatorMotorSim.getAppliedOutput() == 0)
-    //   vmps = 0;
+    // vmps = 0;
 
     // Iterate the elevator and arm SPARK simulations
     m_elevatorMotorSim.iterate(
@@ -173,7 +185,8 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
   /** Stop the control loop and motor output. */
   public void stop() {
-   // m_elevator.elevatorCurrentTarget = m_elevator.leftMotor.getEncoder().getPosition();
+    // m_elevator.elevatorCurrentTarget =
+    // m_elevator.leftMotor.getEncoder().getPosition();
     m_elevator.leftMotor.setVoltage(0.0);
   }
 

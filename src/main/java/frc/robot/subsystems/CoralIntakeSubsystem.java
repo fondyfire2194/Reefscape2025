@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -17,17 +15,20 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Factories.CommandFactory.CoralSetpoints;
 
 public class CoralIntakeSubsystem extends SubsystemBase {
 
-  public SparkMax coralintakeMotor;
+  public SparkMax coralIntakeMotor;
   public SparkClosedLoopController coralintakeController;
   SparkMaxConfig coralintakeConfig;
 
@@ -40,12 +41,20 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   public final double coralintakeKd = 0.00;
   public final double coralintakeKFF = .95 / 11000;
 
+  private double coralAtSwitchTime;
+
   /** Creates a new coralintake. */
   public CoralIntakeSubsystem() {
 
-    coralintakeMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
-    coralintakeController = coralintakeMotor.getClosedLoopController();
-    coralDetectSwitch = coralintakeMotor.getForwardLimitSwitch();
+    if (RobotBase.isReal())
+      coralAtSwitchTime = 3;
+    else
+      coralAtSwitchTime = 1;
+
+    coralIntakeMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
+
+    coralintakeController = coralIntakeMotor.getClosedLoopController();
+    coralDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
     coralintakeConfig = new SparkMaxConfig();
 
     coralintakeConfig
@@ -64,14 +73,13 @@ public class CoralIntakeSubsystem extends SubsystemBase {
 
     coralintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
 
-    coralintakeMotor.configure(coralintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    coralIntakeMotor.configure(coralintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
   public void stopMotor() {
     runAtVelocity(0);
-    coralintakeMotor.stopMotor();
-
+    coralIntakeMotor.stopMotor();
   }
 
   public Command stopCoralIntakeCommand() {
@@ -79,15 +87,15 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   }
 
   public void coralintakeToSwitch(double RPM) {
-    enableLimitSwitch(false);
+    enableLimitSwitch(true);
     runAtVelocity(RPM);
   }
 
   public Command coralintakeToSwitchCommand() {
     return Commands.run(() -> coralintakeToSwitch(CoralSetpoints.kFeederStation))
         .until(() -> coralAtIntake())
+        .withTimeout(coralAtSwitchTime)
         .andThen(stopCoralIntakeCommand());
-
   }
 
   public void runAtVelocity(double rpm) {
@@ -96,7 +104,9 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   }
 
   public Command runAtVelocityCommand() {
-    return Commands.runOnce(() -> runAtVelocity(targetRPM));
+    return new SequentialCommandGroup(
+        Commands.runOnce(() -> enableLimitSwitch(true)),
+        Commands.runOnce(() -> runAtVelocity(targetRPM)));
   }
 
   public Command setTargetRPM(double rpm) {
@@ -110,6 +120,7 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Coral/RPM", getRPM());
   }
 
   public void enableLimitSwitch(boolean enable) {
@@ -117,23 +128,26 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   }
 
   public boolean getLimitSwitchEnabled() {
-    return coralintakeMotor.configAccessor.limitSwitch.getForwardLimitSwitchEnabled();
+    return coralIntakeMotor.configAccessor.limitSwitch.getForwardLimitSwitchEnabled();
   }
 
   public double getAmps() {
-    return coralintakeMotor.getOutputCurrent();
+    return coralIntakeMotor.getOutputCurrent();
   }
 
   public double getRPM() {
-    return coralintakeMotor.getEncoder().getVelocity();
+    if (RobotBase.isReal())
+      return coralIntakeMotor.getEncoder().getVelocity();
+    else
+      return targetRPM;
   }
 
   public boolean getActiveFault() {
-    return coralintakeMotor.hasActiveFault();
+    return coralIntakeMotor.hasActiveFault();
   }
 
   public Command clearStickyFaultsCommand() {
-    return Commands.runOnce(() -> coralintakeMotor.clearFaults());
+    return Commands.runOnce(() -> coralIntakeMotor.clearFaults());
   }
 
   public static double round2dp(double number, int dp) {
@@ -143,11 +157,11 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   }
 
   public double getPosition() {
-    return coralintakeMotor.getEncoder().getPosition();
+    return coralIntakeMotor.getEncoder().getPosition();
   }
 
   public double getVelocity() {
-    return coralintakeMotor.getEncoder().getVelocity();
+    return coralIntakeMotor.getEncoder().getVelocity();
   }
 
   public boolean isStopped() {

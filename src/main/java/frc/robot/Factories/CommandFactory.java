@@ -79,11 +79,11 @@ public class CommandFactory {
         }
 
         public static final class ElevatorSetpoints {
-                public static final int kFeederStation = 5;
-                public static final int kLevel1 = 5;
-                public static final int kLevel2 = 10;
-                public static final int kLevel3 = 20;
-                public static final int kLevel4 = 40;
+                public static final int kFeederStation = 15;
+                public static final int kLevel1 = 25;
+                public static final int kLevel2 = 30;
+                public static final int kLevel3 = 40;
+                public static final int kLevel4 = 50;
         
         }
 
