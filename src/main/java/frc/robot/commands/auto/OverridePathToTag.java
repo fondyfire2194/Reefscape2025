@@ -4,7 +4,12 @@
 
 package frc.robot.commands.auto;
 
+import java.util.List;
+
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LimelightHelpers;
@@ -15,6 +20,7 @@ public class OverridePathToTag extends Command {
   private final SwerveSubsystem m_swerve;
   private String m_camName;
   private int m_tagNumber;
+  private PathPlannerPath m_path;
   double tagAngle;
   double correctionXLimit = 1;
   double kpx = 0;
@@ -24,11 +30,12 @@ public class OverridePathToTag extends Command {
 
   double kpr = 0;
 
-  public OverridePathToTag(SwerveSubsystem swerve, String camName, int tagNumber) {
+  public OverridePathToTag(SwerveSubsystem swerve, String camName, PathPlannerPath path,int tagNumber) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camName = camName;
     m_tagNumber = tagNumber;
+    m_path=path;
   }
 
   // Called when the command is initially scheduled.
@@ -41,6 +48,12 @@ public class OverridePathToTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+ List<Pose2d> l= m_path.getPathPoses();
+
+ 
+
+
     double tx = LimelightHelpers.getTX(m_camName);
     if (Math.abs(tx) > correctionXLimit) {
       PPHolonomicDriveController.overrideXFeedback(() -> tx * Math.cos(tagAngle) * kpx);

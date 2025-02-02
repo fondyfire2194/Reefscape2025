@@ -125,6 +125,11 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/PPAutoChooser": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
