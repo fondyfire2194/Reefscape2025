@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.Factories.CommandFactory.AlgaeSetpoints;
 import frc.robot.Factories.CommandFactory.CoralSetpoints;
 
 public class CoralIntakeSubsystem extends SubsystemBase {
@@ -41,7 +42,7 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   public final double coralintakeKd = 0.00;
   public final double coralintakeKFF = .95 / 11000;
 
-  private double coralAtSwitchTime;
+  private double coralAtSwitchTime = 3;
 
   /** Creates a new coralintake. */
   public CoralIntakeSubsystem() {
@@ -49,7 +50,7 @@ public class CoralIntakeSubsystem extends SubsystemBase {
     if (RobotBase.isReal())
       coralAtSwitchTime = 3;
     else
-      coralAtSwitchTime = 1;
+      coralAtSwitchTime = 5;
 
     coralIntakeMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
 
@@ -87,15 +88,27 @@ public class CoralIntakeSubsystem extends SubsystemBase {
   }
 
   public void coralintakeToSwitch(double RPM) {
-    enableLimitSwitch(true);
+    // enableLimitSwitch(true);
     runAtVelocity(RPM);
   }
 
+  public Command deliverCoralCommandL123() {
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(CoralSetpoints.kReefPlaceL123)),
+        Commands.runOnce(() -> targetRPM = CoralSetpoints.kReefPlaceL123));
+  }
+
+  public Command deliverCoralCommandL4() {
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(CoralSetpoints.kReefPlaceL4)),
+        Commands.runOnce(() -> targetRPM = CoralSetpoints.kReefPlaceL4));
+  }
+
   public Command coralintakeToSwitchCommand() {
-    return Commands.run(() -> coralintakeToSwitch(CoralSetpoints.kFeederStation))
-        .until(() -> coralAtIntake())
-        .withTimeout(coralAtSwitchTime)
-        .andThen(stopCoralIntakeCommand());
+    return Commands.parallel(
+        Commands.run(() -> coralintakeToSwitch(CoralSetpoints.kFeederStation))
+            // .until(() -> coralAtIntake())
+            .withTimeout(coralAtSwitchTime)
+            .andThen(stopCoralIntakeCommand()),
+        Commands.runOnce(() -> targetRPM = CoralSetpoints.kFeederStation));
   }
 
   public void runAtVelocity(double rpm) {

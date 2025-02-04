@@ -23,6 +23,8 @@ import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANIDConstants;
 import static edu.wpi.first.units.Units.*;
@@ -193,6 +195,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setGoalMeters(double targetMeters) {
     m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
   }
+  
 
   public void setGoalInches(double targetInches) {
     double targetMeters = Units.inchesToMeters(targetInches);
@@ -200,6 +203,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
     currentSetpoint.position = leftEncoder.getPosition();
     // inPositionCtr = 0;
+  }
+
+  public Command setGoalInchesCommand(double targetInches) {
+    return Commands.runOnce(()->setGoalInches(targetInches));
   }
 
   public double getLeftPositionMeters() {

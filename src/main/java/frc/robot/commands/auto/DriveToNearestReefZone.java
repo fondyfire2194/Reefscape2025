@@ -23,12 +23,19 @@ public class DriveToNearestReefZone extends Command {
   boolean exit;
   int tst;
   Side m_side;
-
+  boolean setSide;
   Translation2d tl2d;
 
   public DriveToNearestReefZone(SwerveSubsystem swerve, Side side) {
     m_swerve = swerve;
     m_side = side;
+    setSide = false;
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public DriveToNearestReefZone(SwerveSubsystem swerve) {
+    m_swerve = swerve;
+    setSide = true;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -37,7 +44,8 @@ public class DriveToNearestReefZone extends Command {
   public void initialize() {
     tst = 0;
     exit = false;
-
+    if (setSide)
+      m_side = m_swerve.side;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -72,6 +80,7 @@ public class DriveToNearestReefZone extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+
 
   }
 

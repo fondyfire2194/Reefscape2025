@@ -93,6 +93,7 @@ public class CommandFactory {
                 public static final double kLevel2 = 80;
                 public static final double kLevel3 = 80;
                 public static final double kLevel4 = 90;
+                public static final double kAlgae = 100;
         }
 
         public static final class CoralSetpoints{

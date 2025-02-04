@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.auto.FindCurrentReefZoneBlue;
-import frc.robot.commands.auto.FindCurrentReefZoneRed;
 import monologue.Logged;
 import monologue.Monologue;
 import monologue.Annotations.Log;
@@ -47,6 +45,8 @@ public class Robot extends TimedRobot implements Logged {
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
+   * 
+   * Radio SSID is Fondy2194
    */
   @Override
   public void robotInit() {
@@ -160,13 +160,7 @@ public class Robot extends TimedRobot implements Logged {
     m_robotContainer.drivebase.flUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.frUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.inhibitVision = false;
-
-    if (m_robotContainer.drivebase.isRedAlliance())
-      new frc.robot.commands.auto.FindCurrentReefZoneRed(m_robotContainer.drivebase, m_robotContainer.ls).schedule();
-    if (m_robotContainer.drivebase.isBlueAlliance())
-      new frc.robot.commands.auto.FindCurrentReefZoneBlue(m_robotContainer.drivebase, m_robotContainer.ls).schedule();
-
-  }
+  } 
 
   /**
    * This function is called periodically during operator control.

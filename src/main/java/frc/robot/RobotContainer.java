@@ -9,7 +9,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -19,12 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Factories.CommandFactory;
+import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.CoralSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
@@ -32,6 +31,9 @@ import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.DriveToNearestReefZone;
+import frc.robot.commands.auto.FindCurrentReefZone;
+import frc.robot.commands.auto.GetNearestReefZonePose;
+import frc.robot.commands.auto.AbsoluteDrivePointAtReef;
 import frc.robot.commands.auto.DriveToAlgaeProcessor;
 import frc.robot.commands.auto.DriveToNearestCoralStation;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -173,6 +175,32 @@ public class RobotContainer implements Logged {
          */
         public RobotContainer() {
 
+
+                NamedCommands.registerCommand("Elevator Arm To Coral Station",
+                cf.setSetpointCommand(Setpoint.kFeederStation));
+
+                NamedCommands.registerCommand("Elevator Arm To Coral L4",
+                cf.setSetpointCommand(Setpoint.kLevel4));
+
+                NamedCommands.registerCommand("Deliver Coral L123", coral.deliverCoralCommandL123());
+
+                NamedCommands.registerCommand("Deliver Coral L4", coral.deliverCoralCommandL4());
+
+                NamedCommands.registerCommand("Intake Coral", coral.coralintakeToSwitchCommand());
+
+                NamedCommands.registerCommand("Coral Stop Intake", coral.stopCoralIntakeCommand());
+
+
+                NamedCommands.registerCommand("Intake Algae", algae.intakeAlgaeCommand());
+
+                NamedCommands.registerCommand("Deliver Algae", algae.deliverAlgaeCommand());
+
+                NamedCommands.registerCommand("Stop Intake Algae", algae.stopIntakeCommand());
+
+               
+
+
+
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
 
@@ -194,7 +222,6 @@ public class RobotContainer implements Logged {
 
                 SmartDashboard.putData("PPAutoChooser", autoChooser);
 
-                NamedCommands.registerCommand("test", Commands.print("I EXIST"));
         }
 
         /**
@@ -227,44 +254,42 @@ public class RobotContainer implements Logged {
                 }
 
                 if (DriverStation.isTeleop()) {
-                        driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-                        driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+                        driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
                         driverXbox.b().whileTrue(
-                                        drivebase.driveToPose(
-                                                        new Pose2d(new Translation2d(6, 3.8),
-                                                                        Rotation2d.fromDegrees(180))));
-                        driverXbox.y().onTrue(Commands.none());
+                                        Commands.none());// place algae
+                        driverXbox.y().onTrue(Commands.none());// intake alga
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
-                        // driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock,
-                        // drivebase).repeatedly());
-                        driverXbox.rightBumper().onTrue(coral.runAtVelocityCommand()
-                                        .withTimeout(2)
-                                        .andThen(coral.stopCoralIntakeCommand()));
+                        driverXbox.leftBumper()
+                                        .whileTrue(
+                                                        new ParallelCommandGroup(
+                                                                        new FindCurrentReefZone(drivebase, ls),
+                                                                        new AbsoluteDrivePointAtReef(
+                                                                                        drivebase,
+                                                                                        () -> -MathUtil.applyDeadband(
+                                                                                                        driverXbox.getLeftY(),
+                                                                                                        OperatorConstants.LEFT_Y_DEADBAND),
+                                                                                        () -> -MathUtil.applyDeadband(
+                                                                                                        driverXbox.getLeftX(),
+                                                                                                        OperatorConstants.DEADBAND),
+                                                                                        () -> -MathUtil.applyDeadband(
+                                                                                                        driverXbox.getRightX(),
+                                                                                                        OperatorConstants.RIGHT_X_DEADBAND))))
+                                        .onFalse(new GetNearestReefZonePose(drivebase, cf));
+
+                        driverXbox.rightBumper().whileTrue(new DriveToNearestCoralStation(drivebase))
+                                        .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
+                                                        drivebase));
 
                         driverXbox.leftTrigger().whileTrue(
-                                        new DriveToNearestReefZone(drivebase, Side.LEFT)
-                                                        .withInterruptBehavior(
-                                                                        InterruptionBehavior.kCancelSelf));
+                                        new DriveToNearestReefZone(drivebase))
+                                        .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
+                                                        drivebase));
 
-                        driverXbox.rightTrigger().whileTrue(
-                                        new DriveToNearestReefZone(drivebase, Side.RIGHT)
-                                                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-
-                        driverXbox.leftBumper().whileTrue(
-                                        new ParallelCommandGroup(
-                                                        cf.setSetpointCommand(Setpoint.kFeederStation),
-                                                        new DriveToNearestCoralStation(drivebase)));
-
-                        driverXbox.povDown().onTrue(new DriveToAlgaeProcessor(drivebase));
-
-                        driverXbox.povUp().onTrue(
-                                        new DriveToNearestReefZone(drivebase, Side.CENTER)
-                                                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-                        driverXbox.povLeft().onTrue(
-                                        Commands.runOnce(() -> drivebase.resetOdometry(
-                                                        new Pose2d(7.372, 6.692, new Rotation2d(Math.PI)))));
+                        driverXbox.rightTrigger().whileTrue(new DriveToAlgaeProcessor(drivebase))
+                                        .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
+                                                        drivebase));
 
                 }
                 if (DriverStation.isTeleop()) {
@@ -278,6 +303,14 @@ public class RobotContainer implements Logged {
                                         coral.setTargetRPM(CoralSetpoints.kReefPlaceL123)));
                         coDriverXbox.y().onTrue(new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel4),
                                         coral.setTargetRPM(CoralSetpoints.kReefPlaceL4)));
+
+                        coDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kAlgae));
+
+                        coDriverXbox.povRight().onTrue(drivebase.setSide(Side.RIGHT));
+
+                        coDriverXbox.povLeft().onTrue(drivebase.setSide(Side.LEFT));
+
+                        coDriverXbox.povDown().onTrue(drivebase.setSide(Side.CENTER));
 
                 }
 

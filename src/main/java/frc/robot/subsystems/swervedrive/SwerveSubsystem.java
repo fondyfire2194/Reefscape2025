@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.utils.LimelightTagsUpdate;
 import monologue.Annotations.Log;
@@ -123,6 +124,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   public Pose2d processorStationTargetPose;
   @Log
   public Pose2d processorStationFinalTargetPose;
+
+  @Log
+
+  public Side side = Side.LEFT;
 
   PPHolonomicDriveController pphc = new PPHolonomicDriveController(
       // PPHolonomicController is the built in path following controller for holonomic
@@ -327,6 +332,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
     // Create a path following command using AutoBuilder. This will also trigger
     // event markers.
     return new PathPlannerAuto(pathAutoName);
+  }
+
+  public Command setSide(Side sideIn){
+return Commands.runOnce(()-> side = sideIn);
   }
 
   /**

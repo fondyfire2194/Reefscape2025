@@ -167,6 +167,9 @@
         }
       },
       "SmartDashboard": {
+        "Coral": {
+          "open": true
+        },
         "Elevator": {
           "open": true
         },

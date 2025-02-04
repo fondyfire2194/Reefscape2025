@@ -18,11 +18,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
+import frc.robot.Factories.CommandFactory.AlgaeSetpoints;
 
 public class AlgaeIntakeSubsystem extends SubsystemBase {
 
@@ -46,8 +48,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   public final double algaeintakeKd = 0.00;
   public final double algaeintakeKFF = .95 / maxIntakeMotorRPM;
 
-
-  public boolean algaeintakeMotorConnected;
+  private double targetRPM;
 
   /** Creates a new Intake. */
   public AlgaeIntakeSubsystem() {
@@ -82,17 +83,31 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   public Command stopIntakeCommand() {
-    return Commands.runOnce(() -> stopMotor());
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kStop)),
+        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kStop));
   }
 
   public double getRPM() {
-    return algaeintakeMotor.getEncoder().getVelocity();
+    if (RobotBase.isReal())
+      return algaeintakeMotor.getEncoder().getVelocity();
+    else
+      return targetRPM;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
+  }
+
+  public Command intakeAlgaeCommand() {
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kReefPickUpL123)),
+        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kReefPickUpL123));
+  }
+
+  public Command deliverAlgaeCommand() {
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kDiliver)),
+        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kDiliver));
   }
 
   private void runAtVelocity(double rpm) {
