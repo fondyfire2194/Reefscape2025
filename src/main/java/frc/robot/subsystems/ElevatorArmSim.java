@@ -71,14 +71,14 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
     m_elevatorLig2d = m_mech2dRoot.append(
         new MechanismLigament2d("Elevator",
-            (m_elevator.minElevatorHeight.in(Meters)* 100*SimulationRobotConstants.kPixelsPerMeter),
+            (m_elevator.minElevatorHeight.in(Meters) / 10), // * SimulationRobotConstants.kPixelsPerMeter),
             90));
 
     m_armSim = new SingleJointedArmSim(
         m_armGearbox,
         m_arm.gearReduction,
         SingleJointedArmSim.estimateMOI(m_arm.armLength, m_arm.armMass),
-        m_arm.armLength * SimulationRobotConstants.kPixelsPerMeter,
+        m_arm.armLength,
         m_arm.minAngle.in(Radians),
         m_arm.maxAngle.in(Radians),
         true,
@@ -90,13 +90,13 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     m_armLig2d = m_elevatorLig2d.append(
         new MechanismLigament2d(
             "Arm",
-            SimulationRobotConstants.kArmLength * SimulationRobotConstants.kPixelsPerMeter,
+            SimulationRobotConstants.kArmLength,
             0));
 
     m_armLig2d_1 = m_elevatorLig2d.append(
         new MechanismLigament2d(
             "Arm1",
-            SimulationRobotConstants.kArmLength/5 * SimulationRobotConstants.kPixelsPerMeter,
+            SimulationRobotConstants.kArmLength,
             0));
 
     elevator.resetPosition(0);
@@ -108,9 +108,8 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     // Update mechanism2d
     m_elevatorLig2d.setLength(
-        SimulationRobotConstants.kPixelsPerMeter * m_elevator.minElevatorHeight.in(Meters)
-            + (SimulationRobotConstants.kPixelsPerMeter)
-                * m_elevator.leftMotor.getEncoder().getPosition());
+        m_elevator.minElevatorHeight.in(Meters)
+            + m_elevator.leftMotor.getEncoder().getPosition());
 
     m_armLig2d.setAngle(
         130
@@ -122,13 +121,13 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     );
 
     m_armLig2d_1.setAngle(
-     - 50
-          - ( // mirror the angles so they display in the correct direction
-          Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
-              +
-              Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
-  // subtract 90 degrees to account for the elevator
-  );
+        -50
+            - ( // mirror the angles so they display in the correct direction
+            Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
+                +
+                Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
+    // subtract 90 degrees to account for the elevator
+    );
 
     SmartDashboard.putNumber("Arm/SimAngle", m_armLig2d.getAngle());
     SmartDashboard.putNumber("Arm/SimEncoder", m_armMotorSim.getPosition());

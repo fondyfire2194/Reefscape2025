@@ -36,11 +36,11 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
 
   public SparkLimitSwitch coralDetectSwitch;
 
-@Log(key="alert warning")
+  @Log(key = "alert warning")
   private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
-  @Log(key="alert error")
+  @Log(key = "alert error")
   private Alert allErrors = new Alert("AllErrors", AlertType.kError);
-  @Log(key="alert sticky fault")
+  @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
   public double targetRPM;
@@ -92,8 +92,8 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
     coralMotor.stopMotor();
   }
 
-  public Command stopCoralIntakeCommand() {
-    return Commands.runOnce(() -> stopMotor(), this);
+  public Command stopCoralMotorCommand() {
+    return Commands.runOnce(() -> stopMotor());
   }
 
   public void coralintakeToSwitch(double RPM) {
@@ -117,11 +117,11 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
 
   public Command coralintakeToSwitchCommand() {
     return Commands.parallel(
-        Commands.run(() -> coralintakeToSwitch(CoralRPMSetpoints.kFeederStation))
+        Commands.run(() -> coralintakeToSwitch(CoralRPMSetpoints.kCoralStation))
             .until(() -> coralAtIntake())
             .withTimeout(coralAtSwitchTime)
-            .andThen(stopCoralIntakeCommand()),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kFeederStation));
+            .andThen(stopCoralMotorCommand()),
+        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation));
   }
 
   public void runAtVelocity(double rpm) {
@@ -205,7 +205,7 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
     return Math.abs(getVelocity()) < 200;
   }
 
-  public void jogMotor(double speed) {
-    coralMotor.setVoltage(speed * RobotController.getBatteryVoltage());
+  public Command jogMotorCommand(double speed) {
+    return Commands.runOnce(() -> coralMotor.setVoltage(speed * RobotController.getBatteryVoltage()));
   }
 }

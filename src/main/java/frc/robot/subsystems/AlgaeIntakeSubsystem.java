@@ -91,11 +91,13 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
 
   public void stopMotor() {
     algaeMotor.stopMotor();
+    targetRPM=0;
     algaeintakeController.setReference(0, ControlType.kVelocity);
   }
 
-  public Command stopIntakeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kStop)),
+  public Command stopMotorCommand() {
+    return Commands.parallel(
+        Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kStop)),
         Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kStop));
   }
 
@@ -157,8 +159,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
     return Commands.runOnce(() -> algaeMotor.clearFaults());
   }
 
-  public void jogMotor(double speed) {
-    algaeMotor.setVoltage(speed * RobotController.getBatteryVoltage());
+  public Command jogMotorCommand(double speed) {
+    return Commands.runOnce(() -> algaeMotor.setVoltage(speed * RobotController.getBatteryVoltage()));
   }
 
 }
