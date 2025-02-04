@@ -18,19 +18,31 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
-import frc.robot.Factories.CommandFactory.AlgaeSetpoints;
+import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
+import monologue.Annotations.Log;
+import monologue.Logged;
 
-public class AlgaeIntakeSubsystem extends SubsystemBase {
+public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
 
-  public SparkMax algaeintakeMotor;
+  public SparkMax algaeMotor;
   public SparkClosedLoopController algaeintakeController;
   private SparkMaxConfig algaeintakeConfig;
+
+  @Log(key = "alert warning")
+  private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
+  @Log(key = "alert error")
+  private Alert allErrors = new Alert("AllErrors", AlertType.kError);
+  @Log(key = "alert sticky fault")
+  private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
   public final double maxIntakeMotorRPM = 5700;
   public final double algaeintakeConversionVelocityFactor = 1;
@@ -52,8 +64,8 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
   /** Creates a new Intake. */
   public AlgaeIntakeSubsystem() {
-    algaeintakeMotor = new SparkMax(Constants.CANIDConstants.algaeintakeID, MotorType.kBrushless);
-    algaeintakeController = algaeintakeMotor.getClosedLoopController();
+    algaeMotor = new SparkMax(Constants.CANIDConstants.algaeintakeID, MotorType.kBrushless);
+    algaeintakeController = algaeMotor.getClosedLoopController();
 
     algaeintakeConfig = new SparkMaxConfig();
 
@@ -73,41 +85,56 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
 
     algaeintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
 
-    algaeintakeMotor.configure(algaeintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    algaeMotor.configure(algaeintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
   public void stopMotor() {
-    algaeintakeMotor.stopMotor();
+    algaeMotor.stopMotor();
     algaeintakeController.setReference(0, ControlType.kVelocity);
   }
 
   public Command stopIntakeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kStop)),
-        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kStop));
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kStop)),
+        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kStop));
   }
 
   public double getRPM() {
     if (RobotBase.isReal())
-      return algaeintakeMotor.getEncoder().getVelocity();
+      return algaeMotor.getEncoder().getVelocity();
     else
       return targetRPM;
+  }
+
+  public boolean getActiveFault() {
+    return algaeMotor.hasActiveFault();
+  }
+
+  public boolean getStickyFault() {
+    return algaeMotor.hasStickyFault();
+  }
+
+  public boolean getWarnings() {
+    return algaeMotor.hasActiveWarning();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    allWarnings.set(getWarnings());
+    allErrors.set(getActiveFault());
+    allStickyFaults.set(getStickyFault());
 
   }
 
   public Command intakeAlgaeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kReefPickUpL123)),
-        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kReefPickUpL123));
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kReefPickUpL123)),
+        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kReefPickUpL123));
   }
 
   public Command deliverAlgaeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeSetpoints.kDiliver)),
-        Commands.runOnce(() -> targetRPM = AlgaeSetpoints.kDiliver));
+    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kDiliver)),
+        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kDiliver));
   }
 
   private void runAtVelocity(double rpm) {
@@ -119,15 +146,19 @@ public class AlgaeIntakeSubsystem extends SubsystemBase {
   }
 
   public double getAmps() {
-    return algaeintakeMotor.getOutputCurrent();
+    return algaeMotor.getOutputCurrent();
   }
 
   public boolean getStickyFaults() {
-    return algaeintakeMotor.hasActiveFault();
+    return algaeMotor.hasActiveFault();
   }
 
   public Command clearStickyFaultsCommand() {
-    return Commands.runOnce(() -> algaeintakeMotor.clearFaults());
+    return Commands.runOnce(() -> algaeMotor.clearFaults());
+  }
+
+  public void jogMotor(double speed) {
+    algaeMotor.setVoltage(speed * RobotController.getBatteryVoltage());
   }
 
 }

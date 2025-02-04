@@ -83,8 +83,7 @@ public class CommandFactory {
                 public static final int kLevel1 = 25;
                 public static final int kLevel2 = 30;
                 public static final int kLevel3 = 40;
-                public static final int kLevel4 = 50;
-        
+                public static final int kLevel4 = 50;        
         }
 
         public static final class ArmSetpoints {
@@ -96,14 +95,14 @@ public class CommandFactory {
                 public static final double kAlgae = 100;
         }
 
-        public static final class CoralSetpoints{
+        public static final class CoralRPMSetpoints{
                 public static final double kFeederStation = 1100;
                 public static final double kReefPlaceL123 = -1100;
                 public static final double kReefPlaceL4 = -2000;
                 public static final double kStop = 0;
         }
 
-        public static final class AlgaeSetpoints{
+        public static final class AlgaeRPMSetpoints{
                 public static final double kReefPickUpL123 = -1100;
                 public static final double kDiliver = 2000;
                 public static final double kStop = 0;

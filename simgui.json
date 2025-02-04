@@ -167,6 +167,9 @@
         }
       },
       "SmartDashboard": {
+        "Alerts": {
+          "open": true
+        },
         "Coral": {
           "open": true
         },

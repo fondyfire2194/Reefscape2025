@@ -24,7 +24,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
-import frc.robot.Factories.CommandFactory.CoralSetpoints;
+import frc.robot.Factories.CommandFactory.CoralRPMSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
@@ -175,12 +175,11 @@ public class RobotContainer implements Logged {
          */
         public RobotContainer() {
 
-
                 NamedCommands.registerCommand("Elevator Arm To Coral Station",
-                cf.setSetpointCommand(Setpoint.kFeederStation));
+                                cf.setSetpointCommand(Setpoint.kFeederStation));
 
                 NamedCommands.registerCommand("Elevator Arm To Coral L4",
-                cf.setSetpointCommand(Setpoint.kLevel4));
+                                cf.setSetpointCommand(Setpoint.kLevel4));
 
                 NamedCommands.registerCommand("Deliver Coral L123", coral.deliverCoralCommandL123());
 
@@ -190,16 +189,11 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Coral Stop Intake", coral.stopCoralIntakeCommand());
 
-
                 NamedCommands.registerCommand("Intake Algae", algae.intakeAlgaeCommand());
 
                 NamedCommands.registerCommand("Deliver Algae", algae.deliverAlgaeCommand());
 
                 NamedCommands.registerCommand("Stop Intake Algae", algae.stopIntakeCommand());
-
-               
-
-
 
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
@@ -295,14 +289,14 @@ public class RobotContainer implements Logged {
                 if (DriverStation.isTeleop()) {
                         coDriverXbox.a().onTrue(
                                         new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel1),
-                                                        coral.setTargetRPM(CoralSetpoints.kReefPlaceL123)));
+                                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
                         coDriverXbox.x().onTrue(
                                         new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel2),
-                                                        coral.setTargetRPM(CoralSetpoints.kReefPlaceL123)));
+                                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
                         coDriverXbox.b().onTrue(new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel3),
-                                        coral.setTargetRPM(CoralSetpoints.kReefPlaceL123)));
+                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
                         coDriverXbox.y().onTrue(new ParallelCommandGroup(cf.setSetpointCommand(Setpoint.kLevel4),
-                                        coral.setTargetRPM(CoralSetpoints.kReefPlaceL4)));
+                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL4)));
 
                         coDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kAlgae));
 
@@ -324,6 +318,14 @@ public class RobotContainer implements Logged {
                         coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
                         coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(100)));
                         coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(25)));
+
+                        coDriverXbox.start().onTrue(
+                                        Commands.parallel(
+                                                        elevator.clearStickyFaultsCommand(),
+                                                        arm.clearStickyFaultsCommand(),
+                                                        algae.clearStickyFaultsCommand(),
+                                                        coral.clearStickyFaultsCommand()));
+
                 }
 
         }

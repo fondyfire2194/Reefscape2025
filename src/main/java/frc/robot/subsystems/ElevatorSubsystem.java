@@ -20,16 +20,21 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANIDConstants;
+import monologue.Annotations.Log;
+import monologue.Logged;
+
 import static edu.wpi.first.units.Units.*;
 
-public class ElevatorSubsystem extends SubsystemBase {
+public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final double kElevatorGearing = ((62. * 22.) / (9. * 16.));// 9.4722222
 
@@ -73,12 +78,22 @@ public class ElevatorSubsystem extends SubsystemBase {
   public final SparkMax rightMotor = new SparkMax(CANIDConstants.rightElevatorID, MotorType.kBrushless);
   public final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
+  @Log(key = "alert warning")
+  private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
+  @Log(key = "alert error")
+  private Alert allErrors = new Alert("AllErrors", AlertType.kError);
+  @Log(key = "alert sticky fault")
+  private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
   double TRAJECTORY_VEL = .8;
   double TRAJECTORY_ACCEL = 2;
 
   private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
+
+  @Log.NT(key = "goal")
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+
+  @Log.NT(key = "setpoint")
   private TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
   private TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
 
@@ -86,21 +101,30 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public int posrng;
 
-  // private boolean shutDownElevatorPositioning;
+  Alert elevatorError = new Alert("ElevetorDifferenceHigh", AlertType.kError);
 
+  @Log.NT(key = "at upper limit")
   public boolean atUpperLimit;
 
+  @Log.NT(key = "at lower limit")
   public boolean atLowerLimit;
+
+  @Log.NT(key = "target meters")
+  private double targetMeters;
+
+  @Log.NT(key = "left ff")
+  private double leftff;
 
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
 
-    SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
-    SmartDashboard.putNumber("Elevator/posconvinch",
-        Units.metersToInches(positionConversionFactor));
-    SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);// 4800 rpm
+    // SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
+    // SmartDashboard.putNumber("Elevator/posconvinch",
+    // Units.metersToInches(positionConversionFactor));
+    // SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);//
+    // 4800 rpm
     // SmartDashboard.putNumber("Elevator/gear", kElevatorGearing);
 
     // SmartDashboard.putNumber("Elevator/velconv", velocityConversionFactor);
@@ -188,6 +212,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   }
 
+  @Log.NT(key = "position inches")
   public double getGoalInches() {
     return m_goal.position;
   }
@@ -195,10 +220,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setGoalMeters(double targetMeters) {
     m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
   }
-  
 
   public void setGoalInches(double targetInches) {
-    double targetMeters = Units.inchesToMeters(targetInches);
+    targetMeters = Units.inchesToMeters(targetInches);
     m_goal.position = targetMeters - elevatorToGroundInches;
     SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
     currentSetpoint.position = leftEncoder.getPosition();
@@ -206,15 +230,40 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setGoalInchesCommand(double targetInches) {
-    return Commands.runOnce(()->setGoalInches(targetInches));
+    return Commands.runOnce(() -> setGoalInches(targetInches));
   }
 
   public double getLeftPositionMeters() {
     return leftEncoder.getPosition();
   }
 
+  @Log.NT(key = "left position inches")
   public double getLeftPositionInches() {
     return Units.metersToInches(getLeftPositionMeters());
+  }
+
+  @Log.NT(key = "left applied output")
+  public double getLeftAppliedOutput() {
+    return leftMotor.getAppliedOutput();
+  }
+
+  public double getRightPositionMeters() {
+    return leftEncoder.getPosition();
+  }
+
+  @Log.NT(key = "right position inches")
+  public double getRightPositionInches() {
+    return Units.metersToInches(getRightPositionMeters());
+  }
+
+  @Log.NT(key = "left position error inches")
+  public double getLeftPositionError() {
+    return getGoalInches() - getLeftPositionInches();
+  }
+
+  @Log.NT(key = "left right position diffinches")
+  public double getLeftRightDiffInches() {
+    return getLeftPositionInches() - getRightPositionInches();
   }
 
   public void position() {
@@ -224,28 +273,44 @@ public class ElevatorSubsystem extends SubsystemBase {
     // Send setpoint to spark max controller
     nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
-    double leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
+    leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
 
     currentSetpoint = nextSetpoint;
 
-    SmartDashboard.putNumber("Elevator/ff", leftff);
-
     leftClosedLoopController.setReference(
         nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
-
-    SmartDashboard.putNumber("ElTrp/setpos", nextSetpoint.position);
-
-    SmartDashboard.putNumber("ElTrp/setvel", nextSetpoint.velocity);
   }
 
+  @Log.NT(key = "reset position")
   public void resetPosition(double val) {
     leftEncoder.setPosition(val);
     rightEncoder.setPosition(val);
-    SmartDashboard.putNumber("Elevator/posaftereset", getLeftPositionMeters());
+  }
+
+  public boolean getActiveFault() {
+    return leftMotor.hasActiveFault() || rightMotor.hasActiveFault();
+  }
+
+  public boolean getStickyFault() {
+    return leftMotor.hasStickyFault() || rightMotor.hasStickyFault();
+  }
+
+  public boolean getWarnings() {
+    return leftMotor.hasActiveWarning() || rightMotor.hasActiveWarning();
+  }
+
+  public Command clearStickyFaultsCommand() {
+    return Commands.parallel(
+        Commands.runOnce(() -> leftMotor.clearFaults()),
+        Commands.runOnce(() -> rightMotor.clearFaults()));
   }
 
   @Override
   public void periodic() {
+
+    allWarnings.set(getWarnings());
+    allErrors.set(getActiveFault());
+    allStickyFaults.set(getStickyFault());
 
     atUpperLimit = getLeftPositionMeters() >= maxElevatorHeight.in(Meters)
         || rightEncoder.getPosition() >= maxElevatorHeight.in(Meters);
@@ -254,15 +319,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         || (rightEncoder.getPosition() <= minElevatorHeight.in(Meters)
             && RobotBase.isReal());
 
-    SmartDashboard.putBoolean("Elevator/onUpperLimit", atUpperLimit);
-    SmartDashboard.putBoolean("Elevator/onLowerLimit", atLowerLimit);
-    SmartDashboard.putNumber("Elevator/volts", leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-    SmartDashboard.putNumber("Elevator/posgoal", m_goal.position);
-    SmartDashboard.putNumber("Elevator/poserror", m_goal.position - getLeftPositionMeters());
-
     SmartDashboard.putNumber("Elevator/kvcalc",
         RobotController.getBatteryVoltage() / leftMotor.getEncoder().getVelocity());
 
+    elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);
+    elevatorError.setText(String.valueOf(getLeftRightDiffInches()));
   }
 
 }

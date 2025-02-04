@@ -18,6 +18,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -28,12 +30,22 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.utils.SD;
+import monologue.Annotations.Log;
+import monologue.Logged;
 
-public class ArmSubsystem extends SubsystemBase {
+public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public final SparkMax armMotor = new SparkMax(CANIDConstants.armMotorID, MotorType.kBrushless);
 
     private SparkClosedLoopController armClosedLoopController = armMotor.getClosedLoopController();
+
+    
+  @Log(key = "alert warning")
+  private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
+  @Log(key = "alert error")
+  private Alert allErrors = new Alert("AllErrors", AlertType.kError);
+  @Log(key = "alert sticky fault")
+  private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
     public ArmFeedforward armfeedforward;
 
@@ -50,7 +62,7 @@ public class ArmSubsystem extends SubsystemBase {
     public final Angle minAngle = Degrees.of(0); // pointing down
     public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
 
-    public double gearReduction = 40;
+    public double gearReduction = 50;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
     double radperencderrev = 2 * Math.PI / gearReduction;
@@ -74,7 +86,7 @@ public class ArmSubsystem extends SubsystemBase {
     public final double armKi = 0.;
     public final double armKd = 0;
 
-    public final Angle armStartupOffset =Radians.of(0);
+    public final Angle armStartupOffset = Radians.of(0);
 
     double TRAJECTORY_VEL = 2;
     double TRAJECTORY_ACCEL = 3;
@@ -88,13 +100,14 @@ public class ArmSubsystem extends SubsystemBase {
     private int inPositionCtr;
 
     public double targetRadians;
+    @Log(key = "armff")
+    private double leftff;
 
     public ArmSubsystem() {
 
         SmartDashboard.putNumber("Arm/maxdegpersec", maxdegrespersec);
         SmartDashboard.putNumber("Arm/poscf", posConvFactor);
         SmartDashboard.putNumber("Arm/maxradpersec", maxradpersec);
-     
 
         armConfig = new SparkMaxConfig();
 
@@ -110,20 +123,14 @@ public class ArmSubsystem extends SubsystemBase {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(armKp)
-                .outputRange(-1, 1).maxMotion
-                // Set MAXMotion parameters for position control
-                .maxVelocity(10)
-                .maxAcceleration(10)
-                .allowedClosedLoopError(0.25);
+                .outputRange(-1, 1);
 
         armConfig.limitSwitch.forwardLimitSwitchEnabled(false);
 
-        armConfig
-        .softLimit.forwardSoftLimit(2.5)
-        .reverseSoftLimit(0)
-        .forwardSoftLimitEnabled(false)
-        .reverseSoftLimitEnabled(false);
-
+        armConfig.softLimit.forwardSoftLimit(maxAngle.in(Radians))
+                .reverseSoftLimit(minAngle.in(Radians))
+                .forwardSoftLimitEnabled(false)
+                .reverseSoftLimitEnabled(false);
 
         armConfig.signals.primaryEncoderPositionPeriodMs(5);
 
@@ -137,16 +144,28 @@ public class ArmSubsystem extends SubsystemBase {
 
     }
 
+    public boolean getActiveFault() {
+        return armMotor.hasActiveFault();
+      }
+    
+      public boolean getStickyFault() {
+        return armMotor.hasStickyFault();
+      }
+    
+      public boolean getWarnings() {
+        return armMotor.hasActiveWarning();
+      }
+
     @Override
     public void periodic() {
 
-        SD.sd2("Arm/ArmPosition", getAngle().in(Degrees));
+         // This method will be called once per scheduler run
+    allWarnings.set(getWarnings());
+    allErrors.set(getActiveFault());
+    allStickyFaults.set(getStickyFault());
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
-
-        SmartDashboard.putBoolean("Arm/atUpperLimit", atUpperLimit);
-        SmartDashboard.putBoolean("Arm/atLowerLimit", atLowerLimit);
 
     }
 
@@ -172,7 +191,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm/setpos", nextSetpoint.position);
         SmartDashboard.putNumber("Arm/setvel", nextSetpoint.velocity);
 
-        double leftff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
+        leftff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
 
         currentSetpoint = nextSetpoint;
 
@@ -195,6 +214,7 @@ public class ArmSubsystem extends SubsystemBase {
         // inPositionCtr = 0;
     }
 
+    @Log.NT(key = "goal degrees")
     public void setGoalDegrees(double targetDegrees) {
         double targetRads = Units.degreesToRadians(targetDegrees);
         setGoalRadians(targetRads);
@@ -210,6 +230,7 @@ public class ArmSubsystem extends SubsystemBase {
         return armMotor.getEncoder().getPosition();
     }
 
+    @Log.NT(key = "motor degrees")
     public double getMotorDegrees() {
         return Units.radiansToDegrees(armMotor.getEncoder().getPosition());
     }
@@ -231,6 +252,7 @@ public class ArmSubsystem extends SubsystemBase {
         return armMotor.getEncoder().getVelocity();
     }
 
+    @Log.NT(key = "arm degrees per sec")
     public double getDegreesPerSec() {
         return Units.radiansToDegrees(armMotor.getEncoder().getVelocity());
     }
@@ -251,6 +273,7 @@ public class ArmSubsystem extends SubsystemBase {
         return armMotor.getReverseLimitSwitch().isPressed();
     }
 
+    @Log(key = "on limit")
     public boolean onLimit() {
         return onPlusHardwareLimit() || onMinusHardwareLimit() ||
                 onPlusSoftwareLimit() || onMinusSoftwareLimit();
