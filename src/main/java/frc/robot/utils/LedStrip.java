@@ -26,6 +26,7 @@ public class LedStrip {
     LEDPattern green = LEDPattern.solid(Color.kGreen);
     LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     LEDPattern blue = LEDPattern.solid(Color.kBlue);
+    LEDPattern white = LEDPattern.solid(Color.kAntiqueWhite);
 
     LEDPattern off = LEDPattern.solid(Color.kBlack);
 
@@ -35,7 +36,8 @@ public class LedStrip {
         m_ledbuffer = new AddressableLEDBuffer(60);
         m_led.setLength(m_ledbuffer.getLength());
         m_view1 = new AddressableLEDBufferView(m_ledbuffer, 1, 9);
-        m_view2 = new AddressableLEDBufferView(m_ledbuffer, 10,25);
+        m_view2 = new AddressableLEDBufferView(m_ledbuffer, 10, 14);
+        m_view3 = new AddressableLEDBufferView(m_ledbuffer, 15, 19);
 
         m_led.setData(m_ledbuffer);
         m_led.start();
@@ -71,20 +73,47 @@ public class LedStrip {
     }
 
     public void setViewTwoSolidColor(Side side) {
-        switch (side.ordinal()) {
+        int n = side.ordinal();
+        switch (n) {
             case 0:
                 red.applyTo(m_view2);
                 break;
             case 1:
-                blue.applyTo(m_view1);
+                blue.applyTo(m_view2);
+                break;
+            case 2:
+                yellow.applyTo(m_view2);
+                break;
+            default:
+                off.applyTo(m_view2);
+                break;
+        }
+        m_led.setData(m_ledbuffer);
+    }
+
+    public void setViewThreeSolidColor(int setpoint) {
+        switch (setpoint) {
+            case 0:
+                off.applyTo(m_view3);
+                break;
+            case 1:
+                white.applyTo(m_view3);
+                break;
+            case 2:
+                green.applyTo(m_view3);
                 break;
             case 3:
-                green.applyTo(m_view2);
+                yellow.applyTo(m_view3);
+                break;
+            case 4:
+                red.applyTo(m_view3);
                 break;
             default:
                 off.applyTo(m_view1);
                 break;
+
         }
+
         m_led.setData(m_ledbuffer);
 
     }

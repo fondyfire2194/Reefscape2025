@@ -3,8 +3,8 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "BlAutoB",
-    "BLAutoR"
+    "BNSAuto",
+    "BSAuto"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

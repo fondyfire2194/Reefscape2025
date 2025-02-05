@@ -19,6 +19,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CoralIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.LedStrip;
 
 /** Add your docs here. */
 public class CommandFactory {
@@ -28,15 +29,16 @@ public class CommandFactory {
         ArmSubsystem m_arm;
         CoralIntakeSubsystem m_coral;
         AlgaeIntakeSubsystem m_algae;
+        LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        CoralIntakeSubsystem coral, AlgaeIntakeSubsystem algae) {
+                        CoralIntakeSubsystem coral, AlgaeIntakeSubsystem algae, LedStrip ls) {
                 m_swerve = swerve;
                 m_algae = algae;
                 m_arm = arm;
                 m_elevator = elevator;
                 m_coral = coral;
-
+                m_ls = ls;
         }
 
         public Command rumble(CommandXboxController controller, RumbleType type, double timeout) {
@@ -84,9 +86,9 @@ public class CommandFactory {
                 public static final int kProcessorDeliver = 5;
                 public static final int kCoralStation = 15;
                 public static final int kLevel1 = 25;
-                public static final int kLevel2 = 30;
-                public static final int kLevel3 = 40;
-                public static final int kLevel4 = 50;
+                public static final int kLevel2 = 40;
+                public static final int kLevel3 = 60;
+                public static final int kLevel4 = 75;
         }
 
         public static final class ArmSetpoints {
@@ -119,6 +121,7 @@ public class CommandFactory {
          * positions for the given setpoint.
          */
         public Command setSetpointCommand(Setpoint setpoint) {
+
                 return Commands.runOnce(
                                 () -> {
                                         switch (setpoint) {
@@ -143,10 +146,13 @@ public class CommandFactory {
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kLevel4);
                                                         break;
                                                 case kProcessorDeliver:
-                                                        m_arm .setGoalDegrees(ArmSetpoints.kProcessorDeliver);
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kProcessorDeliver);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kProcessorDeliver);
                                                         break;
                                         }
-                                });
+
+                                })
+
+                                .andThen(Commands.runOnce(() -> m_ls.setViewThreeSolidColor(setpoint.ordinal())));
         }
 }

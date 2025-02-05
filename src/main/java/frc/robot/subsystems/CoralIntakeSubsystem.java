@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.CoralRPMSetpoints;
@@ -117,11 +116,12 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
 
   public Command coralintakeToSwitchCommand() {
     return Commands.parallel(
+        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation),
         Commands.run(() -> coralintakeToSwitch(CoralRPMSetpoints.kCoralStation))
             .until(() -> coralAtIntake())
             .withTimeout(coralAtSwitchTime)
-            .andThen(stopCoralMotorCommand()),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation));
+            .andThen(stopCoralMotorCommand()));
+
   }
 
   public void runAtVelocity(double rpm) {

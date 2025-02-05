@@ -81,7 +81,7 @@ public class RobotContainer implements Logged {
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerveflipped")); // "swerve"));
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae,ls);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 

@@ -159,6 +159,31 @@
           "data": {
             "name": "Intake Coral"
           }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CoStToB"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Elevator Arm To Coral L4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
+          }
         }
       ]
     }
