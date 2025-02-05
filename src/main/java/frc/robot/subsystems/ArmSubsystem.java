@@ -19,6 +19,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
-import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -39,13 +39,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     private SparkClosedLoopController armClosedLoopController = armMotor.getClosedLoopController();
 
-    
-  @Log(key = "alert warning")
-  private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
-  @Log(key = "alert error")
-  private Alert allErrors = new Alert("AllErrors", AlertType.kError);
-  @Log(key = "alert sticky fault")
-  private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
+    @Log(key = "alert warning")
+    private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
+    @Log(key = "alert error")
+    private Alert allErrors = new Alert("AllErrors", AlertType.kError);
+    @Log(key = "alert sticky fault")
+    private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
     public ArmFeedforward armfeedforward;
 
@@ -82,7 +81,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final double armKv = 10 / maxradpersec;
     public final double armKa = 0;
 
-    public final double armKp = 0.9;
+    public double armKp = 1.1;
+
     public final double armKi = 0.;
     public final double armKd = 0;
 
@@ -112,7 +112,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         armConfig = new SparkMaxConfig();
 
         armConfig
-                .inverted(true)
+                .inverted(false)
                 .idleMode(IdleMode.kBrake);
 
         armConfig.encoder
@@ -139,30 +139,32 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         armfeedforward = new ArmFeedforward(armKa, armKg, armKv);
 
         armMotor.getEncoder().setPosition(0);
-        resetEncoder(Units.degreesToRadians(10));
+        resetEncoder(0);
         setGoalRadians(0);
-
+        SmartDashboard.putNumber("Arm/RealEncoder", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
+        if (RobotBase.isSimulation())
+            armKp = 5;
     }
 
     public boolean getActiveFault() {
         return armMotor.hasActiveFault();
-      }
-    
-      public boolean getStickyFault() {
+    }
+
+    public boolean getStickyFault() {
         return armMotor.hasStickyFault();
-      }
-    
-      public boolean getWarnings() {
+    }
+
+    public boolean getWarnings() {
         return armMotor.hasActiveWarning();
-      }
+    }
 
     @Override
     public void periodic() {
 
-         // This method will be called once per scheduler run
-    allWarnings.set(getWarnings());
-    allErrors.set(getActiveFault());
-    allStickyFaults.set(getStickyFault());
+        // This method will be called once per scheduler run
+        allWarnings.set(getWarnings());
+        allErrors.set(getActiveFault());
+        allStickyFaults.set(getStickyFault());
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);

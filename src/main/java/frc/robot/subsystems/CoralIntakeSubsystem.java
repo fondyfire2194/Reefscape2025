@@ -56,9 +56,9 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
   public CoralIntakeSubsystem() {
 
     if (RobotBase.isReal())
-      coralAtSwitchTime = 3;
+      coralAtSwitchTime = 10;
     else
-      coralAtSwitchTime = 5;
+      coralAtSwitchTime = 1;
 
     coralMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
 
@@ -130,7 +130,7 @@ public class CoralIntakeSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command runAtVelocityCommand() {
-    return new SequentialCommandGroup(
+    return Commands.sequence(
         Commands.runOnce(() -> enableLimitSwitch(true)),
         Commands.runOnce(() -> runAtVelocity(targetRPM)));
   }

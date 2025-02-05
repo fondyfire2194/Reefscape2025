@@ -91,7 +91,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
 
   public void stopMotor() {
     algaeMotor.stopMotor();
-    targetRPM=0;
+    targetRPM = 0;
     algaeintakeController.setReference(0, ControlType.kVelocity);
   }
 
@@ -130,13 +130,15 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command intakeAlgaeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kReefPickUpL123)),
+    return Commands.parallel(
+        Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kReefPickUpL123)),
         Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kReefPickUpL123));
   }
 
   public Command deliverAlgaeCommand() {
-    return Commands.parallel(Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kDiliver)),
-        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kDiliver));
+    return Commands.parallel(
+        Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)),
+        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kProcessorDeliver));
   }
 
   private void runAtVelocity(double rpm) {

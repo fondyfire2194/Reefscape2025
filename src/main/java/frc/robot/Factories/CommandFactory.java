@@ -6,8 +6,6 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -73,15 +71,17 @@ public class CommandFactory {
         }
 
         public enum Setpoint {
-                kFeederStation,
+                kCoralStation,
                 kLevel1,
                 kLevel2,
                 kLevel3,
-                kLevel4;
+                kLevel4,
+                kProcessorDeliver;
         }
 
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
+                public static final int kProcessorDeliver = 5;
                 public static final int kCoralStation = 15;
                 public static final int kLevel1 = 25;
                 public static final int kLevel2 = 30;
@@ -91,12 +91,13 @@ public class CommandFactory {
 
         public static final class ArmSetpoints {
                 public static final int kHome = 0;
-                public static final double kCoralStation = 5;
+                public static final int kProcessorDeliver = 2;
+                public static final double kCoralStation = 50;
                 public static final double kLevel1 = 80;
                 public static final double kLevel2 = 80;
                 public static final double kLevel3 = 80;
                 public static final double kLevel4 = 90;
-                public static final double kAlgae = 100;
+                public static final double kAlgaeIntake = 100;
         }
 
         public static final class CoralRPMSetpoints {
@@ -108,7 +109,7 @@ public class CommandFactory {
 
         public static final class AlgaeRPMSetpoints {
                 public static final double kReefPickUpL123 = -1100;
-                public static final double kDiliver = 2000;
+                public static final double kProcessorDeliver = 2000;
                 public static final double kStop = 0;
         }
 
@@ -121,30 +122,29 @@ public class CommandFactory {
                 return Commands.runOnce(
                                 () -> {
                                         switch (setpoint) {
-                                                case kFeederStation:
+                                                case kCoralStation:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kCoralStation);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kCoralStation);
-
                                                         break;
                                                 case kLevel1:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel1);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kLevel1);
-
                                                         break;
                                                 case kLevel2:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel2);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kLevel2);
-
                                                         break;
                                                 case kLevel3:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel3);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kLevel3);
-
                                                         break;
                                                 case kLevel4:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel4);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kLevel4);
-
+                                                        break;
+                                                case kProcessorDeliver:
+                                                        m_arm .setGoalDegrees(ArmSetpoints.kProcessorDeliver);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kProcessorDeliver);
                                                         break;
                                         }
                                 });
