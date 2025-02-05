@@ -96,7 +96,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     m_armLig2d_1 = m_elevatorLig2d.append(
         new MechanismLigament2d(
             "Arm1",
-            SimulationRobotConstants.kArmLength,
+            SimulationRobotConstants.kArmLength/5,
             0));
 
     elevator.resetPosition(0);
@@ -112,17 +112,17 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
             + m_elevator.leftMotor.getEncoder().getPosition());
 
     m_armLig2d.setAngle(
-        130
+        -50
             - ( // mirror the angles so they display in the correct direction
             Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
-                +
+                -
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
     // subtract 90 degrees to account for the elevator
     );
 
     m_armLig2d_1.setAngle(
-        -50
-            - ( // mirror the angles so they display in the correct direction
+        130
+            + ( // mirror the angles so they display in the correct direction
             Units.radiansToDegrees(SimulationRobotConstants.kMinAngleRads)
                 +
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))

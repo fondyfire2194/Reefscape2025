@@ -30,12 +30,12 @@ public class OverridePathToTag extends Command {
 
   double kpr = 0;
 
-  public OverridePathToTag(SwerveSubsystem swerve, String camName, PathPlannerPath path,int tagNumber) {
+  public OverridePathToTag(SwerveSubsystem swerve, String camName, PathPlannerPath path, int tagNumber) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camName = camName;
     m_tagNumber = tagNumber;
-    m_path=path;
+    m_path = path;
   }
 
   // Called when the command is initially scheduled.
@@ -49,10 +49,7 @@ public class OverridePathToTag extends Command {
   @Override
   public void execute() {
 
- List<Pose2d> l= m_path.getPathPoses();
-
- 
-
+    List<Pose2d> l = m_path.getPathPoses();
 
     double tx = LimelightHelpers.getTX(m_camName);
     if (Math.abs(tx) > correctionXLimit) {
