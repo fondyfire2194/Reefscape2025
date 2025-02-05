@@ -244,11 +244,11 @@ public class RobotContainer implements Logged {
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
                         driverXbox.b().whileTrue(Commands.none());// place algae
-                        driverXbox.y().onTrue(Commands.none());// intake alga
+                        driverXbox.y().onTrue(algae.intakeAlgaeCommand());// intake algae
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
-                        driverXbox.leftBumper().whileTrue(
+                        driverXbox.leftTrigger().whileTrue(
                                         Commands.parallel(
                                                         new FindCurrentReefZone(drivebase, ls),
                                                         new AbsoluteDrivePointAtReef(
@@ -262,17 +262,18 @@ public class RobotContainer implements Logged {
                                                                         () -> -MathUtil.applyDeadband(
                                                                                         driverXbox.getRightX(),
                                                                                         OperatorConstants.RIGHT_X_DEADBAND))))
-                                        .onFalse(new GetNearestReefZonePose(drivebase, cf));
+                                        .onFalse(new GetNearestReefZonePose(drivebase));
+
+                        driverXbox.leftBumper().whileTrue(
+                                        new DriveToNearestReefZone(drivebase))
+                                        .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
+                                                        drivebase));
 
                         driverXbox.rightBumper().whileTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kCoralStation),
-                                                        new DriveToNearestCoralStation(drivebase)))
-                                        .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
-                                                        drivebase));
-
-                        driverXbox.leftTrigger().whileTrue(
-                                        new DriveToNearestReefZone(drivebase))
+                                                        new DriveToNearestCoralStation(drivebase),
+                                                        coral.coralintakeToSwitchCommand()))
                                         .onFalse(Commands.runOnce(() -> rumble(driverXbox, RumbleType.kLeftRumble, .1),
                                                         drivebase));
 
@@ -309,11 +310,20 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kProcessorDeliver));
 
-                        coDriverXbox.povRight().onTrue(drivebase.setSide(Side.RIGHT));
+                        coDriverXbox.povRight().onTrue(
+                                        Commands.sequence(
+                                                        drivebase.setSide(Side.RIGHT),
+                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.RIGHT))));
 
-                        coDriverXbox.povLeft().onTrue(drivebase.setSide(Side.LEFT));
+                        coDriverXbox.povLeft().onTrue(
+                                        Commands.sequence(
+                                                        drivebase.setSide(Side.LEFT),
+                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.LEFT))));
 
-                        coDriverXbox.povDown().onTrue(drivebase.setSide(Side.CENTER));
+                        coDriverXbox.povDown().onTrue(
+                                        Commands.sequence(
+                                                        drivebase.setSide(Side.CENTER),
+                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.CENTER))));
 
                         coDriverXbox.start().onTrue(
                                         Commands.parallel(

@@ -67,7 +67,7 @@ public class AbsoluteDrivePointAtReef extends Command {
     this.swerve = swerve;
     this.vX = vX;
     this.vY = vY;
-    this.headingAdjust = headingAdjust;
+    this.headingAdjust = ()->0;
 
     addRequirements(this.swerve);
   }

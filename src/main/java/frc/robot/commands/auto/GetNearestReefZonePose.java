@@ -27,7 +27,6 @@ public class GetNearestReefZonePose extends Command {
   boolean setSide;
   Translation2d tl2d;
 
-  private CommandFactory m_cf;
 
   public GetNearestReefZonePose(SwerveSubsystem swerve, Side side) {
     m_swerve = swerve;
@@ -36,10 +35,10 @@ public class GetNearestReefZonePose extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
-  public GetNearestReefZonePose(SwerveSubsystem swerve, CommandFactory cf) {
+  public GetNearestReefZonePose(SwerveSubsystem swerve) {
     m_swerve = swerve;
     setSide = true;
-    m_cf = cf;
+  
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -50,7 +49,6 @@ public class GetNearestReefZonePose extends Command {
     exit = false;
     if (setSide)
       m_side = m_swerve.side;
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.

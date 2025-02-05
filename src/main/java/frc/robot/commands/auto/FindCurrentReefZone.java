@@ -39,7 +39,6 @@ public class FindCurrentReefZone extends Command {
   @Override
   public void initialize() {
 
-    SmartDashboard.putBoolean("BLUERUNNING", true);
     zoneFound = false;
   }
 
@@ -141,7 +140,7 @@ public class FindCurrentReefZone extends Command {
     m_swerve.lockPoseChange = false;
 
 
-    m_ledStrip.setViewOneColor(m_swerve.reefZone);
+    m_ledStrip.setViewOneSolidColor(m_swerve.reefZone);
   }
 
   boolean checkBlueABZone() {

@@ -59,7 +59,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
   public final double algaeintakeKi = 0.0;
   public final double algaeintakeKd = 0.00;
   public final double algaeintakeKFF = .95 / maxIntakeMotorRPM;
-
+  @Log(key = "target rpm")
   private double targetRPM;
 
   /** Creates a new Intake. */
@@ -145,10 +145,7 @@ public class AlgaeIntakeSubsystem extends SubsystemBase implements Logged {
     algaeintakeController.setReference(rpm, ControlType.kVelocity);
   }
 
-  public void reverseMotor() {
-    runAtVelocity(reverseRPM.in(RPM));
-  }
-
+  @Log(key = "amps")
   public double getAmps() {
     return algaeMotor.getOutputCurrent();
   }
