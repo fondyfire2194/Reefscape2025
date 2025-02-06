@@ -81,7 +81,7 @@ public class RobotContainer implements Logged {
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerveflipped")); // "swerve"));
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae,ls);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae, ls);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
@@ -195,6 +195,15 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Stop Intake Algae", algae.stopMotorCommand());
 
+                NamedCommands.registerCommand("Intake Algae L2",
+                                cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
+
+                NamedCommands.registerCommand("Intake Algae L3",
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3));
+
+                NamedCommands.registerCommand("Deliver Processor",
+                                cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
 
@@ -236,10 +245,13 @@ public class RobotContainer implements Logged {
                 // drivebase.setDefaultCommand(
                 // !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle :
                 // driveFieldOrientedDirectAngleSim);
-                drivebase.setDefaultCommand(drivebase.driveCommand(
-                                () -> -driverXbox.getLeftY(),
-                                () -> -driverXbox.getLeftX(),
-                                () -> -driverXbox.getRightX()));
+                drivebase.setDefaultCommand(
+                                Commands.parallel(
+                                                new FindCurrentReefZone(drivebase, ls),
+                                                drivebase.driveCommand(
+                                                                () -> -driverXbox.getLeftY(),
+                                                                () -> -driverXbox.getLeftX(),
+                                                                () -> -driverXbox.getRightX())));
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));

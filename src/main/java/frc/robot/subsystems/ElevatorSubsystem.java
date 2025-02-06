@@ -116,13 +116,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-  public int setpointValue = Setpoint.kLevel4.ordinal();
 
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
-    SmartDashboard.putNumber("Elevator/etpointvsl", setpointValue);
+   
     // SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
     // SmartDashboard.putNumber("Elevator/posconvinch",
     // Units.metersToInches(positionConversionFactor));

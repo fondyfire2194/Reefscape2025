@@ -78,7 +78,10 @@ public class CommandFactory {
                 kLevel2,
                 kLevel3,
                 kLevel4,
-                kProcessorDeliver;
+                kProcessorDeliver,
+                KAlgaeDeliverBarge,
+                kAlgaePickUpL3,
+                KAlgaePickUpL2;
         }
 
         public static final class ElevatorSetpoints {
@@ -89,6 +92,7 @@ public class CommandFactory {
                 public static final int kLevel2 = 40;
                 public static final int kLevel3 = 60;
                 public static final int kLevel4 = 75;
+                public static final int kBarge = 80;
         }
 
         public static final class ArmSetpoints {
@@ -100,6 +104,8 @@ public class CommandFactory {
                 public static final double kLevel3 = 80;
                 public static final double kLevel4 = 90;
                 public static final double kAlgaeIntake = 100;
+                public static final double kAlgaeBargeDeliver = 120;
+
         }
 
         public static final class CoralRPMSetpoints {
@@ -148,6 +154,18 @@ public class CommandFactory {
                                                 case kProcessorDeliver:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kProcessorDeliver);
                                                         m_elevator.setGoalInches(ElevatorSetpoints.kProcessorDeliver);
+                                                        break;
+                                                case KAlgaeDeliverBarge:
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeBargeDeliver);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kBarge);
+                                                        break;
+                                                case KAlgaePickUpL2:
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel2);
+                                                        break;
+                                                case kAlgaePickUpL3:
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
+                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel3);
                                                         break;
                                         }
 
