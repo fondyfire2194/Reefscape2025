@@ -55,6 +55,9 @@
         "header": {
           "open": true
         }
+      },
+      "window": {
+        "visible": false
       }
     }
   },
@@ -129,6 +132,11 @@
     }
   },
   "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "open": true
+      }
+    },
     "transitory": {
       "LiveWindow": {
         ".status": {
@@ -162,9 +170,6 @@
         }
       },
       "SmartDashboard": {
-        "Alerts": {
-          "open": true
-        },
         "Coral": {
           "open": true
         },

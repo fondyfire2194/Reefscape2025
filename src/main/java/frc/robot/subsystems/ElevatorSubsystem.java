@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.Factories.CommandFactory.Setpoint;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -158,11 +159,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
+
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
-
+   
     // SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
     // SmartDashboard.putNumber("Elevator/posconvinch",
     // Units.metersToInches(positionConversionFactor));

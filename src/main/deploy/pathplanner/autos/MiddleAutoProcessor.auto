@@ -11,22 +11,16 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLBSToJ"
+                  "pathName": "HGDeliverL4"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral L4"
+                  "name": "Deliver Coral L4"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral L4"
           }
         },
         {
@@ -36,13 +30,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "JToCoSt"
+                  "pathName": "ColectAlgaeHG"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral Station"
+                  "name": "Intake Algae L2"
                 }
               }
             ]
@@ -51,7 +45,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "Intake Algae"
           }
         },
         {
@@ -61,13 +55,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CoStToK"
+                  "pathName": "DeliverAlgaeHG"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral L4"
+                  "name": "Deliver Processor"
                 }
               }
             ]
@@ -76,7 +70,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Coral L4"
+            "name": "Deliver Algae"
           }
         },
         {
@@ -86,13 +80,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "KToCoSt"
+                  "pathName": "PickUpIJ"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral Station"
+                  "name": "Intake Algae L3"
                 }
               }
             ]
@@ -101,13 +95,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
+            "name": "Intake Algae"
           }
         },
         {
@@ -117,13 +105,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CoStToL"
+                  "pathName": "DeliverIJAlgae"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral L4"
+                  "name": "Deliver Processor"
                 }
               }
             ]
@@ -132,7 +120,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Coral L4"
+            "name": "Deliver Processor"
           }
         },
         {
@@ -142,13 +130,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LToCoSt"
+                  "pathName": "PickUpEFAlgae"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral Station"
+                  "name": "Intake Algae L3"
                 }
               }
             ]
@@ -157,7 +145,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "Intake Algae"
           }
         },
         {
@@ -167,13 +155,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CoStToB"
+                  "pathName": "DeliverEFAlgae"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Elevator Arm To Coral L4"
+                  "name": "Deliver Processor"
                 }
               }
             ]
@@ -182,7 +170,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Coral L4"
+            "name": "Deliver Algae"
           }
         }
       ]

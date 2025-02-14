@@ -82,7 +82,7 @@ public class RobotContainer implements Logged {
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerveflipped")); // "swerve"));
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae, ls);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
@@ -196,6 +196,15 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Stop Intake Algae", algae.stopMotorCommand());
 
+                NamedCommands.registerCommand("Intake Algae L2",
+                                cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
+
+                NamedCommands.registerCommand("Intake Algae L3",
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3));
+
+                NamedCommands.registerCommand("Deliver Processor",
+                                cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
 
@@ -237,22 +246,22 @@ public class RobotContainer implements Logged {
                 // drivebase.setDefaultCommand(
                 // !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle :
                 // driveFieldOrientedDirectAngleSim);
-                   drivebase.setDefaultCommand(
-                                Commands.parallel(
-                                                new GetNearestCoralStationPose(drivebase),
-                                                new GetNearestReefZonePose(drivebase, ls),
-                                                drivebase.driveCommand(
-                                                                () -> -MathUtil.applyDeadband(
-                                                                                driverXbox.getLeftY()
-                                                                                                * getAllianceFactor(),
-                                                                                OperatorConstants.LEFT_Y_DEADBAND),
-                                                                () -> -MathUtil.applyDeadband(
-                                                                                driverXbox.getLeftX()
-                                                                                                * getAllianceFactor(),
-                                                                                OperatorConstants.DEADBAND),
-                                                                () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
+                drivebase.setDefaultCommand(
+                        Commands.parallel(
+                                        new GetNearestCoralStationPose(drivebase),
+                                        new GetNearestReefZonePose(drivebase, ls),
+                                        drivebase.driveCommand(
+                                                        () -> -MathUtil.applyDeadband(
+                                                                        driverXbox.getLeftY()
+                                                                                        * getAllianceFactor(),
+                                                                        OperatorConstants.LEFT_Y_DEADBAND),
+                                                        () -> -MathUtil.applyDeadband(
+                                                                        driverXbox.getLeftX()
+                                                                                        * getAllianceFactor(),
+                                                                        OperatorConstants.DEADBAND),
+                                                        () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
 
-                                                                                OperatorConstants.RIGHT_X_DEADBAND))));
+                                                                        OperatorConstants.RIGHT_X_DEADBAND))));
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
