@@ -30,12 +30,11 @@ import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
-import frc.robot.commands.auto.DriveToNearestReefZone;
-import frc.robot.commands.auto.GetAlgaeProcessorPose;
-import frc.robot.commands.auto.GetNearestCoralStationPose;
-import frc.robot.commands.auto.GetNearestReefZonePose;
-import frc.robot.commands.auto.PIDDriveToPose;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.commands.teleopAutos.GetAlgaeProcessorPose;
+import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
+import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
+import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CoralIntakeSubsystem;
@@ -292,15 +291,13 @@ public class RobotContainer implements Logged {
                                                         Set.of(drivebase)));
 
                         driverXbox.rightBumper().whileTrue(
-                                        Commands.defer(() ->
-
-                                        new PIDDriveToPose(drivebase,
+                                        Commands.defer(() -> new PIDDriveToPose(drivebase,
                                                         drivebase.coralStationFinalTargetPose),
                                                         Set.of(drivebase)));
 
                         driverXbox.leftTrigger().whileTrue(
                                         Commands.defer(() -> drivebase
-                                                        .driveToPose( drivebase.getFinalReefTargetPose()),
+                                                        .driveToPose(drivebase.getFinalReefTargetPose()),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightTrigger().whileTrue(

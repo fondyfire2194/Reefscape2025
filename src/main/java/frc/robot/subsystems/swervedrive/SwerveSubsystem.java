@@ -78,7 +78,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   /**
    * AprilTag field layout.
    */
-  public final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  public final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
   /**
    * Enable vision odometry updates while driving.
    */
