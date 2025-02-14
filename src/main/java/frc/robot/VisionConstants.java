@@ -64,7 +64,7 @@ public final class VisionConstants {
       }
     }
 
-    public static CameraValues frontLeftCamera = new CameraValues(
+    public static CameraValues frontCamera = new CameraValues(
         "limelight-frleft",
         "10.21.94.15",
         Units.inchesToMeters(10.75),

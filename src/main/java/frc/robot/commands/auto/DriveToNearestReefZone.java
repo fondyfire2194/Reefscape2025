@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
@@ -25,6 +26,7 @@ public class DriveToNearestReefZone extends Command {
   Side m_side;
   boolean setSide;
   Translation2d tl2d;
+   Constraints driveConstraints = new Constraints(3.5, 5);
 
   public DriveToNearestReefZone(SwerveSubsystem swerve, Side side) {
     m_swerve = swerve;
@@ -71,6 +73,8 @@ public class DriveToNearestReefZone extends Command {
       m_swerve.reefFinalTargetPose = targetPose.transformBy(tr2d);
 
       m_swerve.driveToPose(m_swerve.reefFinalTargetPose).schedule();
+
+    // new DriveToPointCommand(m_swerve).schedule();
 
       exit = true;
     } else

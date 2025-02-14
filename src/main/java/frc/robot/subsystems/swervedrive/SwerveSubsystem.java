@@ -90,7 +90,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   // private static final Matrix<N3, N1> VISION_STDDEV = VecBuilder.fill(0.5, 0.5,
   // Math.toRadians(40));
 
-  public LimelightTagsUpdate flUpdate = new LimelightTagsUpdate(CameraConstants.frontLeftCamera, this);
+  public LimelightTagsUpdate flUpdate = new LimelightTagsUpdate(CameraConstants.frontCamera, this);
   public LimelightTagsUpdate frUpdate = new LimelightTagsUpdate(CameraConstants.frontRightCamera, this);
 
   @Log
@@ -110,20 +110,20 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   @Log
   public int coralStationTag;
   @Log
-  public Pose2d coralStationTargetPose = new Pose2d();;
+  public Pose2d coralStationTargetPose = new Pose2d();
   @Log
-  public Pose2d coralStationFinalTargetPose = new Pose2d();;
+  public Pose2d coralStationFinalTargetPose = new Pose2d();
   @Log
-  public Pose2d plusBorderPose = new Pose2d();;
+  public Pose2d plusBorderPose = new Pose2d();
   @Log
-  public Pose2d minusBorderPose = new Pose2d();;
+  public Pose2d minusBorderPose = new Pose2d();
   public double yZoneLimitAngle = 60;
   @Log
   public int processorStationTag;
   @Log
-  public Pose2d processorStationTargetPose;
+  public Pose2d processorStationTargetPose = new Pose2d();
   @Log
-  public Pose2d processorStationFinalTargetPose;
+  public Pose2d processorStationFinalTargetPose = new Pose2d();
 
   @Log
 
@@ -826,6 +826,10 @@ return Commands.runOnce(()-> side = sideIn);
 
   public double getGyroRate() {
     return swerveDrive.getGyro().getYawAngularVelocity().abs(DegreesPerSecond);
+  }
+
+  public Pose2d getFinalReefTargetPose() {
+    return reefFinalTargetPose;
   }
 
   public Command rumble(CommandXboxController controller, RumbleType type, double timeout) {
