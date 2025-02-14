@@ -149,6 +149,9 @@
             "open": true
           },
           "Pose2d##v_/Monologue/drivebase/poseestimate": {
+            "Rotation2d##v_rotation": {
+              "open": true
+            },
             "open": true
           },
           "Pose2d##v_/Monologue/drivebase/reefTargetPose": {
@@ -167,13 +170,11 @@
             "open": true
           },
           "open": true
-        }
+        },
+        "open": true
       },
       "SmartDashboard": {
         "Coral": {
-          "open": true
-        },
-        "Elevator": {
           "open": true
         },
         "Encoders": {

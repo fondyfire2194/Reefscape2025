@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot implements Logged {
 
   @Log
   Pose2d result;
+
 
   public Robot() {
     instance = this;

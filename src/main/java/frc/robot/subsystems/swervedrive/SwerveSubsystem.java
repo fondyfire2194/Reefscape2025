@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.swervedrive;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 
@@ -25,11 +26,15 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -125,8 +130,15 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   @Log
   public Pose2d processorStationFinalTargetPose = new Pose2d();
 
-  @Log
+  @Log(key = "setupFF25")
+  Pose3d setupFF25;
+  @Log(key = "setupFF2590P")
+  Pose3d setupFF2590P;
 
+  @Log(key = "setupFF2590M")
+  Pose3d setupFF2590M;
+
+  @Log
   public Side side = Side.LEFT;
 
   PPHolonomicDriveController pphc = new PPHolonomicDriveController(
@@ -222,6 +234,24 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
         Constants.MAX_SPEED,
         new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
             Rotation2d.fromDegrees(0)));
+
+            Distance xval =Distance.ofBaseUnits(0, Meter);
+            Distance yval =Distance.ofBaseUnits(0, Meter);
+            Distance zval =Distance.ofBaseUnits(0, Meter);
+
+            Angle a0= Degrees.of(0);
+            Angle a90P= Degrees.of(90);
+            Angle a90M= Degrees.of(-90);
+
+
+
+    setupFF25 = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a0));
+    setupFF2590P = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a90P));
+    setupFF2590M = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a90M));
+  
+
+
+
   }
 
   /**
@@ -334,8 +364,8 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
     return new PathPlannerAuto(pathAutoName);
   }
 
-  public Command setSide(Side sideIn){
-return Commands.runOnce(()-> side = sideIn);
+  public Command setSide(Side sideIn) {
+    return Commands.runOnce(() -> side = sideIn);
   }
 
   /**

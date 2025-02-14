@@ -4,7 +4,7 @@
   "rotations": [
     {
       "axis": "x",
-      "degrees": 0
+      "degrees": 180
     },
     {
       "axis": "y",
@@ -12,10 +12,10 @@
     },
     {
       "axis": "z",
-      "degrees": 0
+      "degrees": 90
     }
   ],
-  "position": [0, 0, 0],
+  "position": [-1, 1.2, 1.5],
   "cameras": [
     {
       "name": "Front Camera",
