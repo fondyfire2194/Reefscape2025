@@ -41,10 +41,11 @@ public class PIDDriveToPose extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    Translation2d tl2d = new Translation2d(xController.calculate(swerve.getPose().getX()),
+        yController.calculate(swerve.getPose().getY()));
+
     swerve.drive(
-        new Translation2d(
-            xController.calculate(swerve.getPose().getX()),
-            yController.calculate(swerve.getPose().getY())),
+        tl2d,
         thetaController.calculate(swerve.getPose().getRotation().getRadians()),
         true,
         false);

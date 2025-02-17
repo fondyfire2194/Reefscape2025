@@ -35,11 +35,10 @@ import frc.robot.commands.teleopAutos.GetAlgaeProcessorPose;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
-import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.CoralIntakeSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
@@ -63,9 +62,7 @@ public class RobotContainer implements Logged {
 
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
-        CoralIntakeSubsystem coral = new CoralIntakeSubsystem();
-
-        AlgaeIntakeSubsystem algae = new AlgaeIntakeSubsystem();
+        GamepieceSubsystem gamepieces = new GamepieceSubsystem();
 
         ElevatorArmSim elasim;
 
@@ -81,11 +78,11 @@ public class RobotContainer implements Logged {
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerveflipped")); // "swerve"));
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, coral, algae, ls);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, ls);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
-        Trigger coralAtIntake = new Trigger(() -> coral.coralAtIntake());
+        Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
 
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
@@ -181,19 +178,19 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("Elevator Arm To Coral L4",
                                 cf.setSetpointCommand(Setpoint.kLevel4));
 
-                NamedCommands.registerCommand("Deliver Coral L123", coral.deliverCoralCommandL123());
+                NamedCommands.registerCommand("Deliver Coral L123", gamepieces.deliverCoralCommandL123());
 
-                NamedCommands.registerCommand("Deliver Coral L4", coral.deliverCoralCommandL4());
+                NamedCommands.registerCommand("Deliver Coral L4", gamepieces.deliverCoralCommandL4());
 
-                NamedCommands.registerCommand("Intake Coral", coral.coralintakeToSwitchCommand());
+                NamedCommands.registerCommand("Intake Coral", gamepieces.coralintakeToSwitchCommand());
 
-                NamedCommands.registerCommand("Coral Stop Intake", coral.stopCoralMotorCommand());
+                NamedCommands.registerCommand("Gamepices Stop", gamepieces.stopMotorCommand());
 
-                NamedCommands.registerCommand("Intake Algae", algae.intakeAlgaeCommand());
+                NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 
-                NamedCommands.registerCommand("Deliver Algae", algae.deliverAlgaeCommand());
+                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeCommand());
 
-                NamedCommands.registerCommand("Stop Intake Algae", algae.stopMotorCommand());
+
 
                 NamedCommands.registerCommand("Intake Algae L2",
                                 cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
@@ -265,7 +262,7 @@ public class RobotContainer implements Logged {
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
                         driverXbox.b().whileTrue(Commands.none());// place algae
-                        driverXbox.y().onTrue(algae.intakeAlgaeCommand());// intake algae
+                        driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());// intake algae
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
@@ -319,41 +316,44 @@ public class RobotContainer implements Logged {
                         coDriverXbox.a().onTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kLevel1),
-                                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
+                                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
                         coDriverXbox.x().onTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kLevel2),
-                                                        coral.setTargetRPM(CoralRPMSetpoints.kCoralStation)));
+                                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kCoralStation)));
                         coDriverXbox.b().onTrue(Commands.none());
 
                         coDriverXbox.y().onTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kLevel4),
-                                                        coral.setTargetRPM(CoralRPMSetpoints.kReefPlaceL4)));
+                                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kReefPlaceL4)));
 
                         coDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kProcessorDeliver));
 
                         coDriverXbox.povRight().onTrue(
                                         Commands.sequence(
                                                         drivebase.setSide(Side.RIGHT),
+                                                        m_llv.setPOIRight(),
                                                         Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.RIGHT))));
 
                         coDriverXbox.povLeft().onTrue(
                                         Commands.sequence(
                                                         drivebase.setSide(Side.LEFT),
+                                                        m_llv.setPOILeft(),
                                                         Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.LEFT))));
 
                         coDriverXbox.povDown().onTrue(
                                         Commands.sequence(
                                                         drivebase.setSide(Side.CENTER),
+                                                        m_llv.clearPOI(),
                                                         Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.CENTER))));
 
                         coDriverXbox.start().onTrue(
                                         Commands.parallel(
                                                         elevator.clearStickyFaultsCommand(),
                                                         arm.clearStickyFaultsCommand(),
-                                                        algae.clearStickyFaultsCommand(),
-                                                        coral.clearStickyFaultsCommand()));
+                                
+                                                        gamepieces.clearStickyFaultsCommand()));
 
                 }
 
@@ -363,11 +363,10 @@ public class RobotContainer implements Logged {
                         coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
 
                         coDriverXbox.leftTrigger().whileTrue(
-                                        coral.jogMotorCommand(coDriverXbox.getLeftX()))
-                                        .onFalse(coral.stopCoralMotorCommand());
+                                        gamepieces.jogMotorCommand(coDriverXbox.getLeftX()))
+                                        .onFalse(gamepieces.stopMotorCommand());
 
-                        coDriverXbox.rightTrigger().whileTrue(algae.jogMotorCommand(coDriverXbox.getLeftX()))
-                                        .onFalse(algae.stopMotorCommand());
+                        coDriverXbox.rightTrigger().onTrue(Commands.none());
 
                         coDriverXbox.y().onTrue(
                                         Commands.runOnce(() -> elevator

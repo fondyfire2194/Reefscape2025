@@ -2,41 +2,41 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.Coral;
+package frc.robot.commands.Gamepieces;
 
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CoralIntakeSubsystem;
+import frc.robot.subsystems.GamepieceSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DetectCoralWhileIntaking extends Command {
+public class DetectAlgaeWhileIntaking extends Command {
 
-  private final CoralIntakeSubsystem m_coral;
+  private final GamepieceSubsystem m_gamepieces;
 
   private MedianFilter sampleFilter;
   private MedianFilter detectFilter;
-  private int coralDetectLevel = 20;
+  private int algaeDetectLevel = 20;
   private int sampleFilterLevel = 5;
   private int sampleCount;
   private final int numberSamplesWanted = 50;// 1 second
   private int detectCount;
   private final int numberDetectsWanted = 25;// 1 second
   private double filteredRPM;
-  private boolean coralDetected = false;
+  private boolean algaeDetected;
 
-  public DetectCoralWhileIntaking(CoralIntakeSubsystem coral) {
+  public DetectAlgaeWhileIntaking(GamepieceSubsystem gamepieces) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_coral = coral;
+    m_gamepieces=gamepieces;;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     sampleFilter = new MedianFilter(sampleFilterLevel);
-    detectFilter = new MedianFilter(coralDetectLevel);
+    detectFilter = new MedianFilter(algaeDetectLevel);
     sampleCount = 0;
     detectCount = 0;
-    coralDetected = false;
+    algaeDetected = false;
     sampleFilter.reset();
     detectFilter.reset();
   }
@@ -46,25 +46,25 @@ public class DetectCoralWhileIntaking extends Command {
   public void execute() {
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
-      filteredRPM = sampleFilter.calculate(m_coral.getRPM());
+      filteredRPM = sampleFilter.calculate(m_gamepieces.getRPM());
     else
-      filteredRPM = detectFilter.calculate(m_coral.getRPM());
+      filteredRPM = detectFilter.calculate(m_gamepieces.getRPM());
 
     if (sampleCount > numberSamplesWanted && detectCount > numberDetectsWanted) {
       detectCount++;
-      coralDetected = detectCount > numberDetectsWanted && filteredRPM < filteredRPM;
+      algaeDetected = detectCount > numberDetectsWanted && filteredRPM < filteredRPM;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_coral.stopMotor();
+    m_gamepieces.stopMotor();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return coralDetected;
+    return algaeDetected;
   }
 }

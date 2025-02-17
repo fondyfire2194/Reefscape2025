@@ -38,7 +38,7 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   final int[] autoTagFilter = new int[] { 10, 11, 6, 7, 8, 9, 21, 22, 17, 18, 19, 20 };
 
-  Alert flCameraAlert = new Alert("FrontLeftCameraProblem", AlertType.kWarning);
+  Alert flCameraAlert = new Alert("FrontCameraProblem", AlertType.kWarning);
   Alert frCameraAlert = new Alert("FrontRightCameraProblem", AlertType.kError);
   Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
   @Log(key = "flaccpose")

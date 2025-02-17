@@ -14,10 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.AlgaeIntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.CoralIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
 
@@ -27,17 +26,17 @@ public class CommandFactory {
         SwerveSubsystem m_swerve;
         ElevatorSubsystem m_elevator;
         ArmSubsystem m_arm;
-        CoralIntakeSubsystem m_coral;
-        AlgaeIntakeSubsystem m_algae;
+        GamepieceSubsystem m_gamepieces;
+      
         LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        CoralIntakeSubsystem coral, AlgaeIntakeSubsystem algae, LedStrip ls) {
+            GamepieceSubsystem gamepieces, LedStrip ls) {
                 m_swerve = swerve;
-                m_algae = algae;
+   
                 m_arm = arm;
                 m_elevator = elevator;
-                m_coral = coral;
+                m_gamepieces = gamepieces;
                 m_ls = ls;
         }
 
@@ -110,13 +109,13 @@ public class CommandFactory {
 
         public static final class CoralRPMSetpoints {
                 public static final double kCoralStation = 1100;
-                public static final double kReefPlaceL123 = -1100;
-                public static final double kReefPlaceL4 = -2000;
+                public static final double kReefPlaceL123 = 1100;
+                public static final double kReefPlaceL4 = 2000;
                 public static final double kStop = 0;
         }
 
         public static final class AlgaeRPMSetpoints {
-                public static final double kReefPickUpL123 = -1100;
+                public static final double kReefPickUpL123 = -.25;
                 public static final double kProcessorDeliver = 2000;
                 public static final double kStop = 0;
         }

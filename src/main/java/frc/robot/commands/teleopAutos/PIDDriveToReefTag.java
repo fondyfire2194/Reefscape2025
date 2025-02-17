@@ -39,11 +39,13 @@ public class PIDDriveToReefTag extends Command {
   private final PIDController yController = new PIDController(1.9, 0, 0);
   private final PIDController thetaController = new PIDController(3, 0, 0);
   private final LimelightVision m_llv;
+  private final boolean m_rotateFirst;
 
   /** Creates a new TurnToRelativeAngleTrapezoidProfile. */
-  public PIDDriveToReefTag(SwerveSubsystem swerve, LimelightVision llv) {
+  public PIDDriveToReefTag(SwerveSubsystem swerve, LimelightVision llv, boolean rotateFirst) {
     m_swerve = swerve;
     m_llv = llv;
+    m_rotateFirst = rotateFirst;
 
     xController.setTolerance(0.025);// 1"
     yController.setTolerance(0.025);// 1"
@@ -52,10 +54,10 @@ public class PIDDriveToReefTag extends Command {
     int reefZone = swerve.reefZone;
     int tagNumber = FieldConstants.blueReefTags[reefZone];
     Pose2d finalTarget = swerve.getFinalReefTargetPose();
-    target=finalTarget;
-    double poseDistancceToTarget = finalTarget.getTranslation().getDistance(swerve.getPose().getTranslation());
+    target = finalTarget;
+    double poseDistanceToTarget = finalTarget.getTranslation().getDistance(swerve.getPose().getTranslation());
     double cameraDistanceToTarget = m_llv.getDistanceToTag(CameraConstants.frontCamera.camname);
-    double distanceDifference = poseDistancceToTarget - cameraDistanceToTarget;
+    double distanceDifference = poseDistanceToTarget - cameraDistanceToTarget;
     addRequirements(swerve);
   }
 
@@ -70,17 +72,23 @@ public class PIDDriveToReefTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    Translation2d tl2d = new Translation2d();
     int tagseen = (int) LimelightHelpers.getFiducialID(CameraConstants.frontCamera.camname);
 
-    double tx = LimelightHelpers.getTX(CameraConstants.frontCamera.camname);
-    double llxkp = .001;
-    double yTarget = yController.getSetpoint() + tx * llxkp;
-    yController.setSetpoint(yTarget);
+    if (Math.abs(thetaController.getError()) < 3) {
+      tl2d = new Translation2d(
+          xController.calculate(m_swerve.getPose().getX()),
+          yController.calculate(m_swerve.getPose().getY()));
+
+      if (LimelightHelpers.getTV(CameraConstants.frontCamera.camname)) {
+        double tx = LimelightHelpers.getTX(CameraConstants.frontCamera.camname);
+        double llxkp = .001;
+        double yTarget = yController.getSetpoint() + tx * llxkp;
+        yController.setSetpoint(yTarget);
+      }
+    }
     m_swerve.drive(
-        new Translation2d(
-            xController.calculate(m_swerve.getPose().getX()),
-            yController.calculate(m_swerve.getPose().getY())),
+        tl2d,
         thetaController.calculate(m_swerve.getPose().getRotation().getRadians()),
         true,
         false);
