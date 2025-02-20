@@ -64,7 +64,9 @@ public class GetNearestCoralStationPose extends Command {
 
     int tagNumber = m_swerve.coralStationTag;
 
+    m_swerve.coralStationTargetPose3d = m_swerve.getTagPose(tagNumber);
     m_swerve.coralStationTargetPose = m_swerve.getTagPose(tagNumber).toPose2d();
+    
 
     double baseOffset = RobotConstants.pickupOffset + RobotConstants.ROBOT_LENGTH / 2;
 

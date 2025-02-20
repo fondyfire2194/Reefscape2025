@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2841989470706623,
-        "y": 6.3071220288374015
+        "x": 2.3376024590163933,
+        "y": 6.176793032786884
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.3805327868885864,
-        "y": 5.325665983611648
+        "x": 3.6802254098360656,
+        "y": 5.145850409836064
       },
       "prevControl": {
-        "x": 2.7772914112010754,
-        "y": 6.370510695530162
+        "x": 2.793135245898299,
+        "y": 6.008965163929333
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,19 +30,15 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [
+  "pointTowardsZones": [],
+  "eventMarkers": [
     {
-      "fieldPosition": {
-        "x": 0.4,
-        "y": 5.5
-      },
-      "rotationOffset": 90.0,
-      "minWaypointRelativePos": 0.3290598290598262,
-      "maxWaypointRelativePos": 0.6787769784172573,
-      "name": "Test Point Toward"
+      "name": "CompLL",
+      "waypointRelativePos": 0.7981956315289623,
+      "endWaypointRelativePos": 0.9957264957264934,
+      "command": null
     }
   ],
-  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

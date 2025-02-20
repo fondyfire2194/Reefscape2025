@@ -61,10 +61,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final Angle minAngle = Degrees.of(0); // pointing down
     public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
 
-    public double gearReduction = 50;
+    public double gearReduction = 40;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
-    double radperencderrev = 2 * Math.PI / gearReduction;
+    double radperencderrev = 2 * Math.PI /gearReduction ;
 
     double posConvFactor = radperencderrev;
 

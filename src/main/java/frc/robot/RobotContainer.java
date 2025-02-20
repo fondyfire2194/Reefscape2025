@@ -30,6 +30,7 @@ import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
+import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetAlgaeProcessorPose;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
@@ -76,13 +77,16 @@ public class RobotContainer implements Logged {
 
         // The robot's subsystems and commands are defined here...
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                        "swerveflipped")); // "swerve"));
+                        "swerve")); // "swerve"));
 
         CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, ls);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
         Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
+
+        Trigger stickyFaulTrigger = new Trigger(
+                        () -> gamepieces.getStickyFault() || arm.getStickyFault() || elevator.getStickyFault());
 
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
@@ -190,8 +194,6 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeCommand());
 
-
-
                 NamedCommands.registerCommand("Intake Algae L2",
                                 cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
 
@@ -200,6 +202,9 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Deliver Processor",
                                 cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
+                NamedCommands.registerCommand("CompLL",
+                                new AutoToTag(drivebase, m_llv));
 
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
@@ -216,6 +221,8 @@ public class RobotContainer implements Logged {
                 // drivebase.reefZone));
 
                 coralAtIntake.onTrue(rumble(driverXbox, RumbleType.kRightRumble, 1));
+
+                stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble,1));
 
                 DriverStation.silenceJoystickConnectionWarning(true);
                 autoChooser = AutoBuilder.buildAutoChooser();
@@ -261,8 +268,11 @@ public class RobotContainer implements Logged {
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
                         driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
-                        driverXbox.b().whileTrue(Commands.none());// place algae
-                        driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());// intake algae
+                        driverXbox.b().whileTrue(gamepieces.jogMotorCommand(-1))
+                                        .onFalse(gamepieces.stopMotorCommand());// place algae
+
+                        driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());
+                        // .onFalse(gamepieces.stopMotorCommand());// intake algae
                         driverXbox.start().onTrue(drivebase.centerModulesCommand());
                         driverXbox.back().whileTrue(Commands.none());
 
@@ -352,7 +362,7 @@ public class RobotContainer implements Logged {
                                         Commands.parallel(
                                                         elevator.clearStickyFaultsCommand(),
                                                         arm.clearStickyFaultsCommand(),
-                                
+
                                                         gamepieces.clearStickyFaultsCommand()));
 
                 }
@@ -415,7 +425,6 @@ public class RobotContainer implements Logged {
          */
         public Command getAutonomousCommand() {
                 // An example command will be run in autonomous
-                Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(1, 4, new Rotation2d())));
                 return autoChooser.getSelected();
         }
 

@@ -16,15 +16,16 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
 import frc.robot.Factories.CommandFactory.CoralRPMSetpoints;
+import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -43,6 +44,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
+  @Log(key = "target rpm")
   public double targetRPM;
 
   public final double coralintakeKp = .00002; // P gains caused oscilliation
@@ -52,6 +54,9 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   private double coralAtSwitchTime = 3;
 
+  private double lockAlgaeSet = .01;
+  private int lockAlgaeAmps = 2;
+
   /** Creates a new coralintake. */
   public GamepieceSubsystem() {
 
@@ -60,15 +65,17 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     else
       coralAtSwitchTime = 1;
 
-    gamepieceMotor = new SparkMax(Constants.CANIDConstants.coralintakeID, MotorType.kBrushless);
+    gamepieceMotor = new SparkMax(Constants.CANIDConstants.gamepieceID, MotorType.kBrushless);
 
     gamepieceController = gamepieceMotor.getClosedLoopController();
     coralDetectSwitch = gamepieceMotor.getForwardLimitSwitch();
     gamepieceConfig = new SparkMaxConfig();
 
     gamepieceConfig
-        .inverted(true)
+        .inverted(false)
+        .smartCurrentLimit(20, 20)
         .idleMode(IdleMode.kBrake);
+
     gamepieceConfig.encoder
         .positionConversionFactor(1)
         .velocityConversionFactor(1);
@@ -86,6 +93,15 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   }
 
+  public void setCurrentLimit(int amps) {
+    gamepieceConfig.smartCurrentLimit(amps);
+  }
+
+  public void lockMotor() {
+    gamepieceMotor.set(lockAlgaeSet);
+    setCurrentLimit(lockAlgaeAmps);
+  }
+
   public void stopMotor() {
     runAtVelocity(0);
     targetRPM = 0;
@@ -97,27 +113,27 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void coralintakeToSwitch(double RPM) {
-    enableLimitSwitch(true);
+    enableLimitSwitch();
     runAtVelocity(RPM);
   }
 
   public Command deliverCoralCommandL123() {
     return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch(false)),
+        Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(CoralRPMSetpoints.kReefPlaceL123)),
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL123));
   }
 
   public Command deliverCoralCommandL4() {
     return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch(false)),
+        Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(CoralRPMSetpoints.kReefPlaceL4)),
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4));
   }
 
   public Command coralintakeToSwitchCommand() {
     return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch(true)),
+        Commands.runOnce(() -> enableLimitSwitch()),
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation),
         Commands.run(() -> coralintakeToSwitch(CoralRPMSetpoints.kCoralStation))
             .until(() -> coralAtIntake())
@@ -126,14 +142,14 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command intakeAlgaeCommand() {
-    return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch(false)),
-        Commands.runOnce(() -> run(AlgaeRPMSetpoints.kReefPickUpL123)));
+    return Commands.sequence(
+        Commands.runOnce(() -> disableLimitSwitch()),
+        new DetectAlgaeWhileIntaking(this));
   }
 
   public Command deliverAlgaeCommand() {
     return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch(false)),
+        Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)),
         Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kProcessorDeliver));
   }
@@ -143,13 +159,14 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void runAtVelocity(double rpm) {
+    setCurrentLimit(20);
     if (RobotBase.isReal())
       gamepieceController.setReference(rpm, ControlType.kVelocity);
   }
 
   public Command runAtVelocityCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> enableLimitSwitch(true)),
+        Commands.runOnce(() -> enableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(targetRPM)));
   }
 
@@ -157,6 +174,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Commands.runOnce(() -> targetRPM = rpm);
   }
 
+  @Log(key = "coral at intake")
   public boolean coralAtIntake() {
     return coralDetectSwitch.isPressed();
   }
@@ -168,8 +186,12 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allStickyFaults.set(getStickyFault());
   }
 
-  public void enableLimitSwitch(boolean enable) {
-    gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(enable);
+  public void enableLimitSwitch() {
+    gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(true);
+  }
+
+  public void disableLimitSwitch() {
+    gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(false);
   }
 
   public boolean getLimitSwitchEnabled() {
@@ -189,14 +211,17 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
       return targetRPM;
   }
 
+  @Log(key = "fault")
   public boolean getActiveFault() {
     return gamepieceMotor.hasActiveFault();
   }
 
+  @Log(key = "sticky fault")
   public boolean getStickyFault() {
     return gamepieceMotor.hasStickyFault();
   }
 
+  @Log(key = "warning")
   public boolean getWarnings() {
     return gamepieceMotor.hasActiveWarning();
   }

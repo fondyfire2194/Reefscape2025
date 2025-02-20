@@ -59,8 +59,8 @@ public final class Constants {
     public static final int leftElevatorID = 20;
     public static final int rightElevatorID = 21;
     public static final int armMotorID = 22;
-    public static final int algaeintakeID = 23;
-    public static final int coralintakeID = 24;
+    public static final int gamepieceID = 23;
+  
 
   }
 

@@ -5,6 +5,7 @@
 package frc.robot.commands.Gamepieces;
 
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
 
@@ -18,15 +19,19 @@ public class DetectAlgaeWhileIntaking extends Command {
   private int algaeDetectLevel = 20;
   private int sampleFilterLevel = 5;
   private int sampleCount;
-  private final int numberSamplesWanted = 50;// 1 second
+  private final int numberSamplesWanted = 25;// 1 second
   private int detectCount;
   private final int numberDetectsWanted = 25;// 1 second
   private double filteredRPM;
   private boolean algaeDetected;
 
+  private double sampledRPM;
+
+  private double detectThreshold = .75;
+
   public DetectAlgaeWhileIntaking(GamepieceSubsystem gamepieces) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_gamepieces=gamepieces;;
+    m_gamepieces = gamepieces;
   }
 
   // Called when the command is initially scheduled.
@@ -39,27 +44,35 @@ public class DetectAlgaeWhileIntaking extends Command {
     algaeDetected = false;
     sampleFilter.reset();
     detectFilter.reset();
+    m_gamepieces.disableLimitSwitch();
+    m_gamepieces.run(.5);
+    m_gamepieces.setCurrentLimit(20);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+    SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
+    SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
+    SmartDashboard.putBoolean("Algae/Detected", algaeDetected);
+
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
-      filteredRPM = sampleFilter.calculate(m_gamepieces.getRPM());
-    else
+      sampledRPM = sampleFilter.calculate(m_gamepieces.getRPM());
+    else {
       filteredRPM = detectFilter.calculate(m_gamepieces.getRPM());
-
-    if (sampleCount > numberSamplesWanted && detectCount > numberDetectsWanted) {
       detectCount++;
-      algaeDetected = detectCount > numberDetectsWanted && filteredRPM < filteredRPM;
+    }
+    if (detectCount > numberDetectsWanted) {
+      algaeDetected = filteredRPM < sampledRPM * detectThreshold;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_gamepieces.stopMotor();
+    m_gamepieces.lockMotor();
   }
 
   // Returns true when the command should end.

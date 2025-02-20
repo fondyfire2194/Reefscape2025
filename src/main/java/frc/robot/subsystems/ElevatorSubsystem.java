@@ -42,7 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final double kElevatorGearing = ((62. * 22.) / (9. * 16.));// 9.4722222
 
-  public final double kElevatorDrumRadiusInches = 1.757 / 2;
+  public final double kElevatorDrumRadiusInches = 1.757;
 
   public final double kElevatorDrumRadiusMeters = Units.inchesToMeters(kElevatorDrumRadiusInches);
 
@@ -201,7 +201,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     rightConfig
 
-        .follow(CANIDConstants.leftElevatorID, true)
+        .follow(CANIDConstants.leftElevatorID, false)
 
         .smartCurrentLimit(40)
 
@@ -239,12 +239,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
   public void simulationPeriodic() {
 
-    SmartDashboard.putNumber("Elevator/positionleft", getLeftPositionMeters());
-    SmartDashboard.putNumber("Elevator/Velleft", leftEncoder.getVelocity());
-    SmartDashboard.putNumber("Elevator/positionright", rightEncoder.getPosition());
-    SmartDashboard.putNumber("Elevator/Velright", rightEncoder.getVelocity());
-
-    SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
 
   }
 
@@ -364,6 +358,14 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
+
+    
+    SmartDashboard.putNumber("Elevator/positionleft",Units.metersToInches (getLeftPositionMeters()));
+    SmartDashboard.putNumber("Elevator/Velleft", leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches (rightEncoder.getPosition()));
+    SmartDashboard.putNumber("Elevator/Velright", rightEncoder.getVelocity());
+
+    SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
 
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());

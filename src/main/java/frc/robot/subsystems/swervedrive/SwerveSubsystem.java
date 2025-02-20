@@ -74,7 +74,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   /**
    * Swerve drive object.
    */
-  private final SwerveDrive swerveDrive;
+  public final SwerveDrive swerveDrive;
   /**
    * AprilTag field layout.
    */
@@ -114,6 +114,9 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   double tagHeading;
   @Log
   public int coralStationTag;
+  
+  @Log
+  public Pose3d coralStationTargetPose3d = new Pose3d();
   @Log
   public Pose2d coralStationTargetPose = new Pose2d();
   @Log
@@ -709,6 +712,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     } else {
       zeroGyro();
+    
     }
   }
 

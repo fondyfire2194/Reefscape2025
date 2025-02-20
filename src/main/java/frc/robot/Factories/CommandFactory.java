@@ -27,13 +27,13 @@ public class CommandFactory {
         ElevatorSubsystem m_elevator;
         ArmSubsystem m_arm;
         GamepieceSubsystem m_gamepieces;
-      
+
         LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-            GamepieceSubsystem gamepieces, LedStrip ls) {
+                        GamepieceSubsystem gamepieces, LedStrip ls) {
                 m_swerve = swerve;
-   
+
                 m_arm = arm;
                 m_elevator = elevator;
                 m_gamepieces = gamepieces;

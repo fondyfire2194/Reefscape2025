@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.868250000000001,
-        "y": 1.2852499999999998
+        "x": 7.1686475409836055,
+        "y": 0.8902151639344253
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.77625,
-        "y": 1.6752499999999997
+        "x": 5.966465407959339,
+        "y": 0.8902151639344256
       },
       "isLocked": false,
       "linkedName": null
@@ -48,7 +48,7 @@
   "folder": "BNSAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.7974018382342
+    "rotation": 130.0
   },
   "useDefaultConstraints": true
 }
