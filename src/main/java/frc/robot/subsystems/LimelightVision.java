@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -25,11 +26,14 @@ import monologue.Logged;
 public class LimelightVision extends SubsystemBase implements Logged {
   /** Creates a new LimelightVision. */
 
-  public boolean limelightExistsfl;
+  public boolean limelightExistsfront;
 
-  public boolean limelightExistsfr;
+  public boolean limelightExistsleft;
 
-  public boolean limelightExistsr;
+  public boolean limelightExistsright;
+
+  public boolean limelightExistsrear;
+
   private int loopctr;
 
   public String frontname = VisionConstants.CameraConstants.frontCamera.camname;
@@ -70,8 +74,8 @@ public class LimelightVision extends SubsystemBase implements Logged {
       setCamToRobotOffset(VisionConstants.CameraConstants.frontCamera);
     }
 
-    if (VisionConstants.CameraConstants.frontRightCamera.isUsed)
-      setCamToRobotOffset(VisionConstants.CameraConstants.frontRightCamera);
+    if (VisionConstants.CameraConstants.rightCamera.isUsed)
+      setCamToRobotOffset(VisionConstants.CameraConstants.rightCamera);
 
   }
 
@@ -102,24 +106,31 @@ public class LimelightVision extends SubsystemBase implements Logged {
       return 0;
   }
 
+  public boolean getTXOKDeliverCoral() {
+    double tx = LimelightHelpers.getTX(frontname);
+    double distance = Units.metersToInches(getDistanceToTag(frontname));
+    double yerror = Math.tan(Units.degreesToRadians(tx)) * distance;
+    return yerror < 2;
+  }
+
   @Override
   public void periodic() {
 
     if (RobotBase.isReal()) {
       if (VisionConstants.CameraConstants.frontCamera.isUsed && loopctr == 0) {
-        limelightExistsfl = isLimelightConnected(CameraConstants.frontCamera.camname);
-        limelightExistsfr = isLimelightConnected(CameraConstants.frontRightCamera.camname);
-        limelightExistsr = isLimelightConnected(CameraConstants.rearCamera.camname);
+        limelightExistsfront = isLimelightConnected(CameraConstants.frontCamera.camname);
+        limelightExistsleft = isLimelightConnected(CameraConstants.rightCamera.camname);
+        limelightExistsrear = isLimelightConnected(CameraConstants.rearCamera.camname);
 
-        boolean allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfl
-            && VisionConstants.CameraConstants.frontRightCamera.isUsed && limelightExistsfr
-            && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsr;
+        boolean allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
+            && VisionConstants.CameraConstants.rightCamera.isUsed && limelightExistsleft
+            && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsrear;
         SmartDashboard.putBoolean("LL//CamsOK", allcamsok);
       }
 
-      SmartDashboard.putBoolean("LL//FrontLeftCamOk", limelightExistsfl);
-      SmartDashboard.putBoolean("LL//FrontRightCamOk", limelightExistsfr);
-      SmartDashboard.putBoolean("LL//RearCamOk", limelightExistsr);
+      SmartDashboard.putBoolean("LL//FrontLeftCamOk", limelightExistsfront);
+      SmartDashboard.putBoolean("LL//FrontRightCamOk", limelightExistsleft);
+      SmartDashboard.putBoolean("LL//RearCamOk", limelightExistsrear);
     }
   }
 

@@ -14,24 +14,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToNearestReefZone extends Command {
   /** Creates a new FindRobotReefZone. */
   SwerveSubsystem m_swerve;
-
+  LimelightVision m_llv;
   boolean exit;
   int tst;
   Side m_side;
   boolean setSide;
   Translation2d tl2d;
-   Constraints driveConstraints = new Constraints(3.5, 5);
+  Constraints driveConstraints = new Constraints(3.5, 5);
 
-  public DriveToNearestReefZone(SwerveSubsystem swerve, Side side) {
+  public DriveToNearestReefZone(SwerveSubsystem swerve, Side side, LimelightVision llv) {
     m_swerve = swerve;
     m_side = side;
     setSide = false;
+    m_llv = llv;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -74,7 +76,7 @@ public class DriveToNearestReefZone extends Command {
 
       m_swerve.driveToPose(m_swerve.reefFinalTargetPose).schedule();
 
-    // new DriveToPointCommand(m_swerve).schedule();
+      // new DriveToPointCommand(m_swerve).schedule();
 
       exit = true;
     } else
@@ -84,7 +86,7 @@ public class DriveToNearestReefZone extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
+    m_llv.getTXOKDeliverCoral();
 
   }
 

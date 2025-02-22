@@ -131,7 +131,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4));
   }
 
-  public Command coralintakeToSwitchCommand() {
+  public Command intakeCoralToSwitchCommand() {
     return Commands.parallel(
         Commands.runOnce(() -> enableLimitSwitch()),
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation),

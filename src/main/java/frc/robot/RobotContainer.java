@@ -36,6 +36,7 @@ import frc.robot.commands.teleopAutos.GetAlgaeProcessorPose;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
+import frc.robot.commands.teleopAutos.TeleopToTag;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -186,7 +187,7 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Deliver Coral L4", gamepieces.deliverCoralCommandL4());
 
-                NamedCommands.registerCommand("Intake Coral", gamepieces.coralintakeToSwitchCommand());
+                NamedCommands.registerCommand("Intake Coral", gamepieces.intakeCoralToSwitchCommand());
 
                 NamedCommands.registerCommand("Gamepices Stop", gamepieces.stopMotorCommand());
 
@@ -222,7 +223,7 @@ public class RobotContainer implements Logged {
 
                 coralAtIntake.onTrue(rumble(driverXbox, RumbleType.kRightRumble, 1));
 
-                stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble,1));
+                stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble, 1));
 
                 DriverStation.silenceJoystickConnectionWarning(true);
                 autoChooser = AutoBuilder.buildAutoChooser();
@@ -267,51 +268,54 @@ public class RobotContainer implements Logged {
                                                                                 OperatorConstants.RIGHT_X_DEADBAND))));
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
-                        driverXbox.x().onTrue(Commands.runOnce(drivebase::zeroGyro));
-                        driverXbox.b().whileTrue(gamepieces.jogMotorCommand(-1))
-                                        .onFalse(gamepieces.stopMotorCommand());// place algae
+
+                        driverXbox.b().whileTrue(gamepieces.deliverAlgaeCommand());
 
                         driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());
-                        // .onFalse(gamepieces.stopMotorCommand());// intake algae
-                        driverXbox.start().onTrue(drivebase.centerModulesCommand());
-                        driverXbox.back().whileTrue(Commands.none());
 
-                        // driverXbox.leftTrigger().whileTrue(
-                        // Commands.parallel(
-                        // new FindCurrentReefZone(drivebase, ls),
-                        // new AbsoluteDrivePointAtReef(
-                        // drivebase,
-                        // () -> -MathUtil.applyDeadband(
-                        // driverXbox.getLeftY(),
-                        // OperatorConstants.LEFT_Y_DEADBAND),
-                        // () -> -MathUtil.applyDeadband(
-                        // driverXbox.getLeftX(),
-                        // OperatorConstants.DEADBAND),
-                        // () -> -MathUtil.applyDeadband(
-                        // driverXbox.getRightX(),
-                        // OperatorConstants.RIGHT_X_DEADBAND))))
-                        // .onFalse(new GetNearestReefZonePose(drivebase));
+                        driverXbox.a().whileTrue(gamepieces.deliverCoralCommandL123());
+
+                        driverXbox.x().onTrue(gamepieces.intakeCoralToSwitchCommand());
+
+
+
+
+                        driverXbox.back().onTrue(drivebase.centerModulesCommand());
+                        driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro));
+
 
                         driverXbox.leftBumper().whileTrue(
-                                        Commands.defer(() -> new PIDDriveToPose(drivebase,
-                                                        drivebase.getFinalReefTargetPose()),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
+                                                        new PIDDriveToPose(drivebase,
+                                                                        drivebase.getFinalReefTargetPose())),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightBumper().whileTrue(
-                                        Commands.defer(() -> new PIDDriveToPose(drivebase,
-                                                        drivebase.coralStationFinalTargetPose),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
+                                                        new PIDDriveToPose(drivebase,
+                                                                        drivebase.getFinalReefTargetPose())),
                                                         Set.of(drivebase)));
 
+                        // driverXbox.leftBumper().whileTrue(
+                        //                 Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
+                        //                                 new TeleopToTag(drivebase, m_llv, coDriverXbox)),
+                        //                                 Set.of(drivebase)));
+
+                        // driverXbox.rightBumper().whileTrue(
+                        //                 Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
+                        //                                 new TeleopToTag(drivebase, m_llv, coDriverXbox)),
+                        //                                 Set.of(drivebase)));
+
                         driverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(() -> drivebase
-                                                        .driveToPose(drivebase.getFinalReefTargetPose()),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
+                                                        drivebase.driveToPose(drivebase
+                                                                        .getFinalReefTargetPose())),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(
-                                                        new GetAlgaeProcessorPose(drivebase),
-                                                        new PIDDriveToPose(drivebase,
-                                                                        drivebase.processorStationFinalTargetPose)),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
+                                                        drivebase.driveToPose(drivebase
+                                                                        .getFinalReefTargetPose())),
                                                         Set.of(drivebase)));
 
                 } /*

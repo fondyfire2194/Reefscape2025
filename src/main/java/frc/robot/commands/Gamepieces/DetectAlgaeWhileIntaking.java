@@ -13,7 +13,6 @@ import frc.robot.subsystems.GamepieceSubsystem;
 public class DetectAlgaeWhileIntaking extends Command {
 
   private final GamepieceSubsystem m_gamepieces;
-
   private MedianFilter sampleFilter;
   private MedianFilter detectFilter;
   private int algaeDetectLevel = 20;

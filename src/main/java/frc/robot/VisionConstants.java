@@ -65,7 +65,7 @@ public final class VisionConstants {
     }
 
     public static CameraValues frontCamera = new CameraValues(
-        "limelight-frleft",
+        "limelight-front",
         "10.21.94.15",
         Units.inchesToMeters(10.75),
         Units.inchesToMeters(-7.25),
@@ -80,8 +80,8 @@ public final class VisionConstants {
         true,
         false);
 
-    public static CameraValues frontRightCamera = new CameraValues(
-        "limelight-frright",
+    public static CameraValues leftCamera = new CameraValues(
+        "limelight-left",
         "10.21.94.16",
         Units.inchesToMeters(10.75),
         Units.inchesToMeters(7.25),
@@ -96,8 +96,8 @@ public final class VisionConstants {
         true,
         false);
 
-    public static CameraValues rearCamera = new CameraValues(
-        "limelight-rear",
+    public static CameraValues rightCamera = new CameraValues(
+        "limelight-right",
         "10.21.94.17",
         Units.inchesToMeters(0),
         Units.inchesToMeters(-17.25),
@@ -111,6 +111,23 @@ public final class VisionConstants {
         960,
         true,
         false);
+
+        
+    public static CameraValues rearCamera = new CameraValues(
+      "limelight-rear",
+      "10.21.94.18",
+      Units.inchesToMeters(0),
+      Units.inchesToMeters(-17.25),
+      Units.inchesToMeters(9.0),
+      0,
+      5,
+      0,
+      63.3,
+      49.7,
+      1280,
+      960,
+      true,
+      false);
 
     public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
     public static final double DISTANCE_CUTOFF = 4.0;

@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
-import frc.robot.Factories.CommandFactory.Setpoint;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -116,32 +115,31 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   // reallocation.
   private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
 
-  public final Trigger atMin=new Trigger(()->getLeftPositionMeters()<=.1);
+  public final Trigger atMin = new Trigger(() -> getLeftPositionMeters() <= .1);
 
-  public final Trigger atMax = new Trigger(() -> getLeftPositionMeters()>(maxElevatorHeight.in(Meters)-.2));
-                                                                            
+  public final Trigger atMax = new Trigger(() -> getLeftPositionMeters() > (maxElevatorHeight.in(Meters) - .2));
 
-  private final SysIdRoutine      m_sysIdRoutine   =
-  new SysIdRoutine(
+  private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(
       // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
       new SysIdRoutine.Config(Volts.per(Second).of(1),
-                              Volts.of(7),
-                              Seconds.of(10)),
+          Volts.of(7),
+          Seconds.of(10)),
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motor(s).
           leftMotor::setVoltage,
-          // Tell SysId how to record a frame of data for each motor on the mechanism being
+          // Tell SysId how to record a frame of data for each motor on the mechanism
+          // being
           // characterized.
           log -> {
             // Record a frame for the shooter motor.
             log.motor("elevator")
-               .voltage(
-                   m_appliedVoltage.mut_replace(
-                       leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
-               .linearPosition(m_distance.mut_replace(getLeftPositionMeters(),
-                                                      Meters)) // Records Height in Meters via SysIdRoutineLog.linearPosition
-               .linearVelocity(m_velocity.mut_replace(getLeftVelocityMetersPerSecond(),
-                                                      MetersPerSecond)); // Records velocity in MetersPerSecond via SysIdRoutineLog.linearVelocity
+                .voltage(
+                    m_appliedVoltage.mut_replace(
+                        leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(getLeftPositionMeters(),
+                    Meters)) // Records Height in Meters via SysIdRoutineLog.linearPosition
+                .linearVelocity(m_velocity.mut_replace(getLeftVelocityMetersPerSecond(),
+                    MetersPerSecond)); // Records velocity in MetersPerSecond via SysIdRoutineLog.linearVelocity
           },
           this));
 
@@ -159,12 +157,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
-   
+
     // SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
     // SmartDashboard.putNumber("Elevator/posconvinch",
     // Units.metersToInches(positionConversionFactor));
@@ -238,7 +235,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * Advance the simulation
    */
   public void simulationPeriodic() {
-
 
   }
 
@@ -359,10 +355,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
-    
-    SmartDashboard.putNumber("Elevator/positionleft",Units.metersToInches (getLeftPositionMeters()));
+    SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
     SmartDashboard.putNumber("Elevator/Velleft", leftEncoder.getVelocity());
-    SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches (rightEncoder.getPosition()));
+    SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches(rightEncoder.getPosition()));
     SmartDashboard.putNumber("Elevator/Velright", rightEncoder.getVelocity());
 
     SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
