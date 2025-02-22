@@ -64,7 +64,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public double gearReduction = 40;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
-    double radperencderrev = 2 * Math.PI /gearReduction ;
+    double radperencderrev = 2 * Math.PI / gearReduction;
 
     double posConvFactor = radperencderrev;
 
@@ -76,9 +76,14 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
+    /*
+     * ( (value that goes up) - (value that goes down) )/ 2 = ks
+       * ( (value that goes up) + (value that goes down) )/2 = kg
+     */
+
     public final double armKg = 0.1;
     public final double armKs = 0.1;
-    public final double armKv = 10 / maxradpersec;
+    public final double armKv = 12 / maxradpersec;
     public final double armKa = 0;
 
     public double armKp = 1.1;
@@ -245,6 +250,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         return Units.radiansToDegrees(armMotor.getEncoder().getVelocity());
     }
 
+    @Log(key = "angle")
     public Angle getAngle() {
         double rawAngle = armMotor.getEncoder().getPosition();
         return Radians.of(rawAngle);
