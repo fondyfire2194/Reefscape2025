@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.config.PIDConstants;
+
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -26,19 +28,17 @@ public final class Constants {
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms spark max velocity lag
-  public static final double MAX_SPEED = Units.feetToMeters(14.5);
-  public static final double MAX_ACCEL = Units.feetToMeters(20);
-  public static final double MAX_ANGULAR_SPEED = 1; //radspersec
-  public static final double MAX_ANGULAR_ACCEL = 2;//radspersecpersec
-  // Maximum speed of the robot in meters per second, used to limit acceleration.
+  public static final double WHEEL_BASE = Units.inchesToMeters(20.75);
+  public static final double TRACK_WIDTH = Units.inchesToMeters(22.75);
+  public static final double MAX_SPEED = 4.5;
+  public static final double MAX_ACCEL = 8.3;
+  public static final double WHEEL_NORM = Math.sqrt(Math.pow(WHEEL_BASE / 2, 2) + Math.pow(TRACK_WIDTH / 2, 2));
+  public static final double DRIVING_CIRCUMFERENCE = Math.PI * 2 * WHEEL_NORM;
+  public static final double TIME_PER_REV = MAX_SPEED / DRIVING_CIRCUMFERENCE;
 
-  // public static final class AutonConstants
-  // {
-  //
-  // public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0,
-  // 0);
-  // public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
-  // }
+  public static final double MAX_ANGULAR_SPEED_VEL = 2 * Math.PI / TIME_PER_REV; // radspersec
+  public static final double MAX_ANGULAR_ACCEL = 10;// radspersecpersec
+
 
   public final class CANIDConstants {
 
@@ -60,8 +60,6 @@ public final class Constants {
     public static final int rightElevatorID = 21;
     public static final int armMotorID = 22;
     public static final int gamepieceID = 23;
-  
-
   }
 
   public static final class DrivebaseConstants {
@@ -120,7 +118,6 @@ public final class Constants {
   }
 
   public static final class SimulationRobotConstants {
-   
 
     // public static final double kElevatorGearing = 25; // 25:1
     public static final double kCarriageMass = 4.3 + 3.15 + 0.151; // Kg, arm + elevator stage + chain

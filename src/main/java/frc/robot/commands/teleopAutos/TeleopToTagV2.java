@@ -7,9 +7,10 @@ package frc.robot.commands.teleopAutos;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
@@ -18,7 +19,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LimelightHelpers;
 import swervelib.math.SwerveMath;
 
-public class TeleopToTag extends Command {
+public class TeleopToTagV2 extends Command {
 
   private final SwerveSubsystem m_swerve;
 
@@ -30,7 +31,13 @@ public class TeleopToTag extends Command {
 
   double forwardkP = .1;
 
-  public TeleopToTag(SwerveSubsystem swerve, LimelightVision llv, CommandXboxController controller) {
+  Pose2d tagPose;
+
+  private PIDController controllerX;
+  private PIDController controllerY;
+  private PIDController controllerRotation;
+
+  public TeleopToTagV2(SwerveSubsystem swerve, LimelightVision llv, CommandXboxController controller) {
     m_swerve = swerve;
     m_llv = llv;
     m_controller = controller;
@@ -40,35 +47,54 @@ public class TeleopToTag extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    controllerX = new PIDController(0.7, 0.0, 0.0);
+    controllerY = new PIDController(0.7, 0.0, 0.0);
+    controllerRotation = new PIDController(2.0, 0.0, 0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    if (LimelightHelpers.getTV(m_llv.frontname)||  m_controller.a().getAsBoolean()) {
+    if (LimelightHelpers.getTV(m_llv.frontname) || m_controller.a().getAsBoolean()) {
 
-      double distanceToTag = m_llv.getDistanceToTag(m_llv.frontname);
+      tagPose = m_swerve.reefTargetPose;
+      m_swerve.poseTagActive = tagPose;
 
-      Pose2d tagPose = m_swerve.reefFinalTargetPose;
-
-      double tX = LimelightHelpers.getTX(m_llv.frontname);
-
-      double yError = Math.sin(Units.degreesToRadians(tX)) * distanceToTag;
-
-      double angleError = tagPose.getRotation().getDegrees() - m_swerve.getPose().getRotation().getDegrees();
-
+      Pose2d currentPose = m_swerve.getPose();
+      double x = controllerX.calculate(currentPose.getX(), tagPose.getX());
+      double y = controllerY.calculate(currentPose.getY(), tagPose.getY());
+      double rotation = controllerRotation.calculate(currentPose.getRotation().getRadians(),
+          tagPose.getRotation().getRadians());
+      if (x > 0.2) {
+        x = 0.2;
+      } else if (x < -0.2) {
+        x = -0.2;
+      }
+      if (y > 0.2) {
+        y = 0.2;
+      } else if (y < -0.2) {
+        y = -0.2;
+      }
+      if (rotation > 0.2) {
+        rotation = 0.2;
+      } else if (rotation < -0.2) {
+        rotation = -0.2;
+      }
+      Pose2d poseOffset = new Pose2d(x, y, new Rotation2d(rotation));
       m_swerve.drive(
           new Translation2d(
-              forwardToTag(distanceToTag),
-              0),
-          angleError * angleKp,
+              poseOffset.getX() * m_swerve.swerveDrive.getMaximumChassisVelocity(),
+              poseOffset.getY() * m_swerve.swerveDrive.getMaximumChassisVelocity()),
+          poseOffset.getRotation().getRadians()
+              * m_swerve.swerveDrive.getMaximumChassisAngularVelocity(),
           false,
           true);
     }
 
-    else {
+    else
+
+    {
 
       DoubleSupplier translationX = () -> -MathUtil.applyDeadband(
           m_controller.getLeftY(),

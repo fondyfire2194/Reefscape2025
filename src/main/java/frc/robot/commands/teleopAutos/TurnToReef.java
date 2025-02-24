@@ -26,9 +26,8 @@ public class TurnToReef extends Command {
 
   private final double kMaxSpeed = Constants.MAX_SPEED;// veChassis.MaxAngularRate * 180.0 / Math.PI; // degrees per
                                                        // second
-  private final double kMaxAngularRate = Constants.MAX_ANGULAR_SPEED;
-  private final double kMaxAccel = Constants.MAX_ANGULAR_ACCEL;// veChassis.maxAngularAcceleration * 180.0 / Math.PI; //
-
+  private final double kMaxAngularRate = Constants.MAX_ANGULAR_SPEED_VEL;
+  private final double kMaxAccel = Constants.MAX_ANGULAR_ACCEL;//
   private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(kMaxSpeed, kMaxAccel);
   private final ProfiledPIDController ppc = new ProfiledPIDController(kP, kI, kD, constraints);
 
@@ -41,7 +40,6 @@ public class TurnToReef extends Command {
     m_swerve = swerve;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_swerve);
-
   }
 
   // Called when the command is initially scheduled.
@@ -53,7 +51,6 @@ public class TurnToReef extends Command {
     ppc.reset(initialAngle, 0); // set current angle and 0 angular velocity as current state
     ppc.setGoal(m_swerve.reefFinalTargetPose.getRotation().getRadians());
     ppc.setTolerance(tolerance);
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.

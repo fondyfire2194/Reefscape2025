@@ -5,11 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import monologue.Logged;
@@ -69,6 +69,12 @@ public class Robot extends TimedRobot implements Logged {
 
     if (isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
+      SmartDashboard.putNumber("CON/Norm", Constants.WHEEL_NORM);
+      SmartDashboard.putNumber("CON/Circ", Constants.DRIVING_CIRCUMFERENCE);
+      SmartDashboard.putNumber("CON/TimePerrev", Constants.TIME_PER_REV);
+      SmartDashboard.putNumber("CON/MAXANGRPS", Constants.MAX_ANGULAR_SPEED_VEL);
+      
+      
     }
   }
 
@@ -110,10 +116,8 @@ public class Robot extends TimedRobot implements Logged {
     disabledTimer.reset();
     disabledTimer.start();
 
-    m_robotContainer.drivebase.flUpdate.setLLRobotorientation();
-    m_robotContainer.drivebase.frUpdate.setLLRobotorientation();
-    m_robotContainer.drivebase.flUpdate.setUseMegatag2(false);
-    m_robotContainer.drivebase.frUpdate.setUseMegatag2(false);
+    m_robotContainer.drivebase.frontUpdate.setLLRobotorientation();
+    m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
   }
 
   @Override
@@ -158,8 +162,8 @@ public class Robot extends TimedRobot implements Logged {
       CommandScheduler.getInstance().cancelAll();
     }
     m_robotContainer.setDriveMode();
-    m_robotContainer.drivebase.flUpdate.setUseMegatag2(true);
-    m_robotContainer.drivebase.frUpdate.setUseMegatag2(true);
+    m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
+    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.inhibitVision = false;
   } 
 

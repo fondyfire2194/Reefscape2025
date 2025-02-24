@@ -78,7 +78,8 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   /**
    * AprilTag field layout.
    */
-  public final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  public final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout
+      .loadField(AprilTagFields.k2025ReefscapeWelded);
   /**
    * Enable vision odometry updates while driving.
    */
@@ -87,7 +88,6 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
    * PhotonVision class to keep an accurate odometry.
    */
 
-  private Vision vision;
   public boolean inhibitVision;
   public double distanceLimelightToEstimator;
   // private static final Matrix<N3, N1> ODOMETRY_STDDEV = VecBuilder.fill(0.03,
@@ -95,8 +95,8 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   // private static final Matrix<N3, N1> VISION_STDDEV = VecBuilder.fill(0.5, 0.5,
   // Math.toRadians(40));
 
-  public LimelightTagsUpdate flUpdate = new LimelightTagsUpdate(CameraConstants.frontCamera, this);
-  public LimelightTagsUpdate frUpdate = new LimelightTagsUpdate(CameraConstants.rightCamera, this);
+  public LimelightTagsUpdate frontUpdate = new LimelightTagsUpdate(CameraConstants.frontCamera, this);
+  public LimelightTagsUpdate rearUpdate = new LimelightTagsUpdate(CameraConstants.rearCamera, this);
 
   @Log
   public int reefZone = 0;
@@ -114,7 +114,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   double tagHeading;
   @Log
   public int coralStationTag;
-  
+
   @Log
   public Pose3d coralStationTargetPose3d = new Pose3d();
   @Log
@@ -212,15 +212,6 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     replaceSwerveModuleFeedforward(0.29943, 2.5238, 0.55783);
 
-    // SwerveDriveTest.centerModules(swerveDrive);
-
-    if (visionDriveTest) {
-      setupPhotonVision();
-      // Stop the odometry thread if we are using vision that way we can synchronize
-      // updates better.
-      swerveDrive.stopOdometryThread();
-    }
-
     setupPathPlanner();
 
   }
@@ -238,48 +229,26 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
         new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
             Rotation2d.fromDegrees(0)));
 
-            Distance xval =Distance.ofBaseUnits(0, Meter);
-            Distance yval =Distance.ofBaseUnits(0, Meter);
-            Distance zval =Distance.ofBaseUnits(0, Meter);
+    Distance xval = Distance.ofBaseUnits(0, Meter);
+    Distance yval = Distance.ofBaseUnits(0, Meter);
+    Distance zval = Distance.ofBaseUnits(0, Meter);
 
-            Angle a0= Degrees.of(0);
-            Angle a90P= Degrees.of(90);
-            Angle a90M= Degrees.of(-90);
+    Angle a0 = Degrees.of(0);
+    Angle a90P = Degrees.of(90);
+    Angle a90M = Degrees.of(-90);
 
+    setupFF25 = new Pose3d(xval, yval, zval, new Rotation3d(a0, a0, a0));
+    setupFF2590P = new Pose3d(xval, yval, zval, new Rotation3d(a0, a0, a90P));
+    setupFF2590M = new Pose3d(xval, yval, zval, new Rotation3d(a0, a0, a90M));
 
-
-    setupFF25 = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a0));
-    setupFF2590P = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a90P));
-    setupFF2590M = new Pose3d(xval,yval,zval,new Rotation3d(a0,a0,a90M));
-  
-
-
-
-  }
-
-  /**
-   * Setup the photon vision class.
-   */
-  public void setupPhotonVision() {
-    vision = new Vision(swerveDrive::getPose, swerveDrive.field);
   }
 
   @Override
   public void periodic() {
-    // When vision is enabled we must manually update odometry in SwerveDrive
-    // if (visionDriveTest) {
-    swerveDrive.updateOdometry();
-    // vision.updatePoseEstimation(swerveDrive);
-    // }
 
-    flUpdate.execute();
+    frontUpdate.execute();
 
-    frUpdate.execute();
-
-    // SmartDashboard.putNumberArray("Pose2d", new Double[] {
-    // getPose().getMeasureX().baseUnitMagnitude(),
-    // getPose().getMeasureY().baseUnitMagnitude(),
-    // getPose().getRotation().getRadians() });
+    rearUpdate.execute();
 
   }
 
@@ -712,7 +681,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     } else {
       zeroGyro();
-    
+
     }
   }
 

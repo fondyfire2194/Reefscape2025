@@ -28,9 +28,7 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   public boolean limelightExistsfront;
 
-  public boolean limelightExistsleft;
-
-  public boolean limelightExistsright;
+  boolean allcamsok;
 
   public boolean limelightExistsrear;
 
@@ -45,17 +43,11 @@ public class LimelightVision extends SubsystemBase implements Logged {
   Alert flCameraAlert = new Alert("FrontCameraProblem", AlertType.kWarning);
   Alert frCameraAlert = new Alert("FrontRightCameraProblem", AlertType.kError);
   Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
-  @Log(key = "flaccpose")
-  public static Pose2d flAcceptedPose;
-  @Log(key = "fraccpose")
-  public static Pose2d frAcceptedPose;
-  @Log(key = "rearaccpose")
+  @Log(key = "frontaccpose")
+  public static Pose2d flAcceptedPose;  
+  public static int frontAcceptedCount;
+  @Log(key = "rearacceptpose")
   public static Pose2d rearAcceptedPose;
-  @Log(key = "flaccepted")
-  public static int flAcceptedCount;
-  @Log(key = "fraccepted")
-  public static int frAcceptedCount;
-  @Log(key = "rearaccepted")
   public static int rearAcceptedCount;
 
   /**
@@ -74,8 +66,8 @@ public class LimelightVision extends SubsystemBase implements Logged {
       setCamToRobotOffset(VisionConstants.CameraConstants.frontCamera);
     }
 
-    if (VisionConstants.CameraConstants.rightCamera.isUsed)
-      setCamToRobotOffset(VisionConstants.CameraConstants.rightCamera);
+    if (VisionConstants.CameraConstants.rearCamera.isUsed)
+      setCamToRobotOffset(VisionConstants.CameraConstants.rearCamera);
 
   }
 
@@ -119,17 +111,14 @@ public class LimelightVision extends SubsystemBase implements Logged {
     if (RobotBase.isReal()) {
       if (VisionConstants.CameraConstants.frontCamera.isUsed && loopctr == 0) {
         limelightExistsfront = isLimelightConnected(CameraConstants.frontCamera.camname);
-        limelightExistsleft = isLimelightConnected(CameraConstants.rightCamera.camname);
         limelightExistsrear = isLimelightConnected(CameraConstants.rearCamera.camname);
 
-        boolean allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
-            && VisionConstants.CameraConstants.rightCamera.isUsed && limelightExistsleft
+        allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
             && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsrear;
-        SmartDashboard.putBoolean("LL//CamsOK", allcamsok);
+        
       }
 
       SmartDashboard.putBoolean("LL//FrontLeftCamOk", limelightExistsfront);
-      SmartDashboard.putBoolean("LL//FrontRightCamOk", limelightExistsleft);
       SmartDashboard.putBoolean("LL//RearCamOk", limelightExistsrear);
     }
   }

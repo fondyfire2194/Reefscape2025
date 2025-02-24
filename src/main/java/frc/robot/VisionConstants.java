@@ -80,42 +80,10 @@ public final class VisionConstants {
         true,
         false);
 
-    public static CameraValues leftCamera = new CameraValues(
-        "limelight-left",
-        "10.21.94.16",
-        Units.inchesToMeters(10.75),
-        Units.inchesToMeters(7.25),
-        Units.inchesToMeters(9.0),
-        0,
-        12, // deg
-        -7.5,
-        63.3,
-        49.7,
-        1,
-        1,
-        true,
-        false);
-
-    public static CameraValues rightCamera = new CameraValues(
-        "limelight-right",
-        "10.21.94.17",
-        Units.inchesToMeters(0),
-        Units.inchesToMeters(-17.25),
-        Units.inchesToMeters(9.0),
-        0,
-        5,
-        0,
-        63.3,
-        49.7,
-        1280,
-        960,
-        true,
-        false);
-
-        
+          
     public static CameraValues rearCamera = new CameraValues(
       "limelight-rear",
-      "10.21.94.18",
+      "10.21.94.16",
       Units.inchesToMeters(0),
       Units.inchesToMeters(-17.25),
       Units.inchesToMeters(9.0),

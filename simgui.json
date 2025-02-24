@@ -170,10 +170,12 @@
             "open": true
           },
           "open": true
-        },
-        "open": true
+        }
       },
       "SmartDashboard": {
+        "CON": {
+          "open": true
+        },
         "Coral": {
           "open": true
         },

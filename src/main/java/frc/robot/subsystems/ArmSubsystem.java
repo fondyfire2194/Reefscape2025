@@ -61,7 +61,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final Angle minAngle = Degrees.of(0); // pointing down
     public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
 
-    public double gearReduction = 40;
+    public double gearReduction = 20;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
     double radperencderrev = 2 * Math.PI / gearReduction;
@@ -70,9 +70,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double velConvFactor = posConvFactor / 60;
 
-    double maxmotorrps = 4800 / 60;
+    double maxmotorrps = 5400 / 60;
 
-    double maxradpersec = radperencderrev * maxmotorrps;
+    double maxradpersec = radperencderrev * maxmotorrps;//90 *.32
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
@@ -81,20 +81,20 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
        * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = 0.1;
-    public final double armKs = 0.1;
+    public final double armKg = 0.;
+    public final double armKs = 0.;
     public final double armKv = 12 / maxradpersec;
     public final double armKa = 0;
 
-    public double armKp = 1.1;
+    public double armKp = 0.01;
 
     public final double armKi = 0.;
     public final double armKd = 0;
 
     public final Angle armStartupOffset = Radians.of(0);
 
-    double TRAJECTORY_VEL = 2;
-    double TRAJECTORY_ACCEL = 3;
+    double TRAJECTORY_VEL = 1;
+    double TRAJECTORY_ACCEL = 2;
 
     private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -117,11 +117,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         armConfig = new SparkMaxConfig();
 
         armConfig
-                .inverted(false)
+                .inverted(true)
                 .idleMode(IdleMode.kBrake);
 
         armConfig.encoder
-                .positionConversionFactor(posConvFactor)
+                .positionConversionFactor(1)
                 .velocityConversionFactor(velConvFactor);
 
         armConfig.closedLoop
@@ -173,7 +173,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
-
+        SmartDashboard.putNumber("Arm/pos", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
     }
 
     @Override

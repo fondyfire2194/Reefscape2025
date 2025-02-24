@@ -39,15 +39,17 @@ import static edu.wpi.first.units.Units.*;
 
 public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
-  public final double kElevatorGearing = ((62. * 22.) / (9. * 16.));// 9.4722222
+  public final double kElevatorGearing = 62. / 9.;
 
   public final double kElevatorDrumRadiusInches = 1.757;
 
   public final double kElevatorDrumRadiusMeters = Units.inchesToMeters(kElevatorDrumRadiusInches);
 
-  public final int sprocketTeeth = 22;
+  public final int sprocketTeeth = 40;
 
-  public final double metersPerSprocketRev = kElevatorDrumRadiusMeters * 2 * Math.PI;// 6.3 inches
+  public final double beltPitch = .005;// 5 MM
+
+  public final double metersPerSprocketRev = sprocketTeeth * beltPitch;
 
   public final double meterspersecondsprocket = metersPerSprocketRev * (80. / kElevatorGearing);
 
@@ -56,22 +58,26 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public double positionConversionFactor = metersPerMotorRev;
   public double velocityConversionFactor = positionConversionFactor / 60;
 
-  public double elevatorToGroundInches = Units.inchesToMeters(6);
+  public double elevatorToGroundInches = Units.inchesToMeters(0);
 
   public double maxVelocityMPS = meterspersecondsprocket;
 
-  public final double elevatorKp = .95;
+  public final double elevatorKp = .0;
   public final double elevatorKi = 0;
   public final double elevatorKd = 0;
 
-  public final double elevatorKs = .06;
-  public final double elevatorKg = 1.1;
-  public final double elevatorKv = 8;
-  public final double elevatorKa = 0.08;
+  /*
+   * ( (value that goes up) - (value that goes down) )/ 2 = ks
+   * ( (value that goes up) + (value that goes down) )/2 = kg
+   */
+  public final double elevatorKs = .22;
+  public final double elevatorKg = 0.38;
+  public final double elevatorKv = 12 / 2.5;
+  public final double elevatorKa = 0.0;
 
   public final double kCarriageMass = Units.lbsToKilograms(1); // kg
 
-  public final Distance minElevatorHeight = Inches.of(5);
+  public final Distance minElevatorHeight = Inches.of(0);
   public final Distance maxElevatorHeight = Inches.of(70);//
 
   public final SparkMax leftMotor = new SparkMax(CANIDConstants.leftElevatorID, MotorType.kBrushless);
@@ -162,14 +168,14 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
   public ElevatorSubsystem() {
 
-    // SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
-    // SmartDashboard.putNumber("Elevator/posconvinch",
-    // Units.metersToInches(positionConversionFactor));
-    // SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);//
-    // 4800 rpm
-    // SmartDashboard.putNumber("Elevator/gear", kElevatorGearing);
+    SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
+    SmartDashboard.putNumber("Elevator/posconvinch",
+    Units.metersToInches(positionConversionFactor));
+    SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);//
+   
+    SmartDashboard.putNumber("Elevator/gear", kElevatorGearing);
 
-    // SmartDashboard.putNumber("Elevator/velconv", velocityConversionFactor);
+    SmartDashboard.putNumber("Elevator/velconv", velocityConversionFactor);
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     SparkMaxConfig rightConfig = new SparkMaxConfig();
@@ -228,7 +234,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     resetPosition(minElevatorHeight.in(Meters));
 
-    setGoalMeters(minElevatorHeight.in(Meters));
+    // setGoalMeters(minElevatorHeight.in(Meters));
+    setGoalMeters(0);
   }
 
   /**
@@ -249,16 +256,16 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   @Log.NT(key = "position inches")
   public double getGoalInches() {
-    return m_goal.position;
+    return Units.metersToInches(m_goal.position);
   }
 
   public void setGoalMeters(double targetMeters) {
-    m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
+    m_goal= new TrapezoidProfile.State(targetMeters,0 );
   }
 
   public void setGoalInches(double targetInches) {
     targetMeters = Units.inchesToMeters(targetInches);
-    m_goal.position = targetMeters - elevatorToGroundInches;
+    m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
     SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
     currentSetpoint.position = leftEncoder.getPosition();
     // inPositionCtr = 0;
@@ -281,7 +288,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public double getLeftVelocityMetersPerSecond() {
-    return leftEncoder.getPosition();
+    return leftEncoder.getVelocity();
   }
 
   @Log.NT(key = "left position inches")
@@ -324,6 +331,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     currentSetpoint = nextSetpoint;
 
+    SmartDashboard.putNumber("Elevator/ff", leftff);
+
+    SmartDashboard.putNumber("Elevator/setpos", currentSetpoint.position);
+    SmartDashboard.putNumber("Elevator/setvel", currentSetpoint.velocity);
+
     leftClosedLoopController.setReference(
         nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
   }
@@ -354,6 +366,19 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
+
+    SmartDashboard.putNumber("Elevator/Goal",m_goal.position);
+    SmartDashboard.putNumber("Elevator/LeftVolts",
+        leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+
+    SmartDashboard.putNumber("Elevator/RightVolts",
+        rightMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+
+    SmartDashboard.putNumber("Elevator/LeftAmps",
+        leftMotor.getOutputCurrent());
+
+    SmartDashboard.putNumber("Elevator/RightAmps",
+        rightMotor.getOutputCurrent());
 
     SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
     SmartDashboard.putNumber("Elevator/Velleft", leftEncoder.getVelocity());
