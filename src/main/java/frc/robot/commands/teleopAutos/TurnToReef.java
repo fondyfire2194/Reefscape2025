@@ -26,7 +26,7 @@ public class TurnToReef extends Command {
 
   private final double kMaxSpeed = Constants.MAX_SPEED;// veChassis.MaxAngularRate * 180.0 / Math.PI; // degrees per
                                                        // second
-  private final double kMaxAngularRate = Constants.MAX_ANGULAR_SPEED_VEL;
+  private final double kMaxAngularRate = Constants.MAX_ANGULAR_VEL;
   private final double kMaxAccel = Constants.MAX_ANGULAR_ACCEL;//
   private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(kMaxSpeed, kMaxAccel);
   private final ProfiledPIDController ppc = new ProfiledPIDController(kP, kI, kD, constraints);

@@ -46,10 +46,12 @@ public class TeleopToTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    double distanceToTag = 0;
+    if (LimelightHelpers.getTV(m_llv.frontname) || m_controller.a().getAsBoolean()) {
 
-    if (LimelightHelpers.getTV(m_llv.frontname)||  m_controller.a().getAsBoolean()) {
+      if (m_llv.limelightExistsfront)
 
-      double distanceToTag = m_llv.getDistanceToTag(m_llv.frontname);
+        distanceToTag = m_llv.getDistanceToTag(m_llv.frontname);
 
       Pose2d tagPose = m_swerve.reefFinalTargetPose;
 

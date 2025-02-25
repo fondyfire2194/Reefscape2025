@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.CANIDConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -58,13 +60,13 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean presetOnce;
 
-    public final Angle minAngle = Degrees.of(0); // pointing down
-    public final Angle maxAngle = Degrees.of(150); // 40.9 deg from horiz
+    public final Angle minAngle = Degrees.of(-20); // pointing down
+    public final Angle maxAngle = Degrees.of(134); // 40.9 deg from horiz
 
     public double gearReduction = 20;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
-    double radperencderrev = 2 * Math.PI / gearReduction;
+    double radperencderrev = 2 * Math.PI / (1.5 * gearReduction);
 
     double posConvFactor = radperencderrev;
 
@@ -72,17 +74,17 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double maxmotorrps = 5400 / 60;
 
-    double maxradpersec = radperencderrev * maxmotorrps;//90 *.32
+    double maxradpersec = radperencderrev * maxmotorrps;// 90 *.32
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
     /*
-     * ( (value that goes up) - (value that goes down) )/ 2 = ks
-       * ( (value that goes up) + (value that goes down) )/2 = kg
+     * ( (value that goes up) - (value that goes down) )/ 2 = ks .4up .04 down
+     * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = 0.;
-    public final double armKs = 0.;
+    public final double armKg = 0.22;
+    public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
     public final double armKa = 0;
 
@@ -91,7 +93,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final double armKi = 0.;
     public final double armKd = 0;
 
-    public final Angle armStartupOffset = Radians.of(0);
+    public final Angle armStartupOffset = Degrees.of(134);
 
     double TRAJECTORY_VEL = 1;
     double TRAJECTORY_ACCEL = 2;
@@ -106,22 +108,23 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public double targetRadians;
     @Log(key = "armff")
-    private double leftff;
+    private double armff;
 
     public ArmSubsystem() {
 
-        SmartDashboard.putNumber("Arm/maxdegpersec", maxdegrespersec);
-        SmartDashboard.putNumber("Arm/poscf", posConvFactor);
-        SmartDashboard.putNumber("Arm/maxradpersec", maxradpersec);
+        // SmartDashboard.putNumber("Arm/maxdegpersec", maxdegrespersec);
+        // SmartDashboard.putNumber("Arm/poscf", posConvFactor);
+        // SmartDashboard.putNumber("Arm/maxradpersec", maxradpersec);
+        // SmartDashboard.putNumber("Arm/kv", armKv);
 
         armConfig = new SparkMaxConfig();
 
         armConfig
-                .inverted(true)
+                .inverted(false)
                 .idleMode(IdleMode.kBrake);
 
         armConfig.encoder
-                .positionConversionFactor(1)
+                .positionConversionFactor(posConvFactor)
                 .velocityConversionFactor(velConvFactor);
 
         armConfig.closedLoop
@@ -143,9 +146,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armfeedforward = new ArmFeedforward(armKa, armKg, armKv);
 
-        armMotor.getEncoder().setPosition(0);
-        resetEncoder(0);
-        setGoalRadians(0);
+        armMotor.getEncoder().setPosition(armStartupOffset.in(Radians));
+
+        setGoalRadians(armStartupOffset.in(Radians));
+
         SmartDashboard.putNumber("Arm/RealEncoder", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
         if (RobotBase.isSimulation())
             armKp = 5;
@@ -174,6 +178,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
         SmartDashboard.putNumber("Arm/pos", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
+        SmartDashboard.putNumber("Arm/volts", armMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+
     }
 
     @Override
@@ -198,14 +204,16 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         SmartDashboard.putNumber("Arm/setpos", nextSetpoint.position);
         SmartDashboard.putNumber("Arm/setvel", nextSetpoint.velocity);
 
-        leftff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
+        armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
 
         currentSetpoint = nextSetpoint;
 
-        SmartDashboard.putNumber("Elevator/ff", leftff);
+        SmartDashboard.putNumber("Arm/ff", armff);
+        SmartDashboard.putNumber("Arm/poserror", m_goal.position - armMotor.getEncoder().getPosition());
 
         armClosedLoopController.setReference(
-                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
+                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
+                ArbFFUnits.kVoltage);
 
     }
 

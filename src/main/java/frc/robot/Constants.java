@@ -36,7 +36,7 @@ public final class Constants {
   public static final double DRIVING_CIRCUMFERENCE = Math.PI * 2 * WHEEL_NORM;
   public static final double TIME_PER_REV = MAX_SPEED / DRIVING_CIRCUMFERENCE;
 
-  public static final double MAX_ANGULAR_SPEED_VEL = 2 * Math.PI / TIME_PER_REV; // radspersec
+  public static final double MAX_ANGULAR_VEL = 2 * Math.PI / TIME_PER_REV; // radspersec
   public static final double MAX_ANGULAR_ACCEL = 10;// radspersecpersec
 
 

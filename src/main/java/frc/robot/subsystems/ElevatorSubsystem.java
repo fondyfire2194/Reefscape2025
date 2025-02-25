@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -37,6 +38,7 @@ import monologue.Logged;
 
 import static edu.wpi.first.units.Units.*;
 
+
 public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final double kElevatorGearing = 62. / 9.;
@@ -55,10 +57,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double metersPerMotorRev = (metersPerSprocketRev / kElevatorGearing);//
 
-  public double positionConversionFactor = metersPerMotorRev;
+  public double positionConversionFactor = metersPerMotorRev * 2;
   public double velocityConversionFactor = positionConversionFactor / 60;
 
-  public double elevatorToGroundInches = Units.inchesToMeters(0);
 
   public double maxVelocityMPS = meterspersecondsprocket;
 
@@ -67,15 +68,15 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public final double elevatorKd = 0;
 
   /*
-   * ( (value that goes up) - (value that goes down) )/ 2 = ks
-   * ( (value that goes up) + (value that goes down) )/2 = kg
+   * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
+   * ( (value that goes up) + (value that goes down) )/2 = kg .8
    */
-  public final double elevatorKs = .22;
-  public final double elevatorKg = 0.38;
-  public final double elevatorKv = 12 / 2.5;
+  public final double elevatorKs = .4;
+  public final double elevatorKg = 1.2;
+  public final double elevatorKv = 12 / 4.64;
   public final double elevatorKa = 0.0;
 
-  public final double kCarriageMass = Units.lbsToKilograms(1); // kg
+  public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
   public final Distance minElevatorHeight = Inches.of(0);
   public final Distance maxElevatorHeight = Inches.of(70);//
@@ -170,9 +171,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
     SmartDashboard.putNumber("Elevator/posconvinch",
-    Units.metersToInches(positionConversionFactor));
+        Units.metersToInches(positionConversionFactor));
     SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);//
-   
+
     SmartDashboard.putNumber("Elevator/gear", kElevatorGearing);
 
     SmartDashboard.putNumber("Elevator/velconv", velocityConversionFactor);
@@ -242,6 +243,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * Advance the simulation
    */
   public void simulationPeriodic() {
+    // REVLibError e = getLastFault();
+    // int n = e.ordinal();
+    // REVLibError.fromInt(n);
+    // SmartDashboard.putString("D", REVLibError.fromInt(n).toString());
 
   }
 
@@ -260,12 +265,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void setGoalMeters(double targetMeters) {
-    m_goal= new TrapezoidProfile.State(targetMeters,0 );
+    m_goal = new TrapezoidProfile.State(targetMeters, 0);
   }
 
   public void setGoalInches(double targetInches) {
     targetMeters = Units.inchesToMeters(targetInches);
-    m_goal.position = targetMeters - Units.inchesToMeters(elevatorToGroundInches);
+    m_goal.position = targetMeters;
     SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
     currentSetpoint.position = leftEncoder.getPosition();
     // inPositionCtr = 0;
@@ -350,6 +355,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     return leftMotor.hasActiveFault() || rightMotor.hasActiveFault();
   }
 
+  public REVLibError getLastFault() {
+    return rightMotor.getLastError();
+  }
+
   public boolean getStickyFault() {
     return leftMotor.hasStickyFault() || rightMotor.hasStickyFault();
   }
@@ -367,7 +376,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Elevator/Goal",m_goal.position);
+    SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
     SmartDashboard.putNumber("Elevator/LeftVolts",
         leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 

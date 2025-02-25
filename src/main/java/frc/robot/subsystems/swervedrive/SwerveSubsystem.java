@@ -352,6 +352,9 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
         swerveDrive.getMaximumChassisVelocity(), 4.0,
         swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
+        SmartDashboard.putNumber("DRIVE/maxCHV", swerveDrive.getMaximumChassisVelocity());
+        SmartDashboard.putNumber("DRIVE/maxCHAV", swerveDrive.getMaximumChassisAngularVelocity());
+
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
         pose,

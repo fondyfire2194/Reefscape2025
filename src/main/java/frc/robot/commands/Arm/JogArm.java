@@ -35,7 +35,7 @@ public class JogArm extends Command {
   public void execute() {
    
 
-    double yval = -m_controller.getLeftY() / 5;
+    double yval = -m_controller.getLeftY() / 4;
 
    
     if (yval > 0 && !m_arm.atUpperLimit || yval < 0 && !m_arm.atLowerLimit) {

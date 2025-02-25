@@ -123,11 +123,6 @@
         "window": {
           "visible": true
         }
-      },
-      "/SmartDashboard/PPAutoChooser": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
@@ -177,6 +172,9 @@
           "open": true
         },
         "Coral": {
+          "open": true
+        },
+        "ENR": {
           "open": true
         },
         "Encoders": {

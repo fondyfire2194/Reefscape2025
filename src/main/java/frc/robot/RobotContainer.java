@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,8 +23,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.FieldConstants.Side;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.CoralRPMSetpoints;
@@ -32,11 +36,9 @@ import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
-import frc.robot.commands.teleopAutos.GetAlgaeProcessorPose;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
-import frc.robot.commands.teleopAutos.TeleopToTag;
 import frc.robot.commands.teleopAutos.TeleopToTagV2;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
@@ -46,9 +48,6 @@ import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
 import monologue.Logged;
-import java.io.File;
-import java.util.Set;
-
 import swervelib.SwerveInputStream;
 
 /**
@@ -208,13 +207,14 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("CompLL",
                                 new AutoToTag(drivebase, m_llv));
 
+
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
 
-                if (RobotBase.isSimulation())
-                        elevator.setDefaultCommand(new PositionHoldElevator(elevator));
-                if (RobotBase.isSimulation())
-                        arm.setDefaultCommand(new PositionHoldArm(arm));
+                // if (RobotBase.isSimulation())
+                 elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+                // if (RobotBase.isSimulation())
+                arm.setDefaultCommand(new PositionHoldArm(arm));
 
                 // Configure the trigger bindings
                 configureBindings();
@@ -293,26 +293,14 @@ public class RobotContainer implements Logged {
                                                                         drivebase.getFinalReefTargetPose())),
                                                         Set.of(drivebase)));
 
-                        // driverXbox.leftBumper().whileTrue(
-                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
-                        // new TeleopToTag(drivebase, m_llv, coDriverXbox)),
-                        // Set.of(drivebase)));
-
-                        // driverXbox.rightBumper().whileTrue(
-                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
-                        // new TeleopToTag(drivebase, m_llv, coDriverXbox)),
-                        // Set.of(drivebase)));
-
                         driverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
-                                                        drivebase.driveToPose(drivebase
-                                                                        .getFinalReefTargetPose())),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
+                                                        new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
-                                                        drivebase.driveToPose(drivebase
-                                                                        .getFinalReefTargetPose())),
+                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
+                                                        new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
                                                         Set.of(drivebase)));
 
                 } /*
@@ -369,9 +357,9 @@ public class RobotContainer implements Logged {
                 }
 
                 if (DriverStation.isTest()) {
-                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));
+                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));// leftY
 
-                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));
+                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
 
                         coDriverXbox.leftTrigger().whileTrue(
                                         gamepieces.jogMotorCommand(coDriverXbox.getLeftX()))
@@ -387,24 +375,24 @@ public class RobotContainer implements Logged {
                                         Commands.runOnce(() -> elevator
                                                         .setGoalInches(ElevatorSetpoints.kHome)));
                         coDriverXbox.a().onTrue(
-                                        Commands.runOnce(() -> elevator.setGoalInches(ElevatorSetpoints.kLevel4)));
+                                        Commands.runOnce(() -> elevator.setGoalInches(ElevatorSetpoints.kLevel1 / 2)));
                         coDriverXbox.b().onTrue(
                                         Commands.runOnce(() -> elevator
-                                                        .setGoalInches(ElevatorSetpoints.kLevel3)));
-                        coDriverXbox.y().onTrue(
-                                        Commands.runOnce(
-                                                        () -> elevator.setGoalInches(ElevatorSetpoints.kCoralStation)));
+                                                        .setGoalInches(ElevatorSetpoints.kLevel2 / 2)));
+                        // coDriverXbox.y().onTrue(
+                        // Commands.runOnce(
+                        // () -> elevator.setGoalInches(ElevatorSetpoints.kCoralStation)));
 
                         coDriverXbox.povLeft().onTrue(
                                         Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
 
                         coDriverXbox.povUp().onTrue(
-                                        Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kProcessorDeliver)));
+                                        Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel1)));
 
                         coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel4)));
 
-                        coDriverXbox.povRight()
-                                        .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kHome)));
+                        // coDriverXbox.povRight()
+                        // .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kHome)));
 
                 }
 

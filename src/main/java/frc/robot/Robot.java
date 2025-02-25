@@ -72,7 +72,7 @@ public class Robot extends TimedRobot implements Logged {
       SmartDashboard.putNumber("CON/Norm", Constants.WHEEL_NORM);
       SmartDashboard.putNumber("CON/Circ", Constants.DRIVING_CIRCUMFERENCE);
       SmartDashboard.putNumber("CON/TimePerrev", Constants.TIME_PER_REV);
-      SmartDashboard.putNumber("CON/MAXANGRPS", Constants.MAX_ANGULAR_SPEED_VEL);
+      SmartDashboard.putNumber("CON/MAXANGRPS", Constants.MAX_ANGULAR_VEL);
       
       
     }

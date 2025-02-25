@@ -95,15 +95,15 @@ public class CommandFactory {
         }
 
         public static final class ArmSetpoints {
-                public static final int kHome = 0;
-                public static final int kProcessorDeliver = 2;
-                public static final double kCoralStation = 50;
-                public static final double kLevel1 = 80;
-                public static final double kLevel2 = 80;
-                public static final double kLevel3 = 80;
+                public static final int kTravel = 100;
+                public static final int kProcessorDeliver = -100;
+                public static final double kCoralStation = 132;
+                public static final double kLevel1 = 97;
+                public static final double kLevel2 = 95;
+                public static final double kLevel3 = 94;
                 public static final double kLevel4 = 90;
-                public static final double kAlgaeIntake = 100;
-                public static final double kAlgaeBargeDeliver = 120;
+                public static final double kAlgaeIntake = -100;
+                public static final double kAlgaeBargeDeliver = 130;
 
         }
 
