@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -17,6 +19,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -90,7 +93,9 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     gamepieceConfig.signals.primaryEncoderPositionPeriodMs(10);
 
     gamepieceMotor.configure(gamepieceConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    disableLimitSwitch();
 
+   
   }
 
   public void setCurrentLimit(int amps) {
@@ -184,6 +189,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
+    SmartDashboard.putNumber("Gamepieca/Velocity", gamepieceMotor.getEncoder().getVelocity());
   }
 
   public void enableLimitSwitch() {
@@ -242,7 +248,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Math.abs(getVelocity()) < 200;
   }
 
-  public Command jogMotorCommand(double speed) {
-    return Commands.runOnce(() -> gamepieceMotor.setVoltage(speed * RobotController.getBatteryVoltage()));
+  public Command jogMotorCommand(DoubleSupplier speed) {
+  
+    return Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
   }
 }

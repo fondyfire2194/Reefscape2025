@@ -305,13 +305,11 @@ public class RobotContainer implements Logged {
                         // Set.of(drivebase)));
 
                         // driverXbox.rightTrigger().whileTrue(
-                        //                 Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
-                        //                                 Set.of(drivebase)));
+                        // Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
+                        // Set.of(drivebase)));
                         driverXbox.rightTrigger().whileTrue(
                                         Commands.defer(() -> drivebase.driveToPose(new Pose2d(1, 1, new Rotation2d())),
                                                         Set.of(drivebase)));
-
-                                                        
 
                         driverXbox.povDown().whileTrue(new TurnToReef(drivebase));
                 } /*
@@ -372,9 +370,13 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
 
+                        driverXbox.rightTrigger().whileTrue(
+                                        Commands.defer(() -> drivebase.driveToPose(new Pose2d(1, 1, new Rotation2d())),
+                                                        Set.of(drivebase)));
+
                         coDriverXbox.leftTrigger().whileTrue(
-                                        gamepieces.jogMotorCommand(coDriverXbox.getLeftX()))
-                                        .onFalse(gamepieces.stopMotorCommand());
+                                        Commands.defer(() -> gamepieces.jogMotorCommand(() ->coDriverXbox.getLeftX()), Set.of(gamepieces)));
+                        // .onFalse(gamepieces.stopMotorCommand());
 
                         coDriverXbox.rightTrigger().whileTrue(Commands.none());
 
