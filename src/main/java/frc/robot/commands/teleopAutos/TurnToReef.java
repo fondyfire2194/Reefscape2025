@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -21,8 +20,6 @@ public class TurnToReef extends Command {
   private final double kI = 0.0;
   private final double kD = 0.0;
 
-  private int counter = 0;
-  private int counterFinal = 2000;
 
   private final double kMaxSpeed = Constants.MAX_SPEED;// veChassis.MaxAngularRate * 180.0 / Math.PI; // degrees per
                                                        // second
@@ -45,7 +42,6 @@ public class TurnToReef extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    counter = 0;
     ppc.enableContinuousInput(-Math.PI, Math.PI);
     double initialAngle = m_swerve.getPose().getRotation().getRadians();
     ppc.reset(initialAngle, 0); // set current angle and 0 angular velocity as current state
@@ -56,7 +52,6 @@ public class TurnToReef extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    counter++;
     double currentPose = m_swerve.getPose().getRotation().getRadians();
     double ff = ppc.calculate(currentPose);
 
@@ -66,9 +61,9 @@ public class TurnToReef extends Command {
 
     ff *= kMaxAngularRate * 5;
 
-    SmartDashboard.putNumber("ROTATEFF", ff);
-    SmartDashboard.putNumber("ROTATEERR", ppc.getPositionError());
-    SmartDashboard.putBoolean("ROTATEATGOAL", ppc.atGoal());
+    // SmartDashboard.putNumber("ROTATEFF", ff);
+    // SmartDashboard.putNumber("ROTATEERR", ppc.getPositionError());
+    // SmartDashboard.putBoolean("ROTATEATGOAL", ppc.atGoal());
     Translation2d t2d = new Translation2d(0, 0);
     m_swerve.drive(t2d, ff, true);
 

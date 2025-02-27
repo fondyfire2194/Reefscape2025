@@ -168,16 +168,13 @@
         }
       },
       "SmartDashboard": {
-        "CON": {
-          "open": true
-        },
         "Coral": {
           "open": true
         },
         "ENR": {
           "open": true
         },
-        "Encoders": {
+        "TTT": {
           "open": true
         },
         "open": true

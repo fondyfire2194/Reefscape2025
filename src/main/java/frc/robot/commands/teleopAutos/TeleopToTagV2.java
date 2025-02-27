@@ -4,22 +4,21 @@
 
 package frc.robot.commands.teleopAutos;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.FieldConstants.Side;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LimelightHelpers;
-import swervelib.math.SwerveMath;
 
 public class TeleopToTagV2 extends Command {
 
@@ -27,106 +26,103 @@ public class TeleopToTagV2 extends Command {
 
   private final LimelightVision m_llv;
 
-  private final CommandXboxController m_controller;
-
-  double angleKp = .001;
-
-  double forwardkP = .1;
-
   Pose2d tagPose;
-
+  Translation2d tl2d = new Translation2d();
   private PIDController controllerX;
   private PIDController controllerY;
   private PIDController controllerRotation;
   double x;
   double y;
   double rotation;
-  double maxSet = .25;
-  double minSet = -.25;
+  double maxSet = .5;
+  double minSet = -.5;
   double rotLimit = .5;
 
-  public TeleopToTagV2(SwerveSubsystem swerve, LimelightVision llv, CommandXboxController controller) {
+  public TeleopToTagV2(SwerveSubsystem swerve, LimelightVision llv) {
     m_swerve = swerve;
     m_llv = llv;
-    m_controller = controller;
     addRequirements(swerve);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    controllerX = new PIDController(1.7, 0.0, 0.0);
-    controllerY = new PIDController(1.7, 0.0, 0.0);
-    controllerRotation = new PIDController(2.0, 0.0, 0.0);
-
+    controllerX = new PIDController(.7, 0.0, 0.0);
+    controllerY = new PIDController(.7, 0.0, 0.0);
+    controllerRotation = new PIDController(3.0, 0.0, 0.0);
+    controllerRotation.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
     Pose2d poseOffset = new Pose2d();
 
-    if (RobotBase.isSimulation() || LimelightHelpers.getTV(m_llv.frontname)) {
-      if (RobotBase.isSimulation())
-        tagPose = m_swerve.getFinalReefTargetPose();
-      else
-        tagPose = LimelightHelpers.getTargetPose3d_RobotSpace(m_llv.frontname).toPose2d();
+    if (!LimelightHelpers.getTV(m_llv.frontname))
+      tagPose = m_swerve.getFinalReefTargetPose();
+    else
+      tagPose = LimelightHelpers.getTargetPose3d_RobotSpace(m_llv.frontname).toPose2d();
 
-      m_swerve.poseTagActive = tagPose;
+    /**
+     * Robot Space
+     * 3d Cartesian Coordinate System with (0,0,0) located at the center of the
+     * robot’s frame projected down to the floor.
+     * 
+     * X+ → Pointing forward (Forward Vector)
+     *
+     * Y+ → Pointing toward the robot’s right (Right Vector)
+     *
+     * Z+ → Pointing upward (Up Vector)
+     * 
+     * 
+     */
 
-      Pose2d currentPose = m_swerve.getPose();
-      x = controllerX.calculate(currentPose.getX(), tagPose.getX());
-      y = controllerY.calculate(currentPose.getY(), tagPose.getY());
-      rotation = controllerRotation.calculate(currentPose.getRotation().getRadians(),
-          tagPose.getRotation().getRadians());
+    double baseOffset = RobotConstants.placementOffset + RobotConstants.ROBOT_LENGTH / 2;
+    if (m_swerve.side == Side.CENTER)
+      tl2d = new Translation2d(baseOffset, 0);
+    if (m_swerve.side == Side.RIGHT)
+      tl2d = new Translation2d(baseOffset, FieldConstants.reefOffset);
+    if (m_swerve.side == Side.LEFT)
+      tl2d = new Translation2d(baseOffset, -FieldConstants.reefOffset);
+    Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
+    tagPose.transformBy(tr2d);
 
-      x = ensureRange(x, minSet, maxSet);
-      y = ensureRange(y, minSet, maxSet);
-      rotation = ensureRange(rotation, minSet, maxSet);
+    m_swerve.poseTagActive = tagPose;
 
-      SmartDashboard.putNumber("TTT/X", x);
-      SmartDashboard.putNumber("TTT/Y", y);
-      SmartDashboard.putNumber("TTT/Rot", rotation);
+    Pose2d currentPose = m_swerve.getPose();
+    x = controllerX.calculate(currentPose.getX(), tagPose.getX());
+    y = controllerY.calculate(currentPose.getY(), tagPose.getY());
+    rotation = controllerRotation.calculate(currentPose.getRotation().getRadians(), tagPose.getRotation().getRadians());
 
-      if (Math.abs(controllerRotation.getError()) > rotLimit) {
-        poseOffset = new Pose2d(0, 0, new Rotation2d(rotation));
-      } else {
-        poseOffset = new Pose2d(x, y, new Rotation2d(rotation));
-      }
+    x = MathUtil.clamp(x, minSet, maxSet);
+    y = MathUtil.clamp(y, minSet, maxSet);
+    rotation = MathUtil.clamp(rotation, -rotLimit, rotLimit);
 
-      SmartDashboard.putNumber("TTT/XVEL", x * m_swerve.swerveDrive.getMaximumChassisVelocity());
-      SmartDashboard.putNumber("TTT/YVEL", y * m_swerve.swerveDrive.getMaximumChassisVelocity());
-      SmartDashboard.putNumber("TTT/RotVEL", rotation * m_swerve.swerveDrive.getMaximumChassisAngularVelocity());
+    // SmartDashboard.putNumber("TTT/X-X", tagPose.getX()-currentPose.getX());
+    // SmartDashboard.putNumber("TTT/X", x);
+    // SmartDashboard.putNumber("TTT/Y", y);
+    // SmartDashboard.putNumber("TTT/Rot", rotation);
 
-      m_swerve.drive(
-          new Translation2d(poseOffset.getX() * m_swerve.swerveDrive.getMaximumChassisVelocity(),
-              poseOffset.getY() * m_swerve.swerveDrive.getMaximumChassisVelocity()),
-          poseOffset.getRotation().getRadians() * m_swerve.swerveDrive.getMaximumChassisAngularVelocity(),
-          false,
-          true);
-    } else {
+    poseOffset = new Pose2d(x, y, new Rotation2d(rotation));
 
-      DoubleSupplier translationX = () -> -MathUtil.applyDeadband(
-          m_controller.getLeftY(),
-          OperatorConstants.LEFT_Y_DEADBAND);
+    m_swerve.poseTagActive = poseOffset;
 
-      DoubleSupplier translationY = () -> -MathUtil.applyDeadband(
-          m_controller.getLeftX(),
-          OperatorConstants.DEADBAND);
+    // SmartDashboard.putNumber("TTT/XVEL", x *
+    // m_swerve.swerveDrive.getMaximumChassisVelocity());
+    // SmartDashboard.putNumber("TTT/YVEL", y *
+    // m_swerve.swerveDrive.getMaximumChassisVelocity());
+    // SmartDashboard.putNumber("TTT/RotVEL", rotation *
+    // m_swerve.swerveDrive.getMaximumChassisAngularVelocity());
 
-      DoubleSupplier angularRotationX = () -> -MathUtil.applyDeadband(m_controller.getRightX(),
-          OperatorConstants.RIGHT_X_DEADBAND);
+    m_swerve.drive(
+        new Translation2d(
+            poseOffset.getX() * m_swerve.swerveDrive.getMaximumChassisVelocity(),
+            poseOffset.getY() * m_swerve.swerveDrive.getMaximumChassisVelocity()),
+        poseOffset.getRotation().getRadians() * m_swerve.swerveDrive.getMaximumChassisAngularVelocity(),
+        true,
+        true);
 
-      m_swerve.drive(
-          SwerveMath.scaleTranslation(
-              new Translation2d(translationX.getAsDouble() * m_swerve.swerveDrive.getMaximumChassisVelocity(),
-                  translationY.getAsDouble() * m_swerve.swerveDrive.getMaximumChassisVelocity()),
-              0.8),
-          Math.pow(angularRotationX.getAsDouble(), 3)
-              * m_swerve.swerveDrive.getMaximumChassisAngularVelocity(),
-          true, false);
-
-    }
   }
 
   // Called once the command ends or is interrupted.
@@ -140,7 +136,4 @@ public class TeleopToTagV2 extends Command {
     return false;
   }
 
-  double ensureRange(double value, double min, double max) {
-    return Math.min(Math.max(value, min), max);
-  }
 }

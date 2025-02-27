@@ -40,6 +40,7 @@ import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.commands.teleopAutos.TeleopToTagV2;
+import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -207,12 +208,11 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("CompLL",
                                 new AutoToTag(drivebase, m_llv));
 
-
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
 
                 // if (RobotBase.isSimulation())
-                 elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+                elevator.setDefaultCommand(new PositionHoldElevator(elevator, arm));
                 // if (RobotBase.isSimulation())
                 arm.setDefaultCommand(new PositionHoldArm(arm));
 
@@ -282,27 +282,38 @@ public class RobotContainer implements Logged {
                         driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
                         driverXbox.leftBumper().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
-                                                        new PIDDriveToPose(drivebase,
-                                                                        drivebase.getFinalReefTargetPose())),
+                                        Commands.defer(() -> new PIDDriveToPose(drivebase,
+                                                        drivebase.getFinalReefTargetPose()),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightBumper().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
-                                                        new PIDDriveToPose(drivebase,
-                                                                        drivebase.getFinalReefTargetPose())),
+                                        Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
                                                         Set.of(drivebase)));
 
-                        driverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
-                                                        new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
+                        driverXbox.rightBumper().whileTrue(
+                                        Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
                                                         Set.of(drivebase)));
 
+                        // driverXbox.leftTrigger().whileTrue(
+                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
+                        // new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
+                        // Set.of(drivebase)));
+
+                        // driverXbox.rightTrigger().whileTrue(
+                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
+                        // new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
+                        // Set.of(drivebase)));
+
+                        // driverXbox.rightTrigger().whileTrue(
+                        //                 Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
+                        //                                 Set.of(drivebase)));
                         driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
-                                                        new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
+                                        Commands.defer(() -> drivebase.driveToPose(new Pose2d(1, 1, new Rotation2d())),
                                                         Set.of(drivebase)));
 
+                                                        
+
+                        driverXbox.povDown().whileTrue(new TurnToReef(drivebase));
                 } /*
                    * Codriver controls
                    * 
@@ -365,11 +376,7 @@ public class RobotContainer implements Logged {
                                         gamepieces.jogMotorCommand(coDriverXbox.getLeftX()))
                                         .onFalse(gamepieces.stopMotorCommand());
 
-                        coDriverXbox.rightTrigger().whileTrue(
-                                        Commands.parallel(
-                                                        new GetNearestCoralStationPose(drivebase),
-                                                        new GetNearestReefZonePose(drivebase, ls),
-                                                        new TeleopToTagV2(drivebase, m_llv, coDriverXbox)));
+                        coDriverXbox.rightTrigger().whileTrue(Commands.none());
 
                         coDriverXbox.y().onTrue(
                                         Commands.runOnce(() -> elevator

@@ -38,7 +38,6 @@ import monologue.Logged;
 
 import static edu.wpi.first.units.Units.*;
 
-
 public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final double kElevatorGearing = 62. / 9.;
@@ -57,9 +56,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double metersPerMotorRev = (metersPerSprocketRev / kElevatorGearing);//
 
-  public double positionConversionFactor = metersPerMotorRev * 2;
+  public double positionConversionFactor = metersPerMotorRev * 2;// stage multiplier
   public double velocityConversionFactor = positionConversionFactor / 60;
-
 
   public double maxVelocityMPS = meterspersecondsprocket;
 
@@ -73,7 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
   public final double elevatorKs = .4;
   public final double elevatorKg = 1.2;
-  public final double elevatorKv = 12 / 4.64;
+  public final double elevatorKv = 12 / 5.57;// meterspermotorrev * max revspersec ( .058605* 5700)/60
   public final double elevatorKa = 0.0;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
@@ -117,7 +115,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   // Mutable holder for unit-safe linear distance values, persisted to avoid
   // reallocation.
   private final MutDistance m_distance = Meters.mutable(0);
-  private final MutAngle m_rotations = Rotations.mutable(0);
   // Mutable holder for unit-safe linear velocity values, persisted to avoid
   // reallocation.
   private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
@@ -164,19 +161,20 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
+  public double armAngle;
+
+  public Distance needArmClear = Inches.of(10);
+
   /**
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
 
-    SmartDashboard.putNumber("Elevator/posconv", positionConversionFactor);
-    SmartDashboard.putNumber("Elevator/posconvinch",
+    SmartDashboard.putNumber("Elevator/Values/posconv", positionConversionFactor);
+    SmartDashboard.putNumber("Elevator/Values/posconvinch",
         Units.metersToInches(positionConversionFactor));
-    SmartDashboard.putNumber("Elevator/maxspeedmps", meterspersecondsprocket);//
-
-    SmartDashboard.putNumber("Elevator/gear", kElevatorGearing);
-
-    SmartDashboard.putNumber("Elevator/velconv", velocityConversionFactor);
+        SmartDashboard.putNumber("Elevator/Values/kv", elevatorKv);
+        SmartDashboard.putNumber("Elevator/Values/maxmetrprsec", positionConversionFactor*5700/60);
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     SparkMaxConfig rightConfig = new SparkMaxConfig();
@@ -236,7 +234,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     resetPosition(minElevatorHeight.in(Meters));
 
     // setGoalMeters(minElevatorHeight.in(Meters));
-    setGoalMeters(0);
+    setGoalMeters(leftEncoder.getPosition());
   }
 
   /**
@@ -259,7 +257,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   }
 
-  @Log.NT(key = "position inches")
   public double getGoalInches() {
     return Units.metersToInches(m_goal.position);
   }
@@ -413,5 +410,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);
     elevatorError.setText(String.valueOf(getLeftRightDiffInches()));
   }
+
+
 
 }

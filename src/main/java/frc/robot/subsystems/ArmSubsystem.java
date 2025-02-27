@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.CANIDConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -56,25 +55,24 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean atLowerLimit;
 
-    public Angle angleToleranceRads = Radians.of(Units.degreesToRadians(1));
+    public Angle angleToleranceRads = Radians.of(Units.degreesToRadians(.5));
 
     public boolean presetOnce;
 
-    public final Angle minAngle = Degrees.of(-20); // pointing down
-    public final Angle maxAngle = Degrees.of(134); // 40.9 deg from horiz
-
-    public double gearReduction = 20;
+  
+    public double gearReduction = 20.;
+    public double beltPulleyRatio = 1.5;
     public double armLength = Units.inchesToMeters(20);
     public double armMass = Units.lbsToKilograms(4.3);
-    double radperencderrev = 2 * Math.PI / (1.5 * gearReduction);
+    double radperencderrev = (2 * Math.PI) / (beltPulleyRatio * gearReduction);
 
     double posConvFactor = radperencderrev;
 
     double velConvFactor = posConvFactor / 60;
 
-    double maxmotorrps = 5400 / 60;
+    double maxmotorrps = 5700 / 60;
 
-    double maxradpersec = radperencderrev * maxmotorrps;// 90 *.32
+    double maxradpersec = radperencderrev * maxmotorrps;// 
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
@@ -93,7 +91,16 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final double armKi = 0.;
     public final double armKd = 0;
 
+    /**
+     * Angles are set so that 90 degrees is with the arm balanced over center
+     * This means kg will act equally on both sides of top center
+     * 
+     */
+
     public final Angle armStartupOffset = Degrees.of(134);
+    public final Angle minAngle = Degrees.of(-20); 
+    public final Angle maxAngle = armStartupOffset; 
+
 
     double TRAJECTORY_VEL = 1;
     double TRAJECTORY_ACCEL = 2;
@@ -112,10 +119,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public ArmSubsystem() {
 
-        // SmartDashboard.putNumber("Arm/maxdegpersec", maxdegrespersec);
-        // SmartDashboard.putNumber("Arm/poscf", posConvFactor);
-        // SmartDashboard.putNumber("Arm/maxradpersec", maxradpersec);
-        // SmartDashboard.putNumber("Arm/kv", armKv);
+    
+        SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
+        SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
+        SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
+        SmartDashboard.putNumber("Arm/Values/kv", armKv);
 
         armConfig = new SparkMaxConfig();
 
@@ -329,6 +337,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
                     null,
                     this));
 
+    private double elevatorOkMove = 90;
+
     public Command quasistaticForward() {
         return sysIdRoutine.quasistatic(Direction.kForward);
     }
@@ -343,6 +353,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public Command dynamicBackward() {
         return sysIdRoutine.dynamic(Direction.kReverse);
+    }
+
+    public boolean checkArmClear() {
+        return armMotor.getEncoder().getPosition() > elevatorOkMove;
     }
 
 }
