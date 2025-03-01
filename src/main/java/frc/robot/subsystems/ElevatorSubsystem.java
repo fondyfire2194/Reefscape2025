@@ -59,12 +59,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double metersPerMotorRev = (metersPerSprocketRev / kElevatorGearing);//
 
-  
-
   public double positionConversionFactor = metersPerMotorRev * 2;// stage multiplier
   public double velocityConversionFactor = positionConversionFactor / 60;
 
-  public double maxVelocityMPS = meterspersecondsprocket;
+  public double maxVelocityMPS = positionConversionFactor * 5700 / 60;
 
   public final double elevatorKp = .01;
   public final double elevatorKi = 0;
@@ -76,7 +74,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
   public final double elevatorKs = .6;
   public final double elevatorKg = 1.2;
-  public final double elevatorKv = 12 / 5.57;// meterspermotorrev * max revspersec ( .058605* 5700)/60
+  public final double elevatorKv = 12 / maxVelocityMPS;
   public final double elevatorKa = 0.3;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
@@ -86,7 +84,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final SparkMax leftMotor = new SparkMax(CANIDConstants.leftElevatorID, MotorType.kBrushless);
   public final RelativeEncoder leftEncoder = leftMotor.getEncoder();
-  private SparkClosedLoopController leftClosedLoopController = leftMotor.getClosedLoopController();
+  public SparkClosedLoopController leftClosedLoopController = leftMotor.getClosedLoopController();
 
   public final SparkMax rightMotor = new SparkMax(CANIDConstants.rightElevatorID, MotorType.kBrushless);
   public final RelativeEncoder rightEncoder = rightMotor.getEncoder();
@@ -188,15 +186,18 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .smartCurrentLimit(40)
 
-        .closedLoopRampRate(0.25)
-
-            .closedLoop
-
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .closedLoopRampRate(0.25).closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 
         .p(elevatorKp)
 
-        .outputRange(-1, 1);
+        .outputRange(-1, 1)
+
+        // Set PID values for velocity control in slot 1
+        .p(0.0001, ClosedLoopSlot.kSlot1)
+        .i(0, ClosedLoopSlot.kSlot1)
+        .d(0, ClosedLoopSlot.kSlot1)
+        .velocityFF(1.0 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
+        .outputRange(-.5, .5, ClosedLoopSlot.kSlot1);
 
     leftConfig.
 
@@ -269,6 +270,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double getGoalInches() {
     return Units.metersToInches(m_goal.position);
+  }
+
+  public double getGoalMeters() {
+    return m_goal.position;
   }
 
   public void setGoalMeters(double targetMeters) {
