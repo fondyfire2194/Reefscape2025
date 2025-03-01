@@ -59,6 +59,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double metersPerMotorRev = (metersPerSprocketRev / kElevatorGearing);//
 
+  
+
   public double positionConversionFactor = metersPerMotorRev * 2;// stage multiplier
   public double velocityConversionFactor = positionConversionFactor / 60;
 
