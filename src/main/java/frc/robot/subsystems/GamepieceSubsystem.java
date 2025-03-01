@@ -55,7 +55,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public final double coralintakeKd = 0.00;
   public final double coralintakeKFF = .95 / 11000;
 
-  private double coralAtSwitchTime = 3;
+  private double coralAtSwitchTime = 10;
 
   private double lockAlgaeSet = .01;
   private int lockAlgaeAmps = 2;
@@ -95,7 +95,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     gamepieceMotor.configure(gamepieceConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     disableLimitSwitch();
 
-   
   }
 
   public void setCurrentLimit(int amps) {
@@ -126,14 +125,16 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(CoralRPMSetpoints.kReefPlaceL123)),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL123));
+        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL123))
+        .withTimeout(5);
   }
 
   public Command deliverCoralCommandL4() {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> runAtVelocity(CoralRPMSetpoints.kReefPlaceL4)),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4));
+        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4))
+        .withTimeout(5);
   }
 
   public Command intakeCoralToSwitchCommand() {
@@ -189,7 +190,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
-    SmartDashboard.putNumber("Gamepieca/Velocity", gamepieceMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Gamepiece/Velocity", gamepieceMotor.getEncoder().getVelocity());
   }
 
   public void enableLimitSwitch() {
@@ -249,7 +250,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command jogMotorCommand(DoubleSupplier speed) {
-  
     return Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
   }
 }

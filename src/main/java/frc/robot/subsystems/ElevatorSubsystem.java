@@ -25,14 +25,17 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.Factories.CommandFactory;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -61,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double maxVelocityMPS = meterspersecondsprocket;
 
-  public final double elevatorKp = .0;
+  public final double elevatorKp = .01;
   public final double elevatorKi = 0;
   public final double elevatorKd = 0;
 
@@ -69,10 +72,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
    * ( (value that goes up) + (value that goes down) )/2 = kg .8
    */
-  public final double elevatorKs = .4;
+  public final double elevatorKs = .6;
   public final double elevatorKg = 1.2;
   public final double elevatorKv = 12 / 5.57;// meterspermotorrev * max revspersec ( .058605* 5700)/60
-  public final double elevatorKa = 0.0;
+  public final double elevatorKa = 0.3;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
@@ -161,9 +164,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-  public double armAngle;
+  public double armClearAngle = 100;
 
-  public Distance needArmClear = Inches.of(10);
+  public boolean armClear;
 
   /**
    * Subsystem constructor.
@@ -173,8 +176,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     SmartDashboard.putNumber("Elevator/Values/posconv", positionConversionFactor);
     SmartDashboard.putNumber("Elevator/Values/posconvinch",
         Units.metersToInches(positionConversionFactor));
-        SmartDashboard.putNumber("Elevator/Values/kv", elevatorKv);
-        SmartDashboard.putNumber("Elevator/Values/maxmetrprsec", positionConversionFactor*5700/60);
+    SmartDashboard.putNumber("Elevator/Values/kv", elevatorKv);
+    SmartDashboard.putNumber("Elevator/Values/maxmetrprsec", positionConversionFactor * 5700 / 60);
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     SparkMaxConfig rightConfig = new SparkMaxConfig();
@@ -200,6 +203,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         positionConversionFactor(positionConversionFactor)
 
         .velocityConversionFactor(velocityConversionFactor);
+
+    leftConfig.softLimit.forwardSoftLimit(maxElevatorHeight.in(Meters))
+        .reverseSoftLimit(minElevatorHeight.in(Meters))
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimitEnabled(false);
 
     rightConfig
 
@@ -268,9 +276,16 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public void setGoalInches(double targetInches) {
     targetMeters = Units.inchesToMeters(targetInches);
     m_goal.position = targetMeters;
-    SmartDashboard.putNumber("Elevator/targetMeters", targetMeters);
-    currentSetpoint.position = leftEncoder.getPosition();
+
+    // currentSetpoint.position = leftEncoder.getPosition();
     // inPositionCtr = 0;
+  }
+
+  public Command setGoalInchesWithArmCheck(double targetInches) {
+    return new ConditionalCommand(
+        Commands.runOnce(() -> setGoalInches(targetInches)),
+        CommandFactory.rumbleCoDriver(RumbleType.kBothRumble, 1),
+        () -> armClear);
   }
 
   public Command runSysIdRoutine() {
@@ -323,17 +338,21 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void position() {
-
+    SmartDashboard.putNumber("Elevator/posrng", posrng);
     posrng++;
 
     // Send setpoint to spark max controller
     nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
     leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
-
-    currentSetpoint = nextSetpoint;
-
     SmartDashboard.putNumber("Elevator/ff", leftff);
+    double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
+
+    double accelV = accel * elevatorKa;
+    SmartDashboard.putNumber("Elevator/accv", accelV);
+    leftff += accelV;
+    SmartDashboard.putNumber("Elevator/ffacc", leftff);
+    currentSetpoint = nextSetpoint;
 
     SmartDashboard.putNumber("Elevator/setpos", currentSetpoint.position);
     SmartDashboard.putNumber("Elevator/setvel", currentSetpoint.velocity);
@@ -373,6 +392,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
+    SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
+
+    SmartDashboard.putBoolean("Elevator/armClear", armClear);
+
     SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
     SmartDashboard.putNumber("Elevator/LeftVolts",
         leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
@@ -387,9 +410,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         rightMotor.getOutputCurrent());
 
     SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
-    SmartDashboard.putNumber("Elevator/Velleft", leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Elevator/Velleft", Units.metersToInches(leftEncoder.getVelocity()));
     SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches(rightEncoder.getPosition()));
-    SmartDashboard.putNumber("Elevator/Velright", rightEncoder.getVelocity());
+    SmartDashboard.putNumber("Elevator/Velright", Units.metersToInches(rightEncoder.getVelocity()));
 
     SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
 
@@ -410,7 +433,5 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);
     elevatorError.setText(String.valueOf(getLeftRightDiffInches()));
   }
-
-
 
 }

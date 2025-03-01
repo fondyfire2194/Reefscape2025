@@ -59,7 +59,6 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean presetOnce;
 
-  
     public double gearReduction = 20.;
     public double beltPulleyRatio = 1.5;
     public double armLength = Units.inchesToMeters(20);
@@ -72,7 +71,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double maxmotorrps = 5700 / 60;
 
-    double maxradpersec = radperencderrev * maxmotorrps;// 
+    double maxradpersec = radperencderrev * maxmotorrps;//
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
@@ -81,12 +80,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = 0.22;
+    public final double armKg = 0.3;
     public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
-    public final double armKa = 0;
+    public final double armKa = 0.05;
 
-    public double armKp = 0.01;
+    public double armKp = 0.03;
 
     public final double armKi = 0.;
     public final double armKd = 0;
@@ -98,15 +97,15 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      */
 
     public final Angle armStartupOffset = Degrees.of(134);
-    public final Angle minAngle = Degrees.of(-20); 
-    public final Angle maxAngle = armStartupOffset; 
-
+    public final Angle minAngle = Degrees.of(-20);
+    public final Angle maxAngle = armStartupOffset;
 
     double TRAJECTORY_VEL = 1;
     double TRAJECTORY_ACCEL = 2;
 
     private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
+    @Log(key = "goal")
     private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
     private TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
@@ -119,7 +118,6 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public ArmSubsystem() {
 
-    
         SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
         SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
         SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
@@ -186,6 +184,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
         SmartDashboard.putNumber("Arm/pos", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
+        SmartDashboard.putNumber("Arm/vel", Units.radiansToDegrees(armMotor.getEncoder().getVelocity()));
         SmartDashboard.putNumber("Arm/volts", armMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
     }
@@ -209,10 +208,16 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
-        SmartDashboard.putNumber("Arm/setpos", nextSetpoint.position);
-        SmartDashboard.putNumber("Arm/setvel", nextSetpoint.velocity);
+        SmartDashboard.putNumber("Arm/setpos", Units.radiansToDegrees(nextSetpoint.position));
+        SmartDashboard.putNumber("Arm/setvel", Units.radiansToDegrees(nextSetpoint.velocity));
 
         armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
+
+        double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
+
+        double accelV = accel * armKa;
+
+        armff = armff + accelV;
 
         currentSetpoint = nextSetpoint;
 

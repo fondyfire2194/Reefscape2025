@@ -5,7 +5,6 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -50,7 +49,6 @@ public class LimelightTagsUpdate {
                 && mt2.rawFiducials[0].distToCamera > 5);
                 
                 if (!rejectUpdate) {
-
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(1.0,
                             1.0, 9999999));
                     m_swerve.getPoseEstimator().addVisionMeasurement(

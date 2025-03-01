@@ -33,6 +33,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -152,6 +154,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       new PIDConstants(5.0, 0.0, 0.0));
   public boolean lockPoseChange;
 
+  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+  .getStructTopic("RobotPose", Pose2d.struct).publish();
+
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -254,7 +260,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
   @Override
   public void simulationPeriodic() {
-
+    publisher.set(getPose());
   }
 
   /**

@@ -72,7 +72,6 @@ public class TurnToReef extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("Turn To Angle Is Done: " + interrupted);
   }
 
   // Returns true when the command should end.

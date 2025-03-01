@@ -1,61 +1,6 @@
 {
   "HALProvider": {
-    "Addressable LEDs": {
-      "window": {
-        "visible": true
-      }
-    },
     "Other Devices": {
-      "SPARK MAX [2]": {
-        "header": {
-          "open": true
-        }
-      },
-      "SPARK MAX [4]": {
-        "header": {
-          "open": true
-        }
-      },
-      "SPARK MAX [5]": {
-        "header": {
-          "open": true
-        }
-      },
-      "SPARK MAX [7]": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX (v6)[2]/Rotor Sensor": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX (v6)[51]": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX[50]": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX[51]/Integrated Sensor": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX[52]/Integrated Sensor": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX[8]/Integrated Sensor": {
-        "header": {
-          "open": true
-        }
-      },
       "window": {
         "visible": false
       }
@@ -64,12 +9,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/LiveWindow/SwerveSubsystem": "Subsystem",
-      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
-      "/LiveWindow/Ungrouped/Pigeon 2 [13]": "Gyro",
-      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
-      "/SmartDashboard/Arm//Arm Sim": "Mechanism2d",
       "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
@@ -77,49 +17,16 @@
       "/SmartDashboard/JSON": "Alerts",
       "/SmartDashboard/Motors": "Alerts",
       "/SmartDashboard/PPAutoChooser": "String Chooser",
-      "/SmartDashboard/Pigeon 2 (v6) [13]": "Gyro",
-      "/SmartDashboard/Pigeon 2 [13]": "Gyro",
-      "/SmartDashboard/ProfiledPIDController[1]": "ProfiledPIDController",
-      "/SmartDashboard/SendableChooser[0]": "String Chooser",
-      "/SmartDashboard/Swerve Drive": "Alerts",
-      "/SmartDashboard/VisionSystemSim-Vision/Sim Field": "Field2d",
-      "/SmartDashboard/navX-Sensor[1]": "Gyro",
-      "/SmartDashboard/navX-Sensor[4]": "Gyro"
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/Swerve Drive": "Alerts"
     },
     "windows": {
-      "/SmartDashboard/Field": {
-        "OdometryPose": {
-          "arrowColor": [
-            255.0,
-            255.0,
-            0.0,
-            255.0
-          ],
-          "color": [
-            224.99996948242188,
-            0.0,
-            255.0,
-            255.0
-          ]
-        },
-        "XModules": {
-          "arrowColor": [
-            0.09611687064170837,
-            0.17414122819900513,
-            0.9803921580314636,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "style": "Hidden"
-        },
-        "bottom": 1638,
-        "builtin": "2025 Reefscape",
-        "height": 8.051901817321777,
-        "left": 534,
-        "right": 3466,
-        "top": 291,
-        "width": 17.54825210571289,
+      "/SmartDashboard/Elevator Sim": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/PPAutoChooser": {
         "window": {
           "visible": true
         }
@@ -127,58 +34,11 @@
     }
   },
   "NetworkTables": {
-    "retained": {
-      "SmartDashboard": {
-        "open": true
-      }
+    "Persistent Values": {
+      "open": false
     },
-    "transitory": {
-      "LiveWindow": {
-        ".status": {
-          "open": true
-        }
-      },
-      "Monologue": {
-        "drivebase": {
-          "Pose2d##v_/Monologue/drivebase/poseYag11": {
-            "open": true
-          },
-          "Pose2d##v_/Monologue/drivebase/poseestimate": {
-            "Rotation2d##v_rotation": {
-              "open": true
-            },
-            "open": true
-          },
-          "Pose2d##v_/Monologue/drivebase/reefTargetPose": {
-            "Rotation2d##v_rotation": {
-              "open": true
-            },
-            "Translation2d##v_translation": {
-              "open": true
-            },
-            "open": true
-          },
-          "Pose2d##v_/Monologue/drivebase/result": {
-            "Translation2d##v_translation": {
-              "open": true
-            },
-            "open": true
-          },
-          "open": true
-        }
-      },
-      "SmartDashboard": {
-        "Coral": {
-          "open": true
-        },
-        "ENR": {
-          "open": true
-        },
-        "TTT": {
-          "open": true
-        },
-        "open": true
-      }
+    "Retained Values": {
+      "open": false
     }
   },
   "NetworkTables Info": {

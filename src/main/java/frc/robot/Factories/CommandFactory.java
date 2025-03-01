@@ -6,6 +6,8 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
+import com.playingwithfusion.TimeOfFlight;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -27,30 +29,48 @@ public class CommandFactory {
         ElevatorSubsystem m_elevator;
         ArmSubsystem m_arm;
         GamepieceSubsystem m_gamepieces;
+        static CommandXboxController m_dr;
+        static CommandXboxController m_codr;
 
         LedStrip m_ls;
+        TimeOfFlight s = new TimeOfFlight(21);
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        GamepieceSubsystem gamepieces, LedStrip ls) {
+                        GamepieceSubsystem gamepieces, LedStrip ls, CommandXboxController dr,
+                        CommandXboxController codr) {
                 m_swerve = swerve;
-
+                m_dr = dr;
+                m_codr = codr;
                 m_arm = arm;
                 m_elevator = elevator;
                 m_gamepieces = gamepieces;
                 m_ls = ls;
         }
 
-        public Command rumble(CommandXboxController controller, RumbleType type, double timeout) {
+        public static Command rumbleDriver(RumbleType type, double timeout) {
                 return Commands.sequence(
                                 Commands.race(
                                                 Commands.either(
-                                                                Commands.run(() -> controller.getHID().setRumble(type,
+                                                                Commands.run(() -> m_dr.getHID().setRumble(type,
                                                                                 1.0)),
                                                                 Commands.runOnce(() -> SmartDashboard.putString("BUZZ",
                                                                                 "BUZZ")),
                                                                 () -> RobotBase.isReal()),
                                                 Commands.waitSeconds(timeout)),
-                                Commands.runOnce(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+                                Commands.runOnce(() -> m_dr.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+        }
+
+        public static Command rumbleCoDriver(RumbleType type, double timeout) {
+                return Commands.sequence(
+                                Commands.race(
+                                                Commands.either(
+                                                                Commands.run(() -> m_codr.getHID().setRumble(type,
+                                                                                1.0)),
+                                                                Commands.runOnce(() -> SmartDashboard.putString("BUZZ",
+                                                                                "BUZZ")),
+                                                                () -> RobotBase.isReal()),
+                                                Commands.waitSeconds(timeout)),
+                                Commands.runOnce(() -> m_codr.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
         }
 
         public boolean isRedAlliance() {
@@ -86,12 +106,12 @@ public class CommandFactory {
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
                 public static final int kProcessorDeliver = 5;
-                public static final int kCoralStation = 15;
-                public static final int kLevel1 = 25;
-                public static final int kLevel2 = 40;
-                public static final int kLevel3 = 60;
-                public static final int kLevel4 = 75;
-                public static final int kBarge = 80;
+                public static final int kCoralStation = 0;
+                public static final int kLevel1 = 15;
+                public static final int kLevel2 = 20;
+                public static final int kLevel3 = 40;
+                public static final int kLevel4 = 60;
+                public static final int kBarge = 70;
         }
 
         public static final class ArmSetpoints {
@@ -132,39 +152,41 @@ public class CommandFactory {
                                         switch (setpoint) {
                                                 case kCoralStation:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kCoralStation);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kCoralStation);
+                                                        m_elevator.setGoalInchesWithArmCheck(
+                                                                        ElevatorSetpoints.kCoralStation);
                                                         break;
                                                 case kLevel1:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel1);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel1);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel1);
                                                         break;
                                                 case kLevel2:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel2);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel2);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel2);
                                                         break;
                                                 case kLevel3:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel3);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel3);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel3);
                                                         break;
                                                 case kLevel4:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kLevel4);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel4);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel4);
                                                         break;
                                                 case kProcessorDeliver:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kProcessorDeliver);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kProcessorDeliver);
+                                                        m_elevator.setGoalInchesWithArmCheck(
+                                                                        ElevatorSetpoints.kProcessorDeliver);
                                                         break;
                                                 case KAlgaeDeliverBarge:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kAlgaeBargeDeliver);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kBarge);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kBarge);
                                                         break;
                                                 case KAlgaePickUpL2:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel2);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel2);
                                                         break;
                                                 case kAlgaePickUpL3:
                                                         m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
-                                                        m_elevator.setGoalInches(ElevatorSetpoints.kLevel3);
+                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel3);
                                                         break;
                                         }
 

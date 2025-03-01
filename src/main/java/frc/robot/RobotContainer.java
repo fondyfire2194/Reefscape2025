@@ -11,8 +11,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -20,6 +18,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -81,7 +80,7 @@ public class RobotContainer implements Logged {
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerve")); // "swerve"));
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, ls);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, ls, driverXbox, coDriverXbox);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
@@ -222,7 +221,9 @@ public class RobotContainer implements Logged {
                 // .onTrue(new InstantCommand(() -> drivebase.reefZoneLast =
                 // drivebase.reefZone));
 
-                coralAtIntake.onTrue(rumble(driverXbox, RumbleType.kRightRumble, 1));
+                coralAtIntake.onTrue(Commands.parallel(
+                                Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel1)),
+                                rumble(driverXbox, RumbleType.kRightRumble, 1)));
 
                 stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble, 1));
 
@@ -230,6 +231,18 @@ public class RobotContainer implements Logged {
                 autoChooser = AutoBuilder.buildAutoChooser();
 
                 SmartDashboard.putData("PPAutoChooser", autoChooser);
+
+                CommandScheduler.getInstance()
+                                .onCommandInitialize(
+                                                command -> System.out
+                                                                .println("Command initialized: " + command.getName()));
+                CommandScheduler.getInstance()
+                                .onCommandInterrupt(
+                                                command -> System.out
+                                                                .println("Command interrupted: " + command.getName()));
+                CommandScheduler.getInstance()
+                                .onCommandFinish(command -> System.out
+                                                .println("Command finished: " + command.getName()));
 
         }
 
@@ -265,7 +278,6 @@ public class RobotContainer implements Logged {
                                                                                                 * getAllianceFactor(),
                                                                                 OperatorConstants.DEADBAND),
                                                                 () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-
                                                                                 OperatorConstants.RIGHT_X_DEADBAND))));
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
@@ -279,36 +291,39 @@ public class RobotContainer implements Logged {
                         driverXbox.x().onTrue(gamepieces.intakeCoralToSwitchCommand());
 
                         driverXbox.back().onTrue(drivebase.centerModulesCommand());
+
                         driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
                         driverXbox.leftBumper().whileTrue(
-                                        Commands.defer(() -> new PIDDriveToPose(drivebase,
-                                                        drivebase.getFinalReefTargetPose()),
+                                        Commands.defer(
+                                                        () -> Commands.sequence(
+                                                                        drivebase.setSide(Side.LEFT),
+                                                                        m_llv.setPOILeft(),
+                                                                        new TurnToReef(drivebase),
+                                                                        new TeleopToTagV2(drivebase, m_llv)),
                                                         Set.of(drivebase)));
 
                         driverXbox.rightBumper().whileTrue(
-                                        Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
+                                        Commands.defer(
+                                                        () -> Commands.sequence(
+                                                                        drivebase.setSide(Side.RIGHT),
+                                                                        m_llv.setPOIRight(),
+                                                                        new TurnToReef(drivebase),
+                                                                        new TeleopToTagV2(drivebase, m_llv)),
                                                         Set.of(drivebase)));
 
-                        driverXbox.rightBumper().whileTrue(
-                                        Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
+                        driverXbox.leftTrigger().whileTrue(
+                                        Commands.defer(() -> Commands.sequence(
+                                                        drivebase.setSide(Side.LEFT),
+                                                        m_llv.setPOILeft(),
+                                                        new PIDDriveToPose(drivebase, drivebase.reefFinalTargetPose)),
                                                         Set.of(drivebase)));
 
-                        // driverXbox.leftTrigger().whileTrue(
-                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.LEFT),
-                        // new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
-                        // Set.of(drivebase)));
-
-                        // driverXbox.rightTrigger().whileTrue(
-                        // Commands.defer(() -> Commands.sequence(drivebase.setSide(Side.RIGHT),
-                        // new TeleopToTagV2(drivebase, m_llv, coDriverXbox)),
-                        // Set.of(drivebase)));
-
-                        // driverXbox.rightTrigger().whileTrue(
-                        // Commands.defer(() -> new TeleopToTagV2(drivebase, m_llv),
-                        // Set.of(drivebase)));
                         driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> drivebase.driveToPose(new Pose2d(1, 1, new Rotation2d())),
+                                        Commands.defer(() -> Commands.sequence(
+                                                        drivebase.setSide(Side.RIGHT),
+                                                        m_llv.setPOIRight(),
+                                                        new PIDDriveToPose(drivebase, drivebase.reefFinalTargetPose)),
                                                         Set.of(drivebase)));
 
                         driverXbox.povDown().whileTrue(new TurnToReef(drivebase));
@@ -328,69 +343,77 @@ public class RobotContainer implements Logged {
                         coDriverXbox.x().onTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kLevel2),
-                                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kCoralStation)));
-                        coDriverXbox.b().onTrue(Commands.none());
+                                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
+
+                        coDriverXbox.b().onTrue(Commands.parallel(
+                                        cf.setSetpointCommand(Setpoint.kLevel3),
+                                        gamepieces.setTargetRPM(CoralRPMSetpoints.kReefPlaceL123)));
 
                         coDriverXbox.y().onTrue(
                                         Commands.parallel(
                                                         cf.setSetpointCommand(Setpoint.kLevel4),
                                                         gamepieces.setTargetRPM(CoralRPMSetpoints.kReefPlaceL4)));
 
-                        coDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kProcessorDeliver));
-
-                        coDriverXbox.povRight().onTrue(
-                                        Commands.sequence(
-                                                        drivebase.setSide(Side.RIGHT),
-                                                        m_llv.setPOIRight(),
-                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.RIGHT))));
-
-                        coDriverXbox.povLeft().onTrue(
-                                        Commands.sequence(
-                                                        drivebase.setSide(Side.LEFT),
-                                                        m_llv.setPOILeft(),
-                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.LEFT))));
-
                         coDriverXbox.povDown().onTrue(
-                                        Commands.sequence(
-                                                        drivebase.setSide(Side.CENTER),
-                                                        m_llv.clearPOI(),
-                                                        Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.CENTER))));
+                                        cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
+                        coDriverXbox.povRight().onTrue(Commands.sequence(
+                                        Commands.runOnce(() -> elevator
+                                                        .setGoalInchesWithArmCheck(ElevatorSetpoints.kHome)),
+                                        Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kCoralStation))));
+
+                        coDriverXbox.povLeft()
+                                        .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake)));
+
+                        // coDriverXbox.povRight().onTrue(
+                        // Commands.sequence(
+                        // drivebase.setSide(Side.RIGHT),
+                        // m_llv.setPOIRight(),
+                        // Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.RIGHT))));
+
+                        // coDriverXbox.povLeft().onTrue(
+                        // Commands.sequence(
+                        // drivebase.setSide(Side.LEFT),
+                        // m_llv.setPOILeft(),
+                        // Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.LEFT))));
+
+                        // coDriverXbox.povDown().onTrue(
+                        // Commands.sequence(
+                        // drivebase.setSide(Side.CENTER),
+                        // m_llv.clearPOI(),
+                        // Commands.runOnce(() -> ls.setViewTwoSolidColor(Side.CENTER))));
 
                         coDriverXbox.start().onTrue(
                                         Commands.parallel(
                                                         elevator.clearStickyFaultsCommand(),
                                                         arm.clearStickyFaultsCommand(),
-
                                                         gamepieces.clearStickyFaultsCommand()));
 
                 }
 
-                if (DriverStation.isTest()) {
+                if (DriverStation.isTest() || RobotBase.isSimulation()) {
+
                         coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));// leftY
 
                         coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
 
-                        driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> drivebase.driveToPose(new Pose2d(1, 1, new Rotation2d())),
-                                                        Set.of(drivebase)));
+                        driverXbox.rightTrigger().onTrue(Commands.none());
+                                      
 
                         coDriverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(() -> gamepieces.jogMotorCommand(() ->coDriverXbox.getLeftX()), Set.of(gamepieces)));
-                        // .onFalse(gamepieces.stopMotorCommand());
-
-                        coDriverXbox.rightTrigger().whileTrue(Commands.none());
+                                        Commands.defer(() -> gamepieces.jogMotorCommand(() -> coDriverXbox.getLeftX()),
+                                                        Set.of(gamepieces)));
 
                         coDriverXbox.y().onTrue(
-                                        Commands.runOnce(() -> elevator
-                                                        .setGoalInches(ElevatorSetpoints.kHome)));
-                        coDriverXbox.a().onTrue(
-                                        Commands.runOnce(() -> elevator.setGoalInches(ElevatorSetpoints.kLevel1 / 2)));
+                                        elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+
+                        coDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel1));
+
                         coDriverXbox.b().onTrue(
-                                        Commands.runOnce(() -> elevator
-                                                        .setGoalInches(ElevatorSetpoints.kLevel2 / 2)));
-                        // coDriverXbox.y().onTrue(
-                        // Commands.runOnce(
-                        // () -> elevator.setGoalInches(ElevatorSetpoints.kCoralStation)));
+                                        elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
+
+                        coDriverXbox.x().onTrue(
+                                        elevator.setGoalInchesCommand(ElevatorSetpoints.kBarge));
 
                         coDriverXbox.povLeft().onTrue(
                                         Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
@@ -400,23 +423,23 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel4)));
 
-                        // coDriverXbox.povRight()
-                        // .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kHome)));
+                        coDriverXbox.povRight().onTrue(Commands.none());
+                      
 
                 }
 
-                if (Robot.isSimulation()) {
-                        driverXbox.start()
-                                        .onTrue(Commands.runOnce(() -> drivebase
-                                                        .resetOdometry(new Pose2d(7.25, 7.25,
-                                                                        Rotation2d.fromDegrees(180)))));
+                // if (Robot.isSimulation()) {
+                // driverXbox.start()
+                // .onTrue(Commands.runOnce(() -> drivebase
+                // .resetOdometry(new Pose2d(7.25, 7.25,
+                // Rotation2d.fromDegrees(180)))));
 
-                        coDriverXbox.start()
-                                        .onTrue(Commands.runOnce(() -> drivebase
-                                                        .resetOdometry(new Pose2d(1, 2,
-                                                                        Rotation2d.fromDegrees(0)))));
+                // coDriverXbox.start()
+                // .onTrue(Commands.runOnce(() -> drivebase
+                // .resetOdometry(new Pose2d(1, 2,
+                // Rotation2d.fromDegrees(0)))));
 
-                }
+                // }
 
         }
 
