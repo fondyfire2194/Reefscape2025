@@ -4,20 +4,21 @@
 
 package frc.robot.commands.Elevator;
 
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class JogElevator extends Command {
+public class JogElevatorVelocity extends Command {
     /** Creates a new JogArm. */
     private final CommandXboxController gamepad;
     private final ElevatorSubsystem elevator;
-    private final double deadband = .00;
+    private final double deadband = .01;
+    private final double scaleFactor = 10;
+    private double mps;
 
-    public JogElevator(ElevatorSubsystem elevator, CommandXboxController gamepad) {
+    public JogElevatorVelocity(ElevatorSubsystem elevator, CommandXboxController gamepad) {
         this.elevator = elevator;
         this.gamepad = gamepad;
         addRequirements(this.elevator);
@@ -25,47 +26,38 @@ public class JogElevator extends Command {
 
     @Override
     public void initialize() {
-        // gamepad.rumble(250);
     }
 
     @Override
     public void execute() {
 
-        double stickValue = -gamepad.getRightY() / 4;
+        double stickValue = -gamepad.getRightY() / scaleFactor;
 
         if (Math.abs(stickValue) < deadband)
             stickValue = 0;
 
-        double leftPower = stickValue;
-       
+        mps = stickValue * elevator.maxVelocityMPS;
 
         boolean overrideLimits = gamepad.start().getAsBoolean();
 
         if (overrideLimits ||
-                (leftPower > 0 && !elevator.atUpperLimit)
-                || leftPower < 0 && !elevator.atLowerLimit) {
-            elevator.leftMotor.set(leftPower);
-
+                mps > 0 && !elevator.atUpperLimit
+                || mps < 0 && !elevator.atLowerLimit) {
+            elevator.runAtVelocity(mps);
         } else {
-            elevator.leftMotor.set(0);
-           
+            elevator.runAtVelocity(0);
         }
-        SmartDashboard.putNumber("Elevator/jogttes", leftPower);
+        SmartDashboard.putNumber("Elevator/jog_mps", mps);
 
-        double volts = elevator.leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
-
-        SmartDashboard.putNumber("Elevator/JOGVOLTS", volts);
-        double vpermps = volts / elevator.getLeftVelocityMetersPerSecond();
-        SmartDashboard.putNumber("Elevator/VPERMPS", vpermps);
-
-        elevator.setGoalMeters(elevator.getLeftPositionMeters());
+        elevator.pidGoalMeters = elevator.getLeftPositionMeters();
     }
 
     @Override
     public void end(boolean interrupted) {
         elevator.setGoalMeters(elevator.leftMotor.getEncoder().getPosition());
-        elevator.leftMotor.setVoltage(0);
-        // gamepad.rumble(250);
+        elevator.runAtVelocity(0);
+        elevator.pidGoalMeters = elevator.getLeftPositionMeters();
+        SmartDashboard.putNumber("Elevator/jog_mps", mps);
     }
 
     @Override

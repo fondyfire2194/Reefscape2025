@@ -168,6 +168,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public boolean armClear;
 
+  public double pidGoalMeters;
+
   /**
    * Subsystem constructor.
    */
@@ -186,7 +188,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .smartCurrentLimit(40)
 
-        .closedLoopRampRate(0.25).closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .closedLoopRampRate(0.25)
+
+            .closedLoop
+
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 
         .p(elevatorKp)
 
@@ -196,8 +202,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         .p(0.0001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
-        .velocityFF(1.0 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
-        .outputRange(-.5, .5, ClosedLoopSlot.kSlot1);
+        .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
+        .outputRange(-.75, .75, ClosedLoopSlot.kSlot1);
 
     leftConfig.
 
@@ -246,6 +252,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     // setGoalMeters(minElevatorHeight.in(Meters));
     setGoalMeters(leftEncoder.getPosition());
+
+    pidGoalMeters = leftEncoder.getPosition();
+  }
+
+  public void runAtVelocity(double metersPerSecond) {
+    leftClosedLoopController.setReference(metersPerSecond, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
   }
 
   /**
@@ -293,6 +305,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> setGoalInches(targetInches)),
         CommandFactory.rumbleCoDriver(RumbleType.kBothRumble, 1),
         () -> armClear);
+  }
+
+  public Command setPIDGoalInchesCommand(double inches) {
+    return Commands.runOnce(() -> pidGoalMeters = Units.inchesToMeters(inches));
+
   }
 
   public Command runSysIdRoutine() {

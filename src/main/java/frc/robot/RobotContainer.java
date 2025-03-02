@@ -32,6 +32,7 @@ import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
+import frc.robot.commands.Elevator.JogElevatorVelocity;
 import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -398,7 +399,6 @@ public class RobotContainer implements Logged {
                         coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
 
                         driverXbox.rightTrigger().onTrue(Commands.none());
-                                      
 
                         coDriverXbox.leftTrigger().whileTrue(
                                         Commands.defer(() -> gamepieces.jogMotorCommand(() -> coDriverXbox.getLeftX()),
@@ -424,9 +424,19 @@ public class RobotContainer implements Logged {
                         coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel4)));
 
                         coDriverXbox.povRight().onTrue(Commands.none());
-                      
 
                 }
+
+                // controller.leftTrigger().whileTrue(new JogElevatorVelocity(elevator,
+                // controller));
+
+                // controller.rightBumper().onTrue(elevator.setPIDGoalInchesCommand(10));
+                // controller.rightTrigger().onTrue(elevator.setPIDGoalInchesCommand(0));
+
+                // controller.a().onTrue(elevator.setPIDGoalInchesCommand(10));
+                // controller.b().onTrue(elevator.setPIDGoalInchesCommand(30));
+                // controller.x().onTrue(elevator.setPIDGoalInchesCommand(50));
+                // controller.y().onTrue(elevator.setPIDGoalInchesCommand(69));
 
                 // if (Robot.isSimulation()) {
                 // driverXbox.start()

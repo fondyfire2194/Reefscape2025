@@ -4,12 +4,9 @@
 
 package frc.robot.commands.Elevator;
 
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.thethriftybot.ThriftyNova.PIDSlot;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,19 +17,24 @@ public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
     private final ArmSubsystem m_arm;
     private PIDController pidController;
-    private double kp;
+    private SlewRateLimiter slr;
+    private double kp = .4;
     private double ki;
     private double kd;
     private double izone;
     private double minIntegral;
     private double maxIntegral;
-    private double tolerance;
+    private double tolerance = Units.inchesToMeters(1);
     private double lastGoal;
+    private double slrp = 20;
+    private double slrn = -100000;
+    private double maxrate = 2;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator, ArmSubsystem arm) {
         this.elevator = elevator;
         m_arm = arm;
         pidController = new PIDController(kp, ki, kd);
+        slr = new SlewRateLimiter(slrp, slrn, 0);
         addRequirements(this.elevator);
     }
 
@@ -43,19 +45,17 @@ public class PositionHoldElevatorPID extends Command {
         pidController.setIntegratorRange(minIntegral, maxIntegral);
         pidController.setTolerance(tolerance);
         double temp = elevator.getLeftPositionMeters();
-
-        elevator.setGoalMeters(temp);
+        elevator.pidGoalMeters = temp;
     }
 
     @Override
     public void execute() {
 
-        double goal = elevator.getGoalMeters();
+        double goal = elevator.pidGoalMeters;
 
         if (goal != lastGoal) {
-
             pidController.setSetpoint(goal);
-
+            slr.reset(0);
             lastGoal = goal;
         }
 
@@ -65,14 +65,13 @@ public class PositionHoldElevatorPID extends Command {
 
         elevator.armClear = Units.radiansToDegrees(armPos) < elevator.armClearAngle;
 
-        double temp = pidController.calculate(armPos);
+        double temp = pidController.calculate(elevator.getLeftPositionMeters());
 
-        double mps = temp * elevator.maxVelocityMPS / 4;
+        double mps = slr.calculate(temp) * elevator.maxVelocityMPS;
 
-        mps = MathUtil.clamp(mps, -1,1);
+        mps = MathUtil.clamp(mps, -maxrate, maxrate);
 
-        elevator.leftClosedLoopController.setReference(mps, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
-
+        elevator.runAtVelocity(mps);
     }
 
     @Override
