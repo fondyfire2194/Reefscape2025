@@ -128,6 +128,7 @@ public class CommandFactory {
         }
 
         public static final class CoralRPMSetpoints {
+                public static final double kCoralIntakeMotorRPM = 1100;
                 public static final double kCoralStation = 1100;
                 public static final double kReefPlaceL123 = 1100;
                 public static final double kReefPlaceL4 = 2000;

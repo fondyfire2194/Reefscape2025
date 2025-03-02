@@ -60,6 +60,10 @@ public final class Constants {
     public static final int rightElevatorID = 21;
     public static final int armMotorID = 22;
     public static final int gamepieceID = 23;
+    public static final int coralIntakeID = 24;
+    public static final int climberID = 25;
+
+
   }
 
   public static final class DrivebaseConstants {

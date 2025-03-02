@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.File;
 import java.util.Set;
+import java.util.PrimitiveIterator.OfInt;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -32,7 +33,6 @@ import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
-import frc.robot.commands.Elevator.JogElevatorVelocity;
 import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -189,8 +189,6 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("Deliver Coral L4", gamepieces.deliverCoralCommandL4());
 
                 NamedCommands.registerCommand("Intake Coral", gamepieces.intakeCoralToSwitchCommand());
-
-                NamedCommands.registerCommand("Gamepices Stop", gamepieces.stopMotorCommand());
 
                 NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 
@@ -398,11 +396,16 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
 
-                        driverXbox.rightTrigger().onTrue(Commands.none());
+                        driverXbox.rightTrigger().whileTrue(
+                                        Commands.defer(() -> gamepieces
+                                                        .jogCoralIntakeMotorCommand(() -> coDriverXbox.getLeftX()),
+                                                        Set.of(gamepieces)))
+                                        .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
                         coDriverXbox.leftTrigger().whileTrue(
                                         Commands.defer(() -> gamepieces.jogMotorCommand(() -> coDriverXbox.getLeftX()),
-                                                        Set.of(gamepieces)));
+                                                        Set.of(gamepieces)))
+                                        .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
                         coDriverXbox.y().onTrue(
                                         elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
