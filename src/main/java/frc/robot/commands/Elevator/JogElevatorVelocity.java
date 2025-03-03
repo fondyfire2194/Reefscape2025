@@ -48,15 +48,15 @@ public class JogElevatorVelocity extends Command {
             elevator.runAtVelocity(0);
         }
         SmartDashboard.putNumber("Elevator/jog_mps", mps);
-
-        elevator.pidGoalMeters = elevator.getLeftPositionMeters();
+     
+        elevator.setGoalMeters(elevator.getLeftPositionMeters());
     }
 
     @Override
     public void end(boolean interrupted) {
         elevator.setGoalMeters(elevator.leftMotor.getEncoder().getPosition());
-        elevator.runAtVelocity(0);
-        elevator.pidGoalMeters = elevator.getLeftPositionMeters();
+        elevator.runAtVelocity(0);    
+        elevator.setGoalMeters(elevator.getLeftPositionMeters());
         SmartDashboard.putNumber("Elevator/jog_mps", mps);
     }
 

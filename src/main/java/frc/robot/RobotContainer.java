@@ -430,17 +430,7 @@ public class RobotContainer implements Logged {
 
                 }
 
-                // controller.leftTrigger().whileTrue(new JogElevatorVelocity(elevator,
-                // controller));
-
-                // controller.rightBumper().onTrue(elevator.setPIDGoalInchesCommand(10));
-                // controller.rightTrigger().onTrue(elevator.setPIDGoalInchesCommand(0));
-
-                // controller.a().onTrue(elevator.setPIDGoalInchesCommand(10));
-                // controller.b().onTrue(elevator.setPIDGoalInchesCommand(30));
-                // controller.x().onTrue(elevator.setPIDGoalInchesCommand(50));
-                // controller.y().onTrue(elevator.setPIDGoalInchesCommand(69));
-
+              
                 // if (Robot.isSimulation()) {
                 // driverXbox.start()
                 // .onTrue(Commands.runOnce(() -> drivebase

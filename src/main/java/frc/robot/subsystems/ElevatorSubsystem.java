@@ -98,15 +98,15 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   double TRAJECTORY_VEL = .8;
   double TRAJECTORY_ACCEL = 2;
 
-  private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+  public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
 
   @Log.NT(key = "goal")
-  private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+  public TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
 
   @Log.NT(key = "setpoint")
-  private TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
-  private TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
+  public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
+  public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
 
   private ElevatorFeedforward eff;
 
@@ -165,10 +165,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private double leftff;
 
   public double armClearAngle = 100;
-
+  @Log.NT(key = "arm clear")
   public boolean armClear;
 
-  public double pidGoalMeters;
+  public boolean telemetry;
 
   /**
    * Subsystem constructor.
@@ -252,8 +252,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     // setGoalMeters(minElevatorHeight.in(Meters));
     setGoalMeters(leftEncoder.getPosition());
-
-    pidGoalMeters = leftEncoder.getPosition();
   }
 
   public void runAtVelocity(double metersPerSecond) {
@@ -305,11 +303,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> setGoalInches(targetInches)),
         CommandFactory.rumbleCoDriver(RumbleType.kBothRumble, 1),
         () -> armClear);
-  }
-
-  public Command setPIDGoalInchesCommand(double inches) {
-    return Commands.runOnce(() -> pidGoalMeters = Units.inchesToMeters(inches));
-
   }
 
   public Command runSysIdRoutine() {
@@ -416,30 +409,30 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
+    if (telemetry) {
 
-    SmartDashboard.putBoolean("Elevator/armClear", armClear);
+      SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
+      SmartDashboard.putBoolean("Elevator/armClear", armClear);
+      SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
+      SmartDashboard.putNumber("Elevator/LeftVolts",
+          leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
-    SmartDashboard.putNumber("Elevator/LeftVolts",
-        leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+      SmartDashboard.putNumber("Elevator/RightVolts",
+          rightMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-    SmartDashboard.putNumber("Elevator/RightVolts",
-        rightMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+      SmartDashboard.putNumber("Elevator/LeftAmps",
+          leftMotor.getOutputCurrent());
 
-    SmartDashboard.putNumber("Elevator/LeftAmps",
-        leftMotor.getOutputCurrent());
+      SmartDashboard.putNumber("Elevator/RightAmps",
+          rightMotor.getOutputCurrent());
 
-    SmartDashboard.putNumber("Elevator/RightAmps",
-        rightMotor.getOutputCurrent());
+      SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
+      SmartDashboard.putNumber("Elevator/Velleft", Units.metersToInches(leftEncoder.getVelocity()));
+      SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches(rightEncoder.getPosition()));
+      SmartDashboard.putNumber("Elevator/Velright", Units.metersToInches(rightEncoder.getVelocity()));
 
-    SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
-    SmartDashboard.putNumber("Elevator/Velleft", Units.metersToInches(leftEncoder.getVelocity()));
-    SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches(rightEncoder.getPosition()));
-    SmartDashboard.putNumber("Elevator/Velright", Units.metersToInches(rightEncoder.getVelocity()));
-
-    SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
-
+      SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
+    }
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
