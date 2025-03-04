@@ -124,7 +124,6 @@ public class CommandFactory {
                 public static final double kLevel4 = 90;
                 public static final double kAlgaeIntake = -100;
                 public static final double kAlgaeBargeDeliver = 130;
-
         }
 
         public static final class CoralRPMSetpoints {

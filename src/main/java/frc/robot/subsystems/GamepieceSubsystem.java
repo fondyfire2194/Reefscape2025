@@ -108,7 +108,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     disableLimitSwitch();
 
     coralIntakeConfig
-        .inverted(false)
+        .inverted(true)
         .smartCurrentLimit(20, 20)
         .idleMode(IdleMode.kBrake);
 
@@ -153,8 +153,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> stopCoralIntakeMotor()),
         Commands.runOnce(() -> stopGamepieceMotor()));
   }
-
-
 
   public void coralintakeToSwitch(double RPM, double CIRPM) {
     enableLimitSwitch();
@@ -217,7 +215,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
       coralIntakeController.setReference(rpm, ControlType.kVelocity);
   }
 
-
   public Command setTargetRPM(double rpm) {
     return Commands.runOnce(() -> targetRPM = rpm);
   }
@@ -232,7 +229,12 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
-    SmartDashboard.putNumber("Gamepiece/Velocity", gamepieceMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Gamepiece/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
+
+    SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Gamepiece/INTAmps", coralIntakeMotor.getOutputCurrent());
+
   }
 
   public void enableLimitSwitch() {
@@ -287,15 +289,27 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return gamepieceMotor.getEncoder().getVelocity();
   }
 
+  public double getGamepieceAmps() {
+    return gamepieceMotor.getOutputCurrent();
+  }
+
+  public double getIntakeAmps() {
+    return coralIntakeMotor.getOutputCurrent();
+  }
+
   public boolean isStopped() {
     return Math.abs(getVelocity()) < 200;
   }
 
-  public Command jogMotorCommand(DoubleSupplier speed) {
+  public Command jogGamepieceMotorCommand(DoubleSupplier speed) {
     return Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
   }
 
   public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
-    return Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
+
+    return Commands.parallel(
+        Commands.run(() -> gamepieceMotor.setVoltage(-speed.getAsDouble() * RobotController.getBatteryVoltage())),
+        Commands.none());
+     //   Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 }

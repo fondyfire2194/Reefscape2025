@@ -39,7 +39,6 @@ public final class Constants {
   public static final double MAX_ANGULAR_VEL = 2 * Math.PI / TIME_PER_REV; // radspersec
   public static final double MAX_ANGULAR_ACCEL = 10;// radspersecpersec
 
-
   public final class CANIDConstants {
 
     /**
@@ -62,7 +61,7 @@ public final class Constants {
     public static final int gamepieceID = 23;
     public static final int coralIntakeID = 24;
     public static final int climberID = 25;
-
+    public static final int floorIntakeMotorID = 26;
 
   }
 

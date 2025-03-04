@@ -29,13 +29,13 @@ public class PositionHoldElevator extends Command {
 
     @Override
     public void execute() {
-        elevator.position();
 
-        double armPos = m_arm.armMotor.getEncoder().getPosition();
+        boolean openLoop = elevator.getGoalMeters() < 1 && elevator.getLeftPositionMeters() < 1;
 
-        SmartDashboard.putNumber("Elevator/armpose", armPos);
+        if (!openLoop)
+            elevator.position();
 
-        elevator.armClear = Units.radiansToDegrees(armPos) < elevator.armClearAngle;
+        elevator.armClear = checkArmClear();
 
     }
 
@@ -46,5 +46,9 @@ public class PositionHoldElevator extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    private boolean checkArmClear() {
+        return Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()) < elevator.armClearAngleDeg;
     }
 }

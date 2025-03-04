@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.io.File;
 import java.util.Set;
-import java.util.PrimitiveIterator.OfInt;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -44,6 +43,7 @@ import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -66,6 +66,8 @@ public class RobotContainer implements Logged {
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
         GamepieceSubsystem gamepieces = new GamepieceSubsystem();
+
+        // FloorIntakeSubsystem fis = new FloorIntakeSubsystem();
 
         ElevatorArmSim elasim;
 
@@ -392,20 +394,25 @@ public class RobotContainer implements Logged {
 
                 if (DriverStation.isTest() || RobotBase.isSimulation()) {
 
-                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox));// leftY
+                        coDriverXbox.leftBumper().whileTrue(new JogArm(arm, coDriverXbox))
+                                        .onFalse(Commands.runOnce(() -> arm.stop()));// leftY
 
-                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox));// rightY
+                        coDriverXbox.rightBumper().whileTrue(new JogElevator(elevator, coDriverXbox))// rightY
+                                        .onFalse(Commands.runOnce(() -> elevator.stop()));// leftY
 
-                        driverXbox.rightTrigger().whileTrue(
-                                        Commands.defer(() -> gamepieces
-                                                        .jogCoralIntakeMotorCommand(() -> coDriverXbox.getLeftX()),
+                        coDriverXbox.rightTrigger().whileTrue(
+
+                                        Commands.defer(() -> gamepieces.jogCoralIntakeMotorCommand(
+                                                        () -> coDriverXbox.getLeftX()
+                                                                        ),
                                                         Set.of(gamepieces)))
+
                                         .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
-                        coDriverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(() -> gamepieces.jogMotorCommand(() -> coDriverXbox.getLeftX()),
-                                                        Set.of(gamepieces)))
-                                        .onFalse(gamepieces.stopGamepieceMotorsCommand());
+                        // coDriverXbox.leftTrigger().whileTrue(
+                        // Commands.defer(() -> fis.jogMotorCommand(() -> coDriverXbox.getRightX() / 2),
+                        // Set.of(fis)))
+                        // .onFalse(fis.stopMotorCommand());
 
                         coDriverXbox.y().onTrue(
                                         elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
@@ -429,20 +436,6 @@ public class RobotContainer implements Logged {
                         coDriverXbox.povRight().onTrue(Commands.none());
 
                 }
-
-              
-                // if (Robot.isSimulation()) {
-                // driverXbox.start()
-                // .onTrue(Commands.runOnce(() -> drivebase
-                // .resetOdometry(new Pose2d(7.25, 7.25,
-                // Rotation2d.fromDegrees(180)))));
-
-                // coDriverXbox.start()
-                // .onTrue(Commands.runOnce(() -> drivebase
-                // .resetOdometry(new Pose2d(1, 2,
-                // Rotation2d.fromDegrees(0)))));
-
-                // }
 
         }
 

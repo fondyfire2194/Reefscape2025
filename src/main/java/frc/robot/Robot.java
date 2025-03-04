@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -67,14 +68,11 @@ public class Robot extends TimedRobot implements Logged {
     // immediately when disabled, but then also let it be pushed more
     disabledTimer = new Timer();
 
-    if (isSimulation()) {
-      DriverStation.silenceJoystickConnectionWarning(true);
-      SmartDashboard.putNumber("CON/Norm", Constants.WHEEL_NORM);
-      SmartDashboard.putNumber("CON/Circ", Constants.DRIVING_CIRCUMFERENCE);
-      SmartDashboard.putNumber("CON/TimePerrev", Constants.TIME_PER_REV);
-      SmartDashboard.putNumber("CON/MAXANGRPS", Constants.MAX_ANGULAR_VEL);
-      
-      
+   
+    // Make sure you only configure port forwarding once in your robot code.
+    // Do not place these function calls in any periodic functions
+    for (int port = 5800; port <= 5809; port++) {
+      PortForwarder.add(port, "limelight.local", port);
     }
   }
 

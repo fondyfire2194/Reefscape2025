@@ -164,11 +164,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-  public double armClearAngle = 100;
+  public double armClearAngleDeg = 100;
   @Log.NT(key = "arm clear")
   public boolean armClear;
 
-  public boolean telemetry;
+  public boolean telemetry = true;
 
   /**
    * Subsystem constructor.
@@ -186,7 +186,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftConfig
 
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
 
         .closedLoopRampRate(0.25)
 
@@ -222,7 +222,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .follow(CANIDConstants.leftElevatorID, false)
 
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
 
         .closedLoopRampRate(0.25).closedLoop
 
