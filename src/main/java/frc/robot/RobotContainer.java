@@ -194,7 +194,7 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 
-                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeCommand());
+                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand());
 
                 NamedCommands.registerCommand("Intake Algae L2",
                                 cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
@@ -283,7 +283,7 @@ public class RobotContainer implements Logged {
 
                 if (DriverStation.isTeleop() || DriverStation.isTest()) {
 
-                        driverXbox.b().whileTrue(gamepieces.deliverAlgaeCommand());
+                        driverXbox.b().whileTrue(gamepieces.deliverAlgaeToProcessorCommand());
 
                         driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());
 

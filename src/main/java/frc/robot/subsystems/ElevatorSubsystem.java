@@ -186,7 +186,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftConfig
 
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
 
         .closedLoopRampRate(0.25)
 
@@ -222,7 +222,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .follow(CANIDConstants.leftElevatorID, false)
 
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
 
         .closedLoopRampRate(0.25).closedLoop
 
@@ -275,7 +275,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public void stop() {
     leftMotor.setVoltage(0.0);
     rightMotor.setVoltage(0.0);
-
   }
 
   public double getGoalInches() {

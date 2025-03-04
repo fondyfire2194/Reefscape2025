@@ -6,6 +6,8 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
+import org.dyn4j.geometry.Triangle;
+
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,7 +17,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -33,7 +37,6 @@ public class CommandFactory {
         static CommandXboxController m_codr;
 
         LedStrip m_ls;
-        TimeOfFlight s = new TimeOfFlight(21);
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
                         GamepieceSubsystem gamepieces, LedStrip ls, CommandXboxController dr,
@@ -45,6 +48,17 @@ public class CommandFactory {
                 m_elevator = elevator;
                 m_gamepieces = gamepieces;
                 m_ls = ls;
+
+              
+        }
+
+        public Command deliverAlgaeToBargeCommand(double delaySecs) {
+                return Commands.parallel(
+                                m_arm.setGoalDegreesCommand(ArmSetpoints.kBargeDeliver),
+                                Commands.sequence(
+                                                Commands.waitSeconds(delaySecs),
+                                                m_gamepieces.deliverAlgaeToBargeCommand()));
+
         }
 
         public static Command rumbleDriver(RumbleType type, double timeout) {
@@ -117,13 +131,14 @@ public class CommandFactory {
         public static final class ArmSetpoints {
                 public static final int kTravel = 100;
                 public static final int kProcessorDeliver = -100;
+                public static final int kBargeDeliver = -100;
                 public static final double kCoralStation = 132;
                 public static final double kLevel1 = 97;
                 public static final double kLevel2 = 95;
                 public static final double kLevel3 = 94;
                 public static final double kLevel4 = 90;
                 public static final double kAlgaeIntake = -100;
-                public static final double kAlgaeBargeDeliver = 130;
+
         }
 
         public static final class CoralRPMSetpoints {
@@ -137,6 +152,7 @@ public class CommandFactory {
         public static final class AlgaeRPMSetpoints {
                 public static final double kReefPickUpL123 = -.25;
                 public static final double kProcessorDeliver = 2000;
+                public static final double kBargeDeliver = 2000;
                 public static final double kStop = 0;
         }
 
@@ -177,7 +193,7 @@ public class CommandFactory {
                                                                         ElevatorSetpoints.kProcessorDeliver);
                                                         break;
                                                 case KAlgaeDeliverBarge:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeBargeDeliver);
+                                                        m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver);
                                                         m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kBarge);
                                                         break;
                                                 case KAlgaePickUpL2:

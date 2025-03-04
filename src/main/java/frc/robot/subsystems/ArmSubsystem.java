@@ -71,7 +71,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double maxmotorrps = 5700 / 60;
 
-    double maxradpersec = radperencderrev * maxmotorrps;//
+    public double maxradpersec = radperencderrev * maxmotorrps;//
 
     double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
 
@@ -103,12 +103,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     double TRAJECTORY_VEL = 1;
     double TRAJECTORY_ACCEL = 2;
 
-    private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+    public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
     @Log(key = "goal")
-    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-    private TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
-    private TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
+    public TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+    public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
+    public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
 
     private int inPositionCtr;
 
@@ -137,7 +137,14 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(armKp)
-                .outputRange(-1, 1);
+                .outputRange(-1, 1)
+
+                // Set PID values for velocity control in slot 1
+                .p(0.0001, ClosedLoopSlot.kSlot1)
+                .i(0, ClosedLoopSlot.kSlot1)
+                .d(0, ClosedLoopSlot.kSlot1)
+                .velocityFF(1 / maxradpersec, ClosedLoopSlot.kSlot1)
+                .outputRange(-.75, .75, ClosedLoopSlot.kSlot1);
 
         armConfig.limitSwitch.forwardLimitSwitchEnabled(false);
 
@@ -254,7 +261,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     }
 
-    public double getMotorEncoderAngleRadians() {
+    public void runAtVelocity(double radiansPerSecond) {
+        armClosedLoopController.setReference(radiansPerSecond, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+    }
+
+    public double getAngleRadians() {
         return armMotor.getEncoder().getPosition();
     }
 

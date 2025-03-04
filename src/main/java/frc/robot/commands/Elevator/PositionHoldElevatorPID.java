@@ -24,6 +24,7 @@ public class PositionHoldElevatorPID extends Command {
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
     private double maxrate = 2;
+    private boolean toggle;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
@@ -39,27 +40,31 @@ public class PositionHoldElevatorPID extends Command {
         pidController.setIntegratorRange(minIntegral, maxIntegral);
         pidController.setTolerance(tolerance);
         double temp = elevator.getLeftPositionMeters();
-        elevator.setGoalMeters(temp);        
+        elevator.setGoalMeters(temp);
         SmartDashboard.putData(" Elevator/PID/controller", pidController);
     }
 
     @Override
     public void execute() {
 
+        toggle=!toggle;
+
         elevator.nextSetpoint = elevator.m_profile.calculate(.02, elevator.currentSetpoint, elevator.m_goal);
 
         double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
-        SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
-        SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);
+        if (toggle) {
 
-        SmartDashboard.putNumber("Elevator/PID/currsetvel", elevator.currentSetpoint.velocity);
-        SmartDashboard.putNumber("Elevator/PID/setpos", elevator.nextSetpoint.position);
-        SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
-        SmartDashboard.putNumber("Elevator/PID/mps", mps);
-        SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
-        SmartDashboard.putBoolean("Elevator/PID/poserror", pidController.atSetpoint());
-
+            SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
+            SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);      
+            SmartDashboard.putNumber("Elevator/PID/currsetvel", elevator.currentSetpoint.velocity);
+            SmartDashboard.putNumber("Elevator/PID/setpos", elevator.nextSetpoint.position);
+          } else {    
+            SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
+            SmartDashboard.putNumber("Elevator/PID/mps", mps);
+            SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
+            SmartDashboard.putBoolean("Elevator/PID/poserror", pidController.atSetpoint());
+        }
         mps = MathUtil.clamp(mps, -maxrate, maxrate);
 
         SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);

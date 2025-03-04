@@ -67,7 +67,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   private double coralAtSwitchTime = 10;
 
   private double lockAlgaeSet = .01;
-  private int lockAlgaeAmps = 2;
+  private int lockAlgaeAmps = 2;  
+  private int inOutAlgaeAmps = 20;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -124,7 +125,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     coralIntakeConfig.signals.primaryEncoderPositionPeriodMs(10);
 
     coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
   }
 
   public void setCurrentLimit(int amps) {
@@ -192,13 +192,22 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         new DetectAlgaeWhileIntaking(this));
   }
 
-  public Command deliverAlgaeCommand() {
+  public Command deliverAlgaeToProcessorCommand() {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.runOnce(()->setCurrentLimit(inOutAlgaeAmps)),
         Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)),
         Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kProcessorDeliver));
   }
 
+  public Command deliverAlgaeToBargeCommand() {
+    return Commands.parallel(
+        Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.runOnce(()->setCurrentLimit(inOutAlgaeAmps)),
+        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver)),
+        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kBargeDeliver));
+  }
+  
   public void run(double speed) {
     gamepieceMotor.set(speed);
   }
@@ -306,10 +315,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
-
     return Commands.parallel(
         Commands.run(() -> gamepieceMotor.setVoltage(-speed.getAsDouble() * RobotController.getBatteryVoltage())),
-        Commands.none());
-     //   Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
+        Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 }
