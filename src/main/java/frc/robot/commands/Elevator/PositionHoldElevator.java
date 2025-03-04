@@ -30,7 +30,7 @@ public class PositionHoldElevator extends Command {
     @Override
     public void execute() {
 
-        boolean openLoop = elevator.getGoalMeters() < 1 && elevator.getLeftPositionMeters() < 1;
+        boolean openLoop = elevator.getGoalInches() < 1 && elevator.getLeftPositionInches() < 1;
 
         if (!openLoop)
             elevator.position();
