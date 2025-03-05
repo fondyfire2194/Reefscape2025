@@ -314,7 +314,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
   }
 
-  public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
+  public Command jogCoralIntakeMotorsCommand(DoubleSupplier speed) {
     return Commands.parallel(
         Commands.run(() -> gamepieceMotor.setVoltage(-speed.getAsDouble() * RobotController.getBatteryVoltage())),
         Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));

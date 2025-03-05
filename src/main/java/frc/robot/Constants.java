@@ -61,7 +61,7 @@ public final class Constants {
     public static final int gamepieceID = 23;
     public static final int coralIntakeID = 24;
     public static final int climberID = 25;
-    public static final int floorIntakeMotorID = 26;
+    public static final int preIntakeMotorID = 26;
 
   }
 

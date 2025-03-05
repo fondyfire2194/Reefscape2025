@@ -23,11 +23,11 @@ import frc.robot.Constants.CANIDConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
-public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
+public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
-    public final SparkMax floorIntakeMotor = new SparkMax(CANIDConstants.floorIntakeMotorID, MotorType.kBrushless);
+    public final SparkMax preIntakeMotor = new SparkMax(CANIDConstants.preIntakeMotorID, MotorType.kBrushless);
 
-    private SparkClosedLoopController floorintakeClosedLoopController = floorIntakeMotor.getClosedLoopController();
+    private SparkClosedLoopController floorintakeClosedLoopController = preIntakeMotor.getClosedLoopController();
 
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
@@ -85,7 +85,7 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
 
     private double goalDegrees;
 
-    public FloorIntakeSubsystem() {
+    public PreIntakeSubsystem() {
 
         SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegpersec);
         SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
@@ -115,24 +115,24 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
 
         floorintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
 
-        floorIntakeMotor.configure(floorintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        preIntakeMotor.configure(floorintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        floorIntakeMotor.getEncoder().setPosition(0);
+        preIntakeMotor.getEncoder().setPosition(0);
 
         goalDegrees = 0;
 
     }
 
     public boolean getActiveFault() {
-        return floorIntakeMotor.hasActiveFault();
+        return preIntakeMotor.hasActiveFault();
     }
 
     public boolean getStickyFault() {
-        return floorIntakeMotor.hasStickyFault();
+        return preIntakeMotor.hasStickyFault();
     }
 
     public boolean getWarnings() {
-        return floorIntakeMotor.hasActiveWarning();
+        return preIntakeMotor.hasActiveWarning();
     }
 
     public Command positionCommand() {
@@ -141,11 +141,11 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
 
     public Command jogMotorCommand(DoubleSupplier speed) {
         return Commands
-                .run(() -> floorIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
+                .run(() -> preIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
     }
 
     public Command stopMotorCommand() {
-        return Commands.runOnce(() -> floorIntakeMotor.stopMotor());
+        return Commands.runOnce(() -> preIntakeMotor.stopMotor());
 
     }
 
@@ -159,10 +159,10 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SmartDashboard.putNumber("FIM/pos", floorIntakeMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("FIM/vel", floorIntakeMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("FIM/pos", preIntakeMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("FIM/vel", preIntakeMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("FIM/volts",
-                floorIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+                preIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
     }
 
@@ -172,7 +172,7 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public void resetEncoder(double val) {
-        floorIntakeMotor.getEncoder().setPosition(val);
+        preIntakeMotor.getEncoder().setPosition(val);
     }
 
     public void setTolerance(double toleranceDeg) {
@@ -185,53 +185,53 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public double getMotorEncoderAngleRadians() {
-        return floorIntakeMotor.getEncoder().getPosition();
+        return preIntakeMotor.getEncoder().getPosition();
     }
 
     @Log.NT(key = "motor degrees")
     public double getMotorDegrees() {
-        return Units.radiansToDegrees(floorIntakeMotor.getEncoder().getPosition());
+        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getPosition());
     }
 
     public double getMotorEncoderRadsPerSec() {
-        return floorIntakeMotor.getEncoder().getVelocity();
+        return preIntakeMotor.getEncoder().getVelocity();
     }
 
     public double getMotorEncoderDegsPerSec() {
-        return Units.radiansToDegrees(floorIntakeMotor.getEncoder().getVelocity());
+        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getVelocity());
     }
 
     @Log(key = "angle")
     public double getAngle() {
-        return floorIntakeMotor.getEncoder().getPosition();
+        return preIntakeMotor.getEncoder().getPosition();
 
     }
 
     public double getRadsPerSec() {
-        return floorIntakeMotor.getEncoder().getVelocity();
+        return preIntakeMotor.getEncoder().getVelocity();
     }
 
     @Log.NT(key = "floorintake degrees per sec")
     public double getDegreesPerSec() {
-        return Units.radiansToDegrees(floorIntakeMotor.getEncoder().getVelocity());
+        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getVelocity());
     }
 
     public boolean onPlusSoftwareLimit() {
-        return floorIntakeMotor.getEncoder().getPosition() >= floorIntakeMotor.configAccessor.softLimit
+        return preIntakeMotor.getEncoder().getPosition() >= preIntakeMotor.configAccessor.softLimit
                 .getForwardSoftLimit();
     }
 
     public boolean onMinusSoftwareLimit() {
-        return floorIntakeMotor.getEncoder().getPosition() <= floorIntakeMotor.configAccessor.softLimit
+        return preIntakeMotor.getEncoder().getPosition() <= preIntakeMotor.configAccessor.softLimit
                 .getReverseSoftLimit();
     }
 
     public boolean onPlusHardwareLimit() {
-        return floorIntakeMotor.getForwardLimitSwitch().isPressed();
+        return preIntakeMotor.getForwardLimitSwitch().isPressed();
     }
 
     public boolean onMinusHardwareLimit() {
-        return floorIntakeMotor.getReverseLimitSwitch().isPressed();
+        return preIntakeMotor.getReverseLimitSwitch().isPressed();
     }
 
     @Log(key = "on limit")
@@ -241,28 +241,28 @@ public class FloorIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public void stop() {
-        floorIntakeMotor.setVoltage(0);
+        preIntakeMotor.setVoltage(0);
     }
 
     public double getAmps() {
-        return floorIntakeMotor.getOutputCurrent();
+        return preIntakeMotor.getOutputCurrent();
     }
 
     public boolean isBraked() {
-        return floorIntakeMotor.configAccessor.getIdleMode() == IdleMode.kBrake;
+        return preIntakeMotor.configAccessor.getIdleMode() == IdleMode.kBrake;
     }
 
     public boolean getSoftwareLimitsEnabled() {
-        return floorIntakeMotor.configAccessor.softLimit.getForwardSoftLimitEnabled()
-                || floorIntakeMotor.configAccessor.softLimit.getReverseSoftLimitEnabled();
+        return preIntakeMotor.configAccessor.softLimit.getForwardSoftLimitEnabled()
+                || preIntakeMotor.configAccessor.softLimit.getReverseSoftLimitEnabled();
     }
 
     public boolean getStickyFaults() {
-        return floorIntakeMotor.hasStickyFault();
+        return preIntakeMotor.hasStickyFault();
     }
 
     public Command clearStickyFaultsCommand() {
-        return Commands.runOnce(() -> floorIntakeMotor.clearFaults());
+        return Commands.runOnce(() -> preIntakeMotor.clearFaults());
     }
 
 }

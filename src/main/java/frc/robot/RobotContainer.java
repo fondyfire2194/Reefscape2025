@@ -43,7 +43,6 @@ import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.FloorIntakeSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -402,7 +401,7 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.rightTrigger().whileTrue(
 
-                                        Commands.defer(() -> gamepieces.jogCoralIntakeMotorCommand(
+                                        Commands.defer(() -> gamepieces.jogCoralIntakeMotorsCommand(
                                                         () -> coDriverXbox.getLeftX()
                                                                         ),
                                                         Set.of(gamepieces)))
