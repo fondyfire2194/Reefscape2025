@@ -16,7 +16,7 @@ public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
 
     private PIDController pidController;
-    private double kp = 10.;
+    private double kp = 12.;
     private double ki = 0;
     private double kd = 0;
     private double izone = .5;

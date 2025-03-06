@@ -135,4 +135,8 @@ public final class Constants {
     public static final double kMaxAngleRads = Units.degreesToRadians(40.9); // 40.9 deg from horiz
 
   }
+
+public static double X_KP;
+public static double Y_KP;
+public static double ROT_KP;
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -32,6 +33,8 @@ public class CommandFactory {
 
         LedStrip m_ls;
 
+        Trigger coralAtIntake;
+
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
                         GamepieceSubsystem gamepieces, LedStrip ls, CommandXboxController dr,
                         CommandXboxController codr) {
@@ -42,6 +45,17 @@ public class CommandFactory {
                 m_elevator = elevator;
                 m_gamepieces = gamepieces;
                 m_ls = ls;
+                coralAtIntake = new Trigger(() -> m_gamepieces.coralAtIntake());
+
+                defineTriggers();
+
+        }
+
+        void defineTriggers() {
+
+                coralAtIntake.onTrue(Commands.parallel(
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
+                                rumbleDriver(RumbleType.kRightRumble, 1)));
 
         }
 

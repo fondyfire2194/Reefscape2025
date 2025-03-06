@@ -46,7 +46,9 @@ public class TeleopToTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
     double distanceToTag = 0;
+    
     if (LimelightHelpers.getTV(m_llv.frontname) || m_controller.a().getAsBoolean()) {
 
       if (m_llv.limelightExistsfront)

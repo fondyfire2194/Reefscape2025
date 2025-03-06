@@ -29,10 +29,10 @@ import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
+import frc.robot.commands.Auto.AutoToTag;
 import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
-import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
@@ -89,7 +89,7 @@ public class RobotContainer implements Logged {
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
-        Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
+       // Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
 
         Trigger stickyFaulTrigger = new Trigger(
                         () -> gamepieces.getStickyFault() || arm.getStickyFault() || elevator.getStickyFault());
@@ -264,9 +264,9 @@ public class RobotContainer implements Logged {
 
         private void setTriggerActions() {
 
-                coralAtIntake.onTrue(Commands.parallel(
-                                Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                                rumble(driverXbox, RumbleType.kRightRumble, 1)));
+                // coralAtIntake.onTrue(Commands.parallel(
+                //                 Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kTravel)),
+                //                 rumble(driverXbox, RumbleType.kRightRumble, 1)));
 
                 stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble, 1));
 
