@@ -97,11 +97,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      */
 
     public final Angle armStartupOffset = Degrees.of(134);
-    public final Angle minAngle = Degrees.of(-20);
+    public final Angle minAngle = Degrees.of(-75);
     public final Angle maxAngle = armStartupOffset;
 
-    double TRAJECTORY_VEL = 1;
-    double TRAJECTORY_ACCEL = 2;
+    double TRAJECTORY_VEL = 2 * Math.PI;
+    double TRAJECTORY_ACCEL = 4 * Math.PI;
 
     public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -150,8 +150,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armConfig.softLimit.forwardSoftLimit(maxAngle.in(Radians))
                 .reverseSoftLimit(minAngle.in(Radians))
-                .forwardSoftLimitEnabled(false)
-                .reverseSoftLimitEnabled(false);
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimitEnabled(true);
 
         armConfig.signals.primaryEncoderPositionPeriodMs(5);
 

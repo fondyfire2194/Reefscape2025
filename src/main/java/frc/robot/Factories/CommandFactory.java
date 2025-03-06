@@ -121,30 +121,30 @@ public class CommandFactory {
                 public static final int kHome = 0;
                 public static final int kProcessorDeliver = 5;
                 public static final int kCoralStation = 0;
-                public static final int kLevel1 = 15;
-                public static final int kLevel2 = 20;
-                public static final int kLevel3 = 40;
-                public static final int kLevel4 = 60;
-                public static final int kBarge = 70;
+                public static final int kLevel1 = 6;
+                public static final int kLevel2 = 12;
+                public static final int kLevel3 = 28;
+                public static final int kLevel4 = 54;
+                public static final int kBarge = 65;
         }
 
         public static final class ArmSetpoints {
                 public static final int kTravel = 100;
-                public static final int kProcessorDeliver = -100;
-                public static final int kBargeDeliver = -100;
+                public static final int kProcessorDeliver = -70;
+                public static final int kBargeDeliver = -70;
                 public static final double kCoralStation = 132;
                 public static final double kLevel1 = 97;
                 public static final double kLevel2 = 95;
                 public static final double kLevel3 = 94;
-                public static final double kLevel4 = 90;
-                public static final double kAlgaeIntake = -100;
+                public static final double kLevel4 = 84;
+                public static final double kAlgaeIntake = -70;
 
         }
 
         public static final class CoralRPMSetpoints {
                 public static final double kCoralIntakeMotorRPM = 1100;
-                public static final double kCoralStation = 1100;
-                public static final double kReefPlaceL123 = 1100;
+                public static final double kCoralStation = 2000;
+                public static final double kReefPlaceL123 = 4000;
                 public static final double kReefPlaceL4 = 2000;
                 public static final double kStop = 0;
         }

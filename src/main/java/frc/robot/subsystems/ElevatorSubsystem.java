@@ -72,15 +72,15 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
    * ( (value that goes up) + (value that goes down) )/2 = kg .8
    */
-  public final double elevatorKs = .6;
-  public final double elevatorKg = 1.2;
+  public final double elevatorKs = .3;
+  public final double elevatorKg = .5;
   public final double elevatorKv = 12 / maxVelocityMPS;
   public final double elevatorKa = 0.3;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
   public final Distance minElevatorHeight = Inches.of(0);
-  public final Distance maxElevatorHeight = Inches.of(70);//
+  public final Distance maxElevatorHeight = Inches.of(65);//
 
   public final SparkMax leftMotor = new SparkMax(CANIDConstants.leftElevatorID, MotorType.kBrushless);
   public final RelativeEncoder leftEncoder = leftMotor.getEncoder();
@@ -95,7 +95,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private Alert allErrors = new Alert("AllErrors", AlertType.kError);
   @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
-  double TRAJECTORY_VEL = .8;
+  double TRAJECTORY_VEL = 2;
   double TRAJECTORY_ACCEL = 2;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
@@ -215,8 +215,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftConfig.softLimit.forwardSoftLimit(maxElevatorHeight.in(Meters))
         .reverseSoftLimit(minElevatorHeight.in(Meters))
-        .forwardSoftLimitEnabled(false)
-        .reverseSoftLimitEnabled(false);
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimitEnabled(true);
 
     rightConfig
 

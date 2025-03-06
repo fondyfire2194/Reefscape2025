@@ -31,8 +31,11 @@ import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
+import frc.robot.commands.Arm.PositionHoldArmPID;
+import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevator;
+import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.auto.AutoToTag;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
@@ -41,10 +44,12 @@ import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.commands.teleopAutos.TeleopToTagV2;
 import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.LimelightVision;
+import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
 import monologue.Logged;
@@ -64,9 +69,11 @@ public class RobotContainer implements Logged {
 
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
+        ClimberSubsystem climber = new ClimberSubsystem();
+
         GamepieceSubsystem gamepieces = new GamepieceSubsystem();
 
-        // FloorIntakeSubsystem fis = new FloorIntakeSubsystem();
+        PreIntakeSubsystem preIn = new PreIntakeSubsystem();
 
         ElevatorArmSim elasim;
 
@@ -211,10 +218,12 @@ public class RobotContainer implements Logged {
                         elasim = new ElevatorArmSim(elevator, arm);
 
                 // if (RobotBase.isSimulation())
-                elevator.setDefaultCommand(new PositionHoldElevator(elevator, arm));
-                // if (RobotBase.isSimulation())
-                arm.setDefaultCommand(new PositionHoldArm(arm));
+                // elevator.setDefaultCommand(new PositionHoldElevator(elevator, arm));
 
+                elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
+                // if (RobotBase.isSimulation())
+                // arm.setDefaultCommand(new PositionHoldArm(arm));
+                arm.setDefaultCommand(new PositionHoldArmPID(arm));
                 // Configure the trigger bindings
                 configureBindings();
                 // reefZoneChange.onTrue(rumble(driverXbox, RumbleType.kLeftRumble, 1))
@@ -222,7 +231,7 @@ public class RobotContainer implements Logged {
                 // drivebase.reefZone));
 
                 coralAtIntake.onTrue(Commands.parallel(
-                                Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel1)),
+                                Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kTravel)),
                                 rumble(driverXbox, RumbleType.kRightRumble, 1)));
 
                 stickyFaulTrigger.onTrue(rumble(coDriverXbox, RumbleType.kBothRumble, 1));
@@ -286,7 +295,7 @@ public class RobotContainer implements Logged {
 
                         driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand());
 
-                        driverXbox.a().whileTrue(gamepieces.deliverCoralCommandL123());
+                        driverXbox.a().onTrue(gamepieces.deliverCoralCommandL123());
 
                         driverXbox.x().onTrue(gamepieces.intakeCoralToSwitchCommand());
 
@@ -334,7 +343,7 @@ public class RobotContainer implements Logged {
                    * abxy set levels
                    * 
                    */
-                if (DriverStation.isTeleop()) {
+                if (DriverStation.isTeleop() ) {
 
                         coDriverXbox.a().onTrue(
                                         Commands.parallel(
@@ -402,27 +411,29 @@ public class RobotContainer implements Logged {
                         coDriverXbox.rightTrigger().whileTrue(
 
                                         Commands.defer(() -> gamepieces.jogCoralIntakeMotorsCommand(
-                                                        () -> coDriverXbox.getLeftX()
-                                                                        ),
+                                                        () -> coDriverXbox.getLeftX()),
                                                         Set.of(gamepieces)))
-
                                         .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
+                        coDriverXbox.leftTrigger().whileTrue(new JogClimber(climber, coDriverXbox))
+                                        .onFalse(Commands.runOnce(() -> climber.stop()));
+
                         // coDriverXbox.leftTrigger().whileTrue(
-                        // Commands.defer(() -> fis.jogMotorCommand(() -> coDriverXbox.getRightX() / 2),
+                        // Commands.defer(() -> preIn.jogMotorCommand(() -> coDriverXbox.getRightX() /
+                        // 2),
                         // Set.of(fis)))
                         // .onFalse(fis.stopMotorCommand());
 
                         coDriverXbox.y().onTrue(
                                         elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 
-                        coDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel1));
+                        coDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
                         coDriverXbox.b().onTrue(
                                         elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
                         coDriverXbox.x().onTrue(
-                                        elevator.setGoalInchesCommand(ElevatorSetpoints.kBarge));
+                                        elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
                         coDriverXbox.povLeft().onTrue(
                                         Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
@@ -432,7 +443,9 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.povDown().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel4)));
 
-                        coDriverXbox.povRight().onTrue(Commands.none());
+                        coDriverXbox.povRight().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake)));
+
+                        coDriverXbox.leftStick().onTrue(gamepieces.deliverCoralCommandL123());
 
                 }
 

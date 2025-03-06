@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.config.PIDConstants;
-
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -114,7 +112,9 @@ public final class Constants {
 
   public static class RobotConstants {
     public static final double ROBOT_LENGTH = Units.inchesToMeters(28);
-    public static final double placementOffset = Units.inchesToMeters(12);
+    public static final double placementOffsetX = Units.inchesToMeters(12);
+    public static final double placementOffsetY = Units.inchesToMeters(.7);
+
     public static final double pickupOffset = Units.inchesToMeters(8);
     public static double algaeOffset = Units.inchesToMeters(6);
 

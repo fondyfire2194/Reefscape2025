@@ -5,13 +5,13 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import monologue.Logged;
@@ -36,7 +36,6 @@ public class Robot extends TimedRobot implements Logged {
 
   @Log
   Pose2d result;
-
 
   public Robot() {
     instance = this;
@@ -69,14 +68,16 @@ public class Robot extends TimedRobot implements Logged {
     // immediately when disabled, but then also let it be pushed more
     disabledTimer = new Timer();
 
-   
     // Make sure you only configure port forwarding once in your robot code.
     // Do not place these function calls in any periodic functions
     for (int port = 5800; port <= 5809; port++) {
       PortForwarder.add(port, "limelight.local", port);
     }
 
-    CameraServer.startAutomaticCapture();
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    // Set the resolution
+    camera.setResolution(640, 480);
+
   }
 
   /**
@@ -166,7 +167,7 @@ public class Robot extends TimedRobot implements Logged {
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.inhibitVision = false;
-  } 
+  }
 
   /**
    * This function is called periodically during operator control.

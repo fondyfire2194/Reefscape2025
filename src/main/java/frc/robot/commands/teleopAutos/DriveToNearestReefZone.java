@@ -61,14 +61,15 @@ public class DriveToNearestReefZone extends Command {
 
       targetPose = m_swerve.reefTargetPose;
 
-      double baseOffset = RobotConstants.placementOffset + RobotConstants.ROBOT_LENGTH / 2;
+      double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
+      double baseOffsetY = RobotConstants.placementOffsetY;
 
       if (m_side == Side.CENTER)
-        tl2d = new Translation2d(baseOffset, 0);
+        tl2d = new Translation2d(baseOffsetX, baseOffsetY);
       if (m_side == Side.RIGHT)
-        tl2d = new Translation2d(baseOffset, FieldConstants.reefOffset);
+        tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset);
       if (m_side == Side.LEFT)
-        tl2d = new Translation2d(baseOffset, -FieldConstants.reefOffset);
+        tl2d = new Translation2d(baseOffsetX, -FieldConstants.reefOffset);
 
       Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
 

@@ -9,7 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ArmSubsystem;
+
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
@@ -18,7 +18,7 @@ public class PositionHoldElevatorPID extends Command {
     private PIDController pidController;
     private double kp = 10.;
     private double ki = 0;
-    private double kd;
+    private double kd = 0;
     private double izone = .5;
     private double minIntegral = -.1;
     private double maxIntegral = .1;
@@ -28,7 +28,6 @@ public class PositionHoldElevatorPID extends Command {
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
-
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.elevator);
     }
@@ -47,19 +46,18 @@ public class PositionHoldElevatorPID extends Command {
     @Override
     public void execute() {
 
-        toggle=!toggle;
+        toggle = !toggle;
 
         elevator.nextSetpoint = elevator.m_profile.calculate(.02, elevator.currentSetpoint, elevator.m_goal);
 
         double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
         if (toggle) {
-
             SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
-            SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);      
+            SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);
             SmartDashboard.putNumber("Elevator/PID/currsetvel", elevator.currentSetpoint.velocity);
             SmartDashboard.putNumber("Elevator/PID/setpos", elevator.nextSetpoint.position);
-          } else {    
+        } else {
             SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
             SmartDashboard.putNumber("Elevator/PID/mps", mps);
             SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());

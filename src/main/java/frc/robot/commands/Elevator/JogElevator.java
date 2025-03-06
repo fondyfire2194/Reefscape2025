@@ -63,7 +63,7 @@ public class JogElevator extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        elevator.setGoalMeters(elevator.leftMotor.getEncoder().getPosition());
+        elevator.setGoalMeters(elevator.getLeftPositionMeters());
         elevator.leftMotor.setVoltage(0);
         // gamepad.rumble(250);
     }

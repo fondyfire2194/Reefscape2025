@@ -27,7 +27,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public final SparkMax preIntakeMotor = new SparkMax(CANIDConstants.preIntakeMotorID, MotorType.kBrushless);
 
-    private SparkClosedLoopController floorintakeClosedLoopController = preIntakeMotor.getClosedLoopController();
+    private SparkClosedLoopController preintakeClosedLoopController = preIntakeMotor.getClosedLoopController();
 
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
@@ -36,7 +36,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     @Log(key = "alert sticky fault")
     private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
-    SparkMaxConfig floorintakeConfig;
+    SparkMaxConfig preintakeConfig;
 
     public boolean atUpperLimit;
 
@@ -62,13 +62,13 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
      * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public double floorintakeKp = 0.03;
+    public double preintakeKp = 0.03;
 
-    public final double floorintakeKi = 0.;
-    public final double floorintakeKd = 0;
+    public final double preintakeKi = 0.;
+    public final double preintakeKd = 0;
 
     /**
-     * Angles are set so that 90 degrees is with the floorintake balanced over
+     * Angles are set so that 90 degrees is with the preintake balanced over
      * center
      * This means kg will act equally on both sides of top center
      * 
@@ -80,8 +80,8 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     private int inPositionCtr;
 
     public double targetRadians;
-    @Log(key = "floorintakeff")
-    private double floorintakeff;
+    @Log(key = "preintakeff")
+    private double preintakeff;
 
     private double goalDegrees;
 
@@ -90,32 +90,32 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegpersec);
         SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
 
-        floorintakeConfig = new SparkMaxConfig();
+        preintakeConfig = new SparkMaxConfig();
 
-        floorintakeConfig
+        preintakeConfig
                 .inverted(false)
                 .idleMode(IdleMode.kBrake);
 
-        floorintakeConfig.encoder
+        preintakeConfig.encoder
                 .positionConversionFactor(posConvFactor)
                 .velocityConversionFactor(velConvFactor);
 
-        floorintakeConfig.closedLoop
+        preintakeConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .p(floorintakeKp)
+                .p(preintakeKp)
                 .outputRange(-1, 1);
 
-        floorintakeConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+        preintakeConfig.limitSwitch.forwardLimitSwitchEnabled(false);
 
-        floorintakeConfig.softLimit.forwardSoftLimit(maxAngle)
+        preintakeConfig.softLimit.forwardSoftLimit(maxAngle)
                 .reverseSoftLimit(minAngle)
                 .forwardSoftLimitEnabled(false)
                 .reverseSoftLimitEnabled(false);
 
-        floorintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
+        preintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
 
-        preIntakeMotor.configure(floorintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        preIntakeMotor.configure(preintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         preIntakeMotor.getEncoder().setPosition(0);
 
@@ -136,7 +136,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public Command positionCommand() {
-        return Commands.run(() -> floorintakeClosedLoopController.setReference(goalDegrees, ControlType.kPosition));
+        return Commands.run(() -> preintakeClosedLoopController.setReference(goalDegrees, ControlType.kPosition));
     }
 
     public Command jogMotorCommand(DoubleSupplier speed) {
@@ -211,7 +211,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return preIntakeMotor.getEncoder().getVelocity();
     }
 
-    @Log.NT(key = "floorintake degrees per sec")
+    @Log.NT(key = "preintake degrees per sec")
     public double getDegreesPerSec() {
         return Units.radiansToDegrees(preIntakeMotor.getEncoder().getVelocity());
     }

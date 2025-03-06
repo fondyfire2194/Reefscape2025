@@ -23,7 +23,7 @@ public class PositionHoldArmPID extends Command {
     private double minIntegral = -.1;
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
-    private double maxrate = 2;
+    private double maxrate = 6;
     private boolean toggle;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
