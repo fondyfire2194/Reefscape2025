@@ -3,16 +3,14 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands.Climber;
-import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ClimberSubsystem;
 
 public class JogClimber extends Command {
-  /** Creates a new JogArm. */
+  /** Creates a new JogCLimber. */
   private ClimberSubsystem m_climber;
   private CommandXboxController m_controller;
 
@@ -44,11 +42,10 @@ public class JogClimber extends Command {
       m_climber.climberMotor.setVoltage(appliedVolts);
 
     } else {
+
       m_climber.climberMotor.setVoltage(0);
     }
-
- 
-    
+   
   }
 
   // Called once the command ends or is interrupted.
