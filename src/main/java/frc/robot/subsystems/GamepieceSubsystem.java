@@ -58,18 +58,19 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public final double gamepieceKp = .00002; // P gains caused oscilliation
   public final double gamepieceKi = 0.0;
   public final double gamepieceKd = 0.00;
-  public final double gamepieceKFF = .95 / 11000;
+  public final double gamepieceKFF = 1 / 11000;
 
   public final double coralIntakeKp = .00002; // P gains caused oscilliation
   public final double coralIntakeKi = 0.0;
   public final double coralIntakeKd = 0.00;
-  public final double coralIntakeKFF = .95 / 11000;
+  public final double coralIntakeKFF = 1 / 5700;
 
   private double coralAtSwitchTime = 10;
 
   private double lockAlgaeSet = .01;
   private int lockAlgaeAmps = 2;
   private int inOutAlgaeAmps = 20;
+  private int inOutCoralAmps = 40;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -90,7 +91,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
     gamepieceConfig
         .inverted(true)
-        .smartCurrentLimit(20, 20)
+        .smartCurrentLimit(inOutCoralAmps)
         .idleMode(IdleMode.kBrake);
 
     gamepieceConfig.encoder
@@ -157,15 +158,16 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void coralintakeToSwitch(double RPM, double CIRPM) {
     enableLimitSwitch();
+    setCurrentLimit(inOutCoralAmps);
     runGamepieceMotorAtVelocity(RPM);
     runCoralIntakeMotorAtVelocity(CIRPM);
   }
 
-  
   public Command deliverCoralCommandL123() {
     return Commands.sequence(
         Commands.parallel(
             Commands.runOnce(() -> disableLimitSwitch()),
+            Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> runGamepieceMotorAtVelocity(CoralRPMSetpoints.kReefPlaceL123)),
             Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL123)),
         new WaitCommand(3),
@@ -175,6 +177,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public Command deliverCoralCommandL4() {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
         Commands.runOnce(() -> runGamepieceMotorAtVelocity(CoralRPMSetpoints.kReefPlaceL4)),
         Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4))
         .withTimeout(5);
@@ -200,16 +203,16 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
-        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)),
-        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kProcessorDeliver));
+        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)));
+    
   }
 
   public Command deliverAlgaeToBargeCommand() {
     return Commands.parallel(
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
-        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver)),
-        Commands.runOnce(() -> targetRPM = AlgaeRPMSetpoints.kBargeDeliver));
+        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver)));
+       
   }
 
   public void run(double speed) {
@@ -218,6 +221,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void runGamepieceMotorAtVelocity(double rpm) {
     setCurrentLimit(20);
+    targetRPM=rpm;
     if (RobotBase.isReal())
       gamepieceController.setReference(rpm, ControlType.kVelocity);
   }
@@ -243,9 +247,10 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
     SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
-    SmartDashboard.putNumber("Gamepiece/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
-
     SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Gamepiece/GPLimitAmps", gamepieceMotor.configAccessor.getSmartCurrentLimit());
+
+    SmartDashboard.putNumber("Gamepiece/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/INTAmps", coralIntakeMotor.getOutputCurrent());
 
   }

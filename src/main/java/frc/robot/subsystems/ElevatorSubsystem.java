@@ -32,8 +32,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.Factories.CommandFactory;
 import monologue.Annotations.Log;
@@ -112,43 +110,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public int posrng;
 
-  // SysId Routine and seutp
-  // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
-  private final MutVoltage m_appliedVoltage = Volts.mutable(0);
-  // Mutable holder for unit-safe linear distance values, persisted to avoid
-  // reallocation.
-  private final MutDistance m_distance = Meters.mutable(0);
-  // Mutable holder for unit-safe linear velocity values, persisted to avoid
-  // reallocation.
-  private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
 
   public final Trigger atMin = new Trigger(() -> getLeftPositionMeters() <= .1);
 
   public final Trigger atMax = new Trigger(() -> getLeftPositionMeters() > (maxElevatorHeight.in(Meters) - .2));
 
-  private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(
-      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-      new SysIdRoutine.Config(Volts.per(Second).of(1),
-          Volts.of(7),
-          Seconds.of(10)),
-      new SysIdRoutine.Mechanism(
-          // Tell SysId how to plumb the driving voltage to the motor(s).
-          leftMotor::setVoltage,
-          // Tell SysId how to record a frame of data for each motor on the mechanism
-          // being
-          // characterized.
-          log -> {
-            // Record a frame for the shooter motor.
-            log.motor("elevator")
-                .voltage(
-                    m_appliedVoltage.mut_replace(
-                        leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Volts))
-                .linearPosition(m_distance.mut_replace(getLeftPositionMeters(),
-                    Meters)) // Records Height in Meters via SysIdRoutineLog.linearPosition
-                .linearVelocity(m_velocity.mut_replace(getLeftVelocityMetersPerSecond(),
-                    MetersPerSecond)); // Records velocity in MetersPerSecond via SysIdRoutineLog.linearVelocity
-          },
-          this));
+
 
   Alert elevatorError = new Alert("ElevetorDifferenceHigh", AlertType.kError);
 
@@ -304,13 +271,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         () -> armClear);
   }
 
-  public Command runSysIdRoutine() {
-    return (m_sysIdRoutine.dynamic(Direction.kForward).until(atMax))
-        .andThen(m_sysIdRoutine.dynamic(Direction.kReverse).until(atMin))
-        .andThen(m_sysIdRoutine.quasistatic(Direction.kForward).until(atMax))
-        .andThen(m_sysIdRoutine.quasistatic(Direction.kReverse).until(atMin))
-        .andThen(Commands.print("DONE"));
-  }
 
   public Command setGoalInchesCommand(double targetInches) {
     return Commands.runOnce(() -> setGoalInches(targetInches));

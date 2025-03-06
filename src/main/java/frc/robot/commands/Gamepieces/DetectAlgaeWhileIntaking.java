@@ -7,6 +7,7 @@ package frc.robot.commands.Gamepieces;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
 import frc.robot.subsystems.GamepieceSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -44,7 +45,7 @@ public class DetectAlgaeWhileIntaking extends Command {
     sampleFilter.reset();
     detectFilter.reset();
     m_gamepieces.disableLimitSwitch();
-    m_gamepieces.run(.5);
+    m_gamepieces.run(AlgaeRPMSetpoints.kReefPickUpL123);
     m_gamepieces.setCurrentLimit(20);
   }
 

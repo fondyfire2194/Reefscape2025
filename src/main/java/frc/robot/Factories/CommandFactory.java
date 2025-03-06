@@ -6,10 +6,6 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
-import org.dyn4j.geometry.Triangle;
-
-import com.playingwithfusion.TimeOfFlight;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -17,9 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -129,6 +123,8 @@ public class CommandFactory {
         }
 
         public static final class ArmSetpoints {
+                
+                public static final int kokElevatorMove = 90;
                 public static final int kTravel = 100;
                 public static final int kProcessorDeliver = -70;
                 public static final int kBargeDeliver = -70;
@@ -150,7 +146,7 @@ public class CommandFactory {
         }
 
         public static final class AlgaeRPMSetpoints {
-                public static final double kReefPickUpL123 = -.25;
+                public static final double kReefPickUpL123 = -.5;
                 public static final double kProcessorDeliver = 2000;
                 public static final double kBargeDeliver = 2000;
                 public static final double kStop = 0;
@@ -162,7 +158,6 @@ public class CommandFactory {
          * positions for the given setpoint.
          */
         public Command setSetpointCommand(Setpoint setpoint) {
-
                 return Commands.runOnce(
                                 () -> {
                                         switch (setpoint) {

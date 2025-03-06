@@ -28,9 +28,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -344,35 +343,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         return Commands.runOnce(() -> armMotor.clearFaults());
     }
 
-    private SysIdRoutine sysIdRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                    (volts) -> {
-                        armMotor.setVoltage(volts.in(Volts));
-                    },
-                    null,
-                    this));
-
-    private double elevatorOkMove = 90;
-
-    public Command quasistaticForward() {
-        return sysIdRoutine.quasistatic(Direction.kForward);
-    }
-
-    public Command quasistaticBackward() {
-        return sysIdRoutine.quasistatic(Direction.kReverse);
-    }
-
-    public Command dynamicForward() {
-        return sysIdRoutine.dynamic(Direction.kForward);
-    }
-
-    public Command dynamicBackward() {
-        return sysIdRoutine.dynamic(Direction.kReverse);
-    }
-
     public boolean checkArmClear() {
-        return armMotor.getEncoder().getPosition() > elevatorOkMove;
+        return armMotor.getEncoder().getPosition() > ArmSetpoints.kokElevatorMove;
     }
 
 }

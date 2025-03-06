@@ -77,8 +77,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     public final double minAngle = 0;
     public final double maxAngle = 45;
 
-    private int inPositionCtr;
-
     public double targetRadians;
     @Log(key = "preintakeff")
     private double preintakeff;
