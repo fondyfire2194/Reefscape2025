@@ -43,7 +43,6 @@ public class CommandFactory {
                 m_gamepieces = gamepieces;
                 m_ls = ls;
 
-              
         }
 
         public Command deliverAlgaeToBargeCommand(double delaySecs) {
@@ -123,7 +122,7 @@ public class CommandFactory {
         }
 
         public static final class ArmSetpoints {
-                
+
                 public static final int kokElevatorMove = 90;
                 public static final int kTravel = 100;
                 public static final int kProcessorDeliver = -70;
@@ -139,10 +138,10 @@ public class CommandFactory {
 
         public static final class CoralRPMSetpoints {
                 public static final double kCoralIntakeMotorRPM = 1100;
-                public static final double kCoralStation = 2000;
-                public static final double kReefPlaceL123 = 4000;
-                public static final double kReefPlaceL4 = 2000;
-                public static final double kStop = 0;
+                public static final double kGmepieceCoralIntakeRPM = 2000;
+                public static final double kGamepieceReefPlaceL123 = 4000;
+                public static final double kGamepieceReefPlaceL4 = 2000;
+                public static final double kBothStop = 0;
         }
 
         public static final class AlgaeRPMSetpoints {
@@ -150,6 +149,13 @@ public class CommandFactory {
                 public static final double kProcessorDeliver = 2000;
                 public static final double kBargeDeliver = 2000;
                 public static final double kStop = 0;
+        }
+
+        public Command safePositionArmElevator(double degrees, double inches) {
+                return Commands.sequence(
+                                m_arm.setGoalDegreesCommand(degrees),
+                                Commands.waitUntil(() -> m_elevator.armClear),
+                                m_elevator.setGoalInchesCommand(inches));
         }
 
         /**
@@ -162,42 +168,52 @@ public class CommandFactory {
                                 () -> {
                                         switch (setpoint) {
                                                 case kCoralStation:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kCoralStation);
-                                                        m_elevator.setGoalInchesWithArmCheck(
+                                                        safePositionArmElevator(ArmSetpoints.kCoralStation,
                                                                         ElevatorSetpoints.kCoralStation);
                                                         break;
                                                 case kLevel1:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel1);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel1);
+                                                        Commands.parallel(
+                                                                        m_gamepieces.setTargetRPM(
+                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                                        safePositionArmElevator(ArmSetpoints.kLevel1,
+                                                                                        ElevatorSetpoints.kLevel1));
                                                         break;
                                                 case kLevel2:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel2);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel2);
+                                                        Commands.parallel(
+                                                                        m_gamepieces.setTargetRPM(
+                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                                        safePositionArmElevator(ArmSetpoints.kLevel2,
+                                                                                        ElevatorSetpoints.kLevel2));
                                                         break;
                                                 case kLevel3:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel3);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel3);
+                                                        Commands.parallel(
+                                                                        m_gamepieces.setTargetRPM(
+                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                                        safePositionArmElevator(ArmSetpoints.kLevel3,
+                                                                                        ElevatorSetpoints.kLevel3));
                                                         break;
                                                 case kLevel4:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kLevel4);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel4);
+                                                        Commands.parallel(
+                                                                        m_gamepieces.setTargetRPM(
+                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL4),
+                                                                        safePositionArmElevator(ArmSetpoints.kLevel4,
+                                                                                        ElevatorSetpoints.kLevel4));
                                                         break;
                                                 case kProcessorDeliver:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kProcessorDeliver);
-                                                        m_elevator.setGoalInchesWithArmCheck(
-                                                                        ElevatorSetpoints.kProcessorDeliver);
+                                                        safePositionArmElevator(ArmSetpoints.kBargeDeliver,
+                                                                        ElevatorSetpoints.kBarge);
                                                         break;
                                                 case KAlgaeDeliverBarge:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kBarge);
+                                                        safePositionArmElevator(ArmSetpoints.kBargeDeliver,
+                                                                        ElevatorSetpoints.kBarge);
                                                         break;
                                                 case KAlgaePickUpL2:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel2);
+                                                        safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
+                                                                        ElevatorSetpoints.kLevel2);
                                                         break;
                                                 case kAlgaePickUpL3:
-                                                        m_arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake);
-                                                        m_elevator.setGoalInchesWithArmCheck(ElevatorSetpoints.kLevel3);
+                                                        safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
+                                                                        ElevatorSetpoints.kLevel3);
                                                         break;
                                         }
 

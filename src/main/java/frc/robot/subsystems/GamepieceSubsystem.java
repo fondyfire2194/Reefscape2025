@@ -55,6 +55,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   @Log(key = "target rpm")
   public double targetRPM;
 
+
   public final double gamepieceKp = .00002; // P gains caused oscilliation
   public final double gamepieceKi = 0.0;
   public final double gamepieceKd = 0.00;
@@ -156,38 +157,27 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> stopGamepieceMotor()));
   }
 
-  public void coralintakeToSwitch(double RPM, double CIRPM) {
+  public void coralintakeToSwitch() {
     enableLimitSwitch();
     setCurrentLimit(inOutCoralAmps);
-    runGamepieceMotorAtVelocity(RPM);
-    runCoralIntakeMotorAtVelocity(CIRPM);
+    runGamepieceMotorAtVelocity(CoralRPMSetpoints.kCoralIntakeMotorRPM);
+    runCoralIntakeMotorAtVelocity(CoralRPMSetpoints.kCoralIntakeMotorRPM);
   }
 
-  public Command deliverCoralCommandL123() {
+  public Command deliverCoralCommand() {
     return Commands.sequence(
         Commands.parallel(
             Commands.runOnce(() -> disableLimitSwitch()),
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
-            Commands.runOnce(() -> runGamepieceMotorAtVelocity(CoralRPMSetpoints.kReefPlaceL123)),
-            Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL123)),
+            Commands.runOnce(() -> runGamepieceMotorAtVelocity(targetRPM))),
         new WaitCommand(3),
         stopGamepieceMotorsCommand());
-  }
-
-  public Command deliverCoralCommandL4() {
-    return Commands.parallel(
-        Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
-        Commands.runOnce(() -> runGamepieceMotorAtVelocity(CoralRPMSetpoints.kReefPlaceL4)),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kReefPlaceL4))
-        .withTimeout(5);
   }
 
   public Command intakeCoralToSwitchCommand() {
     return Commands.parallel(
         Commands.runOnce(() -> enableLimitSwitch()),
-        Commands.runOnce(() -> targetRPM = CoralRPMSetpoints.kCoralStation),
-        Commands.run(() -> coralintakeToSwitch(CoralRPMSetpoints.kCoralStation, CoralRPMSetpoints.kCoralIntakeMotorRPM))
+        Commands.run(() -> coralintakeToSwitch())
             .until(() -> coralAtIntake())
             .withTimeout(coralAtSwitchTime)
             .andThen(stopGamepieceMotorsCommand()));
@@ -204,7 +194,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
         Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver)));
-    
+
   }
 
   public Command deliverAlgaeToBargeCommand() {
@@ -212,7 +202,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
         Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver)));
-       
+
   }
 
   public void run(double speed) {
@@ -221,13 +211,11 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void runGamepieceMotorAtVelocity(double rpm) {
     setCurrentLimit(20);
-    targetRPM=rpm;
     if (RobotBase.isReal())
       gamepieceController.setReference(rpm, ControlType.kVelocity);
   }
 
   public void runCoralIntakeMotorAtVelocity(double rpm) {
-    setCurrentLimit(20);
     if (RobotBase.isReal())
       coralIntakeController.setReference(rpm, ControlType.kVelocity);
   }
