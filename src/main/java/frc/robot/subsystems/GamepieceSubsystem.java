@@ -160,7 +160,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     setCurrentLimit(inOutCoralAmps);
     gamepieceMotor.set(.25);
     // runGamepieceMotorAtVelocity(CoralRPMSetpoints.kGmepieceCoralIntakeRPM);
-    coralIntakeMotor.set(.5);
+    coralIntakeMotor.set(ral5);
     // if (coralAtIntake()) {
     // stopCoralIntakeMotor();
     // stopGamepieceMotor();
