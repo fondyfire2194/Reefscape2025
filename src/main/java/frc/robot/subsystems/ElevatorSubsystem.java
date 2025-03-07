@@ -131,11 +131,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-  public double armClearAngleDeg = 100;
+  public double armClearAngleDeg = 104;
   @Log.NT(key = "arm clear")
   public boolean armClear;
 
   public boolean telemetry = true;
+
+  public double tolerance_inches = 3;
 
   /**
    * Subsystem constructor.
@@ -408,6 +410,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);
     elevatorError.setText(String.valueOf(getLeftRightDiffInches()));
+  }
+
+  public boolean atPosition() {
+    return Math.abs(getLeftPositionError()) < tolerance_inches;
   }
 
 }

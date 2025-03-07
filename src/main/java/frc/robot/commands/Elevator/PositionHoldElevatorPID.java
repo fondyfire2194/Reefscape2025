@@ -9,11 +9,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
+    private final ArmSubsystem m_arm;
 
     private PIDController pidController;
     private double kp = 12.;
@@ -26,8 +27,9 @@ public class PositionHoldElevatorPID extends Command {
     private double maxrate = 2;
     private boolean toggle;
 
-    public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
+    public PositionHoldElevatorPID(ElevatorSubsystem elevator, ArmSubsystem arm) {
         this.elevator = elevator;
+        m_arm=arm;
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.elevator);
     }
@@ -45,6 +47,12 @@ public class PositionHoldElevatorPID extends Command {
 
     @Override
     public void execute() {
+
+        
+        elevator.armClear = checkArmClear();
+
+        SmartDashboard.putNumber("Elevator/poslim",
+        Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
 
         toggle = !toggle;
 
@@ -70,7 +78,11 @@ public class PositionHoldElevatorPID extends Command {
         elevator.runAtVelocity(mps);
 
         elevator.currentSetpoint = elevator.nextSetpoint;
+
+        
     }
+
+
 
     @Override
     public void end(boolean interrupted) {
@@ -80,5 +92,10 @@ public class PositionHoldElevatorPID extends Command {
     public boolean isFinished() {
         return false;
     }
+
+    private boolean checkArmClear() {
+        return Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()) < elevator.armClearAngleDeg;
+    }
+
 
 }

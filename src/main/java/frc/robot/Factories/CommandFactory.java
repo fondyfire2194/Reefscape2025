@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
@@ -55,7 +56,8 @@ public class CommandFactory {
 
                 coralAtIntake.onTrue(Commands.parallel(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                                rumbleDriver(RumbleType.kRightRumble, 1)));
+                                rumbleDriver(RumbleType.kRightRumble, 1),
+                                m_gamepieces.stopGamepieceMotorsCommand()));
 
         }
 
@@ -143,16 +145,17 @@ public class CommandFactory {
                 public static final int kBargeDeliver = -70;
                 public static final double kCoralStation = 132;
                 public static final double kLevel1 = 97;
-                public static final double kLevel2 = 95;
-                public static final double kLevel3 = 94;
-                public static final double kLevel4 = 84;
+                public static final double kLevel2 = 97;
+                public static final double kLevel3 = 97;
+                public static final double kLevel4_1 = 103;
+                public static final double kLevel4_2 = 85;
                 public static final double kAlgaeIntake = -70;
 
         }
 
         public static final class CoralRPMSetpoints {
-                public static final double kCoralIntakeMotorRPM = 1100;
-                public static final double kGmepieceCoralIntakeRPM = 2000;
+                public static final double kCoralIntakeMotorRPM = 2000;
+                public static final double kGmepieceCoralIntakeRPM = 5000;
                 public static final double kGamepieceReefPlaceL123 = 4000;
                 public static final double kGamepieceReefPlaceL4 = 2000;
                 public static final double kBothStop = 0;
@@ -167,72 +170,93 @@ public class CommandFactory {
 
         public Command safePositionArmElevator(double degrees, double inches) {
                 return Commands.sequence(
-                                m_arm.setGoalDegreesCommand(degrees),
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)),
                                 Commands.waitUntil(() -> m_elevator.armClear),
                                 m_elevator.setGoalInchesCommand(inches));
         }
 
+        public Command safePositionArmElevatorL4(double degrees_first, double degrees_second, double inches) {
+                return Commands.sequence(
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_first)),
+                                Commands.waitUntil(() -> m_elevator.armClear),
+                                m_elevator.setGoalInchesCommand(inches),
+                                new WaitCommand(0.2),
+                                Commands.waitUntil(() -> m_elevator.atPosition()),
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)));
+        }
+
+        public Command homeElevatorAndArm() {
+                return Commands.sequence(
+                        Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
+                        Commands.waitUntil(() -> m_elevator.armClear),
+                        m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
+                        Commands.waitUntil(() -> m_elevator.atPosition()), 
+                        Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
+                
+        }
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
          * positions for the given setpoint.
          */
         public Command setSetpointCommand(Setpoint setpoint) {
-                return Commands.runOnce(
-                                () -> {
-                                        switch (setpoint) {
-                                                case kCoralStation:
-                                                        safePositionArmElevator(ArmSetpoints.kCoralStation,
-                                                                        ElevatorSetpoints.kCoralStation);
-                                                        break;
-                                                case kLevel1:
-                                                        Commands.parallel(
-                                                                        m_gamepieces.setTargetRPM(
-                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
-                                                                        safePositionArmElevator(ArmSetpoints.kLevel1,
-                                                                                        ElevatorSetpoints.kLevel1));
-                                                        break;
-                                                case kLevel2:
-                                                        Commands.parallel(
-                                                                        m_gamepieces.setTargetRPM(
-                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
-                                                                        safePositionArmElevator(ArmSetpoints.kLevel2,
-                                                                                        ElevatorSetpoints.kLevel2));
-                                                        break;
-                                                case kLevel3:
-                                                        Commands.parallel(
-                                                                        m_gamepieces.setTargetRPM(
-                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL123),
-                                                                        safePositionArmElevator(ArmSetpoints.kLevel3,
-                                                                                        ElevatorSetpoints.kLevel3));
-                                                        break;
-                                                case kLevel4:
-                                                        Commands.parallel(
-                                                                        m_gamepieces.setTargetRPM(
-                                                                                        CoralRPMSetpoints.kGamepieceReefPlaceL4),
-                                                                        safePositionArmElevator(ArmSetpoints.kLevel4,
-                                                                                        ElevatorSetpoints.kLevel4));
-                                                        break;
-                                                case kProcessorDeliver:
-                                                        safePositionArmElevator(ArmSetpoints.kBargeDeliver,
-                                                                        ElevatorSetpoints.kBarge);
-                                                        break;
-                                                case KAlgaeDeliverBarge:
-                                                        safePositionArmElevator(ArmSetpoints.kBargeDeliver,
-                                                                        ElevatorSetpoints.kBarge);
-                                                        break;
-                                                case KAlgaePickUpL2:
-                                                        safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
-                                                                        ElevatorSetpoints.kLevel2);
-                                                        break;
-                                                case kAlgaePickUpL3:
-                                                        safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
-                                                                        ElevatorSetpoints.kLevel3);
-                                                        break;
-                                        }
+                Command temp = Commands.none();
 
-                                })
+                switch (setpoint) {
+                        case kCoralStation:
+                                temp = safePositionArmElevator(ArmSetpoints.kCoralStation,
+                                                ElevatorSetpoints.kCoralStation);
+                                break;
+                        case kLevel1:
+                                temp = Commands.parallel(
+                                                m_gamepieces.setTargetRPM(
+                                                                CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                safePositionArmElevator(ArmSetpoints.kLevel1,
+                                                                ElevatorSetpoints.kLevel1));
+                                break;
+                        case kLevel2:
+                                temp = Commands.parallel(
+                                                m_gamepieces.setTargetRPM(
+                                                                CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                safePositionArmElevator(ArmSetpoints.kLevel2,
+                                                                ElevatorSetpoints.kLevel2));
+                                break;
+                        case kLevel3:
+                                temp = Commands.parallel(
+                                                m_gamepieces.setTargetRPM(
+                                                                CoralRPMSetpoints.kGamepieceReefPlaceL123),
+                                                safePositionArmElevator(ArmSetpoints.kLevel3,
+                                                                ElevatorSetpoints.kLevel3));
+                                break;
+                        case kLevel4:
+                                temp = Commands.parallel(
+                                                m_gamepieces.setTargetRPM(
+                                                                CoralRPMSetpoints.kGamepieceReefPlaceL4),
+                                                safePositionArmElevatorL4(ArmSetpoints.kLevel4_1,
+                                                                ArmSetpoints.kLevel4_2,
+                                                                ElevatorSetpoints.kLevel4));
+                                break;
+                        case kProcessorDeliver:
+                                temp = safePositionArmElevator(ArmSetpoints.kBargeDeliver,
+                                                ElevatorSetpoints.kBarge);
+                                break;
+                        case KAlgaeDeliverBarge:
+                                temp = safePositionArmElevator(ArmSetpoints.kBargeDeliver,
+                                                ElevatorSetpoints.kBarge);
+                                break;
+                        case KAlgaePickUpL2:
+                                temp = safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
+                                                ElevatorSetpoints.kLevel2);
+                                break;
+                        case kAlgaePickUpL3:
+                                temp = safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
+                                                ElevatorSetpoints.kLevel3);
+                                break;
+                }
+                return temp;
 
-                                .andThen(Commands.runOnce(() -> m_ls.setViewThreeSolidColor(setpoint.ordinal())));
         }
+
+        // .andThen(Commands.runOnce(() ->
+        // m_ls.setViewThreeSolidColor(setpoint.ordinal())));
 }

@@ -5,6 +5,7 @@
 package frc.robot.commands.Elevator;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -35,7 +36,8 @@ public class PositionHoldElevator extends Command {
             elevator.position();
 
         elevator.armClear = checkArmClear();
-
+        SmartDashboard.putNumber("Elevator/poslim",
+                Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
     }
 
     @Override
