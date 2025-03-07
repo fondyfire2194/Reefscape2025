@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
-import frc.robot.Factories.CommandFactory.CoralRPMSetpoints;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -58,19 +57,19 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public final double gamepieceKp = .0002; // P gains caused oscilliation
   public final double gamepieceKi = 0.0;
   public final double gamepieceKd = 0.00;
-  public final double gamepieceKFF = 1 / 11000;
+  public final double gamepieceKFF = .8 / 11000;
 
   public final double coralIntakeKp = .00002; // P gains caused oscilliation
   public final double coralIntakeKi = 0.0;
   public final double coralIntakeKd = 0.00;
-  public final double coralIntakeKFF = 1 / 5700;
+  public final double coralIntakeKFF = .8 / 5700;
 
   private double coralAtSwitchTime = 10;
 
   private double lockAlgaeSet = .01;
   private int lockAlgaeAmps = 2;
   private int inOutAlgaeAmps = 20;
-  private int inOutCoralAmps = 40;
+  public int inOutCoralAmps = 40;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -155,18 +154,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> stopGamepieceMotor()));
   }
 
-  public void coralintakeToSwitch() {
-   // enableLimitSwitch();
-    setCurrentLimit(inOutCoralAmps);
-    gamepieceMotor.set(.25);
-    // runGamepieceMotorAtVelocity(CoralRPMSetpoints.kGmepieceCoralIntakeRPM);
-    coralIntakeMotor.set(5);
-    // if (coralAtIntake()) {
-    // stopCoralIntakeMotor();
-    // stopGamepieceMotor();
-    // }
-    // runCoralIntakeMotorAtVelocity(CoralRPMSetpoints.kCoralIntakeMotorRPM);
-  }
 
   public Command deliverCoralCommand() {
     return Commands.sequence(
@@ -176,12 +163,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
             Commands.runOnce(() -> gamepieceMotor.set(.25))),
         new WaitCommand(3),
         stopGamepieceMotorsCommand());
-  }
-
-  public Command intakeCoralToSwitchCommand() {
-    return Commands.parallel(
-        Commands.runOnce(() -> enableLimitSwitch()),
-        Commands.runOnce(() -> coralintakeToSwitch()));
   }
 
   public Command intakeAlgaeCommand() {

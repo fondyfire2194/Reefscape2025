@@ -32,6 +32,7 @@ import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
+import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
@@ -189,7 +190,7 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Deliver Coral", gamepieces.deliverCoralCommand());
 
-                NamedCommands.registerCommand("Intake Coral", gamepieces.intakeCoralToSwitchCommand());
+                NamedCommands.registerCommand("Intake Coral", new IntakeCoralToSwitch(gamepieces, arm));
 
                 NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 
@@ -281,7 +282,7 @@ public class RobotContainer implements Logged {
 
                         driverXbox.a().onTrue(gamepieces.deliverCoralCommand());
 
-                        driverXbox.x().onTrue(gamepieces.intakeCoralToSwitchCommand());
+                        driverXbox.x().onTrue(new IntakeCoralToSwitch(gamepieces, arm).withName("IntakeCoral"));
 
                         driverXbox.back().onTrue(drivebase.centerModulesCommand());
 

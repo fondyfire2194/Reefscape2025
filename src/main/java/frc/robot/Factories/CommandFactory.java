@@ -34,8 +34,6 @@ public class CommandFactory {
 
         LedStrip m_ls;
 
-        Trigger coralAtIntake;
-
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
                         GamepieceSubsystem gamepieces, LedStrip ls, CommandXboxController dr,
                         CommandXboxController codr) {
@@ -46,18 +44,6 @@ public class CommandFactory {
                 m_elevator = elevator;
                 m_gamepieces = gamepieces;
                 m_ls = ls;
-                coralAtIntake = new Trigger(() -> m_gamepieces.coralAtIntake());
-
-                defineTriggers();
-
-        }
-
-        void defineTriggers() {
-
-                coralAtIntake.onTrue(Commands.parallel(
-                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                                rumbleDriver(RumbleType.kRightRumble, 1),
-                                m_gamepieces.stopGamepieceMotorsCommand()));
 
         }
 
@@ -187,13 +173,14 @@ public class CommandFactory {
 
         public Command homeElevatorAndArm() {
                 return Commands.sequence(
-                        Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                        Commands.waitUntil(() -> m_elevator.armClear),
-                        m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
-                        Commands.waitUntil(() -> m_elevator.atPosition()), 
-                        Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
-                
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
+                                Commands.waitUntil(() -> m_elevator.armClear),
+                                m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
+                                Commands.waitUntil(() -> m_elevator.atPosition()),
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
+
         }
+
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
