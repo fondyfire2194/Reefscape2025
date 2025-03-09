@@ -94,7 +94,7 @@ public final class Constants {
     public static final double reefSideWidthDiv = 4;
 
     public static final double reefOffset = Units.inchesToMeters(6.5);
-    public static final double centerToReefBranch = Units.inchesToMeters(13);
+    public static final double centerToReefBranch = Units.inchesToMeters(13 / 2);
 
     public static int[] blueReefTags = { 0, 21, 22, 17, 18, 19, 20 };
     public static int[] blueCoralStationTags = { 13, 12 };
@@ -111,9 +111,9 @@ public final class Constants {
   }
 
   public static class RobotConstants {
-    public static final double ROBOT_LENGTH = Units.inchesToMeters(28);
-    public static final double placementOffsetX = Units.inchesToMeters(12);
-    public static final double placementOffsetY = Units.inchesToMeters(.7);
+    public static final double ROBOT_LENGTH = Units.inchesToMeters(39);//width 33.5 inches
+    public static final double placementOffsetX = Units.inchesToMeters(0);
+    public static final double placementOffsetY = Units.inchesToMeters(0.5);
 
     public static final double pickupOffset = Units.inchesToMeters(8);
     public static double algaeOffset = Units.inchesToMeters(6);
@@ -136,7 +136,7 @@ public final class Constants {
 
   }
 
-public static double X_KP;
-public static double Y_KP;
-public static double ROT_KP;
+  public static double X_KP;
+  public static double Y_KP;
+  public static double ROT_KP;
 }

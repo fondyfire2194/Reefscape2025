@@ -24,10 +24,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
+import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -54,17 +56,17 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   @Log(key = "target rpm")
   public double targetRPM;
 
-  public final double gamepieceKp = .0002; // P gains caused oscilliation
+  public final double gamepieceKp = .002; // P gains caused oscilliation
   public final double gamepieceKi = 0.0;
   public final double gamepieceKd = 0.00;
   public final double gamepieceKFF = .8 / 11000;
 
-  public final double coralIntakeKp = .00002; // P gains caused oscilliation
+  public final double coralIntakeKp = .002; // P gains caused oscilliation
   public final double coralIntakeKi = 0.0;
   public final double coralIntakeKd = 0.00;
   public final double coralIntakeKFF = .8 / 5700;
 
-  private double coralAtSwitchTime = 10;
+  public double noCoralAtSwitchTime = 10;
 
   private double lockAlgaeSet = .01;
   private int lockAlgaeAmps = 2;
@@ -75,9 +77,9 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public GamepieceSubsystem() {
 
     if (RobotBase.isReal())
-      coralAtSwitchTime = 10;
+      noCoralAtSwitchTime = 10;
     else
-      coralAtSwitchTime = 1;
+      noCoralAtSwitchTime = 1;
 
     gamepieceMotor = new SparkMax(Constants.CANIDConstants.gamepieceID, MotorType.kBrushless);
     gamepieceController = gamepieceMotor.getClosedLoopController();
@@ -160,7 +162,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
       Commands.runOnce(() -> disableLimitSwitch()),        
         Commands.parallel(
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
-            Commands.runOnce(() -> gamepieceMotor.set(.25))),
+            Commands.runOnce(() -> gamepieceMotor.set(.4))),
         new WaitCommand(3),
         stopGamepieceMotorsCommand());
   }
@@ -291,7 +293,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command jogGamepieceMotorCommand(DoubleSupplier speed) {
-    return Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
+    return Commands.sequence( Commands.runOnce(()->disableLimitSwitch()),
+     Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 
   public Command jogCoralIntakeMotorsCommand(DoubleSupplier speed) {
@@ -299,4 +302,5 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.run(() -> gamepieceMotor.setVoltage(-speed.getAsDouble() * RobotController.getBatteryVoltage())),
         Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
+
 }

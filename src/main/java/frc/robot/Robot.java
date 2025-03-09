@@ -119,7 +119,7 @@ public class Robot extends TimedRobot implements Logged {
     disabledTimer.start();
 
     m_robotContainer.drivebase.frontUpdate.setLLRobotorientation();
-    m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
+  //  m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
   }
 
   @Override
@@ -137,7 +137,7 @@ public class Robot extends TimedRobot implements Logged {
   @Override
   public void autonomousInit() {
     m_robotContainer.setMotorBrake(true);
-
+    m_robotContainer.llv.setPOILeft();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -165,7 +165,7 @@ public class Robot extends TimedRobot implements Logged {
     }
     m_robotContainer.setDriveMode();
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
-    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
+   // m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.inhibitVision = false;
   }
 

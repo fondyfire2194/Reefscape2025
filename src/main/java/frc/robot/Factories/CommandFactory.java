@@ -6,6 +6,8 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
+import com.revrobotics.spark.SparkBase.ControlType;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -13,12 +15,13 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
+import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
 
@@ -29,19 +32,21 @@ public class CommandFactory {
         ElevatorSubsystem m_elevator;
         ArmSubsystem m_arm;
         GamepieceSubsystem m_gamepieces;
+        LimelightVision m_llv;
         static CommandXboxController m_dr;
         static CommandXboxController m_codr;
 
         LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        GamepieceSubsystem gamepieces, LedStrip ls, CommandXboxController dr,
+                        GamepieceSubsystem gamepieces, LimelightVision llv, LedStrip ls, CommandXboxController dr,
                         CommandXboxController codr) {
                 m_swerve = swerve;
                 m_dr = dr;
                 m_codr = codr;
                 m_arm = arm;
                 m_elevator = elevator;
+                m_llv = llv;
                 m_gamepieces = gamepieces;
                 m_ls = ls;
 
@@ -101,6 +106,7 @@ public class CommandFactory {
         }
 
         public enum Setpoint {
+                kTravel,
                 kCoralStation,
                 kLevel1,
                 kLevel2,
@@ -114,11 +120,12 @@ public class CommandFactory {
 
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
+                public static final int kTravel = 10;
                 public static final int kProcessorDeliver = 5;
                 public static final int kCoralStation = 0;
                 public static final int kLevel1 = 6;
-                public static final int kLevel2 = 12;
-                public static final int kLevel3 = 28;
+                public static final int kLevel2 = 13;
+                public static final int kLevel3 = 29;
                 public static final int kLevel4 = 54;
                 public static final int kBarge = 65;
         }
@@ -178,18 +185,41 @@ public class CommandFactory {
                                 m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
                                 Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
+        }
 
+        public Command gamepieceFollowElevator() {
+
+                m_gamepieces.gamepieceController.setReference(m_elevator.getLeftPositionInches(),
+                                ControlType.kPosition);
+
+                return Commands.none();
+        }
+
+        public Command L4L1Decision() {
+                return new ConditionalCommand(
+                                setSetpointCommand(Setpoint.kLevel4),
+                                setSetpointCommand(Setpoint.kLevel1),
+                                m_llv.getTXOKDeliverCoral());
         }
 
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
          * positions for the given setpoint.
+         * 
+         * 
          */
         public Command setSetpointCommand(Setpoint setpoint) {
+
                 Command temp = Commands.none();
 
                 switch (setpoint) {
+
+                        case kTravel:
+                                temp = safePositionArmElevator(ArmSetpoints.kTravel,
+                                                ElevatorSetpoints.kTravel);
+                                break;
+
                         case kCoralStation:
                                 temp = safePositionArmElevator(ArmSetpoints.kCoralStation,
                                                 ElevatorSetpoints.kCoralStation);

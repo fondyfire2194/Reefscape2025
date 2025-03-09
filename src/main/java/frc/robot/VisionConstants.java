@@ -60,19 +60,19 @@ public final class VisionConstants {
         this.horpixels = horpixels;
         this.vertpixels = vertpixels;
         this.isUsed = isUsed;
-        this.isActive = isActive;
+        this.isActive = true;//isActive;
       }
     }
 
     public static CameraValues frontCamera = new CameraValues(
         "limelight-front",
         "10.21.94.15",
-        Units.inchesToMeters(10.75),
-        Units.inchesToMeters(-7.25),
-        Units.inchesToMeters(9.0),
+        Units.inchesToMeters(9.5),
+        Units.inchesToMeters(0),
+        Units.inchesToMeters(8.0),
         0,
-        12, // deg 19
-        7.5,
+        15, // deg 19
+        -5,
         63.3,
         49.7,
         1,

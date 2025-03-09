@@ -59,7 +59,7 @@ public class TurnToReef extends Command {
     // kMaxAngularRate)
     // : MathUtil.clamp(ff, -kMaxAngularRate, -minFeedForward * kMaxAngularRate);
 
-    ff *= kMaxAngularRate * 5;
+    ff *= kMaxAngularRate *.5;
 
     // SmartDashboard.putNumber("ROTATEFF", ff);
     // SmartDashboard.putNumber("ROTATEERR", ppc.getPositionError());

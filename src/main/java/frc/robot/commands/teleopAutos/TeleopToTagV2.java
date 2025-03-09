@@ -11,7 +11,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.RobotConstants;
@@ -23,22 +25,25 @@ public class TeleopToTagV2 extends Command {
 
   private final SwerveSubsystem m_swerve;
   private final LimelightVision m_llv;
-
+  private final CommandXboxController m_gamepad;
   Pose2d tagPose;
   Translation2d tl2d = new Translation2d();
   private PIDController controllerX;
   private PIDController controllerY;
   private PIDController controllerRotation;
+
   double x;
   double y;
   double rotation;
   double maxSet = .5;
   double minSet = -.5;
   double rotLimit = .5;
+  boolean showTelemetry = true;
 
-  public TeleopToTagV2(SwerveSubsystem swerve, LimelightVision llv) {
+  public TeleopToTagV2(SwerveSubsystem swerve, LimelightVision llv, CommandXboxController gamepad) {
     m_swerve = swerve;
     m_llv = llv;
+    m_gamepad = gamepad;
     addRequirements(swerve);
   }
 
@@ -55,6 +60,8 @@ public class TeleopToTagV2 extends Command {
   @Override
   public void execute() {
 
+    // double triggerSetting = m_gamepad.getLeftTriggerAxis();
+
     Pose2d poseOffset = new Pose2d();
 
     if (!LimelightHelpers.getTV(m_llv.frontname))
@@ -62,18 +69,18 @@ public class TeleopToTagV2 extends Command {
     else
       tagPose = LimelightHelpers.getBotPose3d_wpiBlue(m_llv.frontname).toPose2d();
 
-      double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
-      double baseOffsetY = RobotConstants.placementOffsetY;
+    double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
+    double baseOffsetY = RobotConstants.placementOffsetY;
 
     if (m_swerve.side == Side.CENTER)
       tl2d = new Translation2d(baseOffsetX, baseOffsetY);
     if (m_swerve.side == Side.RIGHT)
-      tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset);
+      tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset + baseOffsetY);
     if (m_swerve.side == Side.LEFT)
-      tl2d = new Translation2d(baseOffsetX, -FieldConstants.reefOffset);
+      tl2d = new Translation2d(baseOffsetX, -FieldConstants.reefOffset + baseOffsetY);
     Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
-    tagPose.transformBy(tr2d);
 
+    tagPose.transformBy(tr2d);
     m_swerve.poseTagActive = tagPose;
 
     Pose2d currentPose = m_swerve.getPose();
@@ -86,22 +93,21 @@ public class TeleopToTagV2 extends Command {
     y = MathUtil.clamp(y, minSet, maxSet);
     rotation = MathUtil.clamp(rotation, -rotLimit, rotLimit);
 
-    // SmartDashboard.putNumber("TTT/X-X", tagPose.getX()-currentPose.getX());
-    // SmartDashboard.putNumber("TTT/X", x);
-    // SmartDashboard.putNumber("TTT/Y", y);
-    // SmartDashboard.putNumber("TTT/Rot", rotation);
-
     poseOffset = new Pose2d(x, y, new Rotation2d(rotation));
-
     m_swerve.poseTagActive = poseOffset;
 
-    // SmartDashboard.putNumber("TTT/XVEL", x *
-    // m_swerve.swerveDrive.getMaximumChassisVelocity());
-    // SmartDashboard.putNumber("TTT/YVEL", y *
-    // m_swerve.swerveDrive.getMaximumChassisVelocity());
-    // SmartDashboard.putNumber("TTT/RotVEL", rotation *
-    // m_swerve.swerveDrive.getMaximumChassisAngularVelocity());
-
+    if (showTelemetry) {
+      SmartDashboard.putNumber("TTT/X-X", tagPose.getX() - currentPose.getX());
+      SmartDashboard.putNumber("TTT/X", x);
+      SmartDashboard.putNumber("TTT/Y", y);
+      SmartDashboard.putNumber("TTT/Rot", rotation);
+      SmartDashboard.putNumber("TTT/XVEL", x *
+          m_swerve.swerveDrive.getMaximumChassisVelocity());
+      SmartDashboard.putNumber("TTT/YVEL", y *
+          m_swerve.swerveDrive.getMaximumChassisVelocity());
+      SmartDashboard.putNumber("TTT/RotVEL", rotation *
+          m_swerve.swerveDrive.getMaximumChassisAngularVelocity());
+    }
     m_swerve.drive(
         new Translation2d(
             poseOffset.getX() * m_swerve.swerveDrive.getMaximumChassisVelocity(),
@@ -111,6 +117,10 @@ public class TeleopToTagV2 extends Command {
         true);
 
   }
+  // from CD
+  // ChassisSpeeds speeds = mDriveController.calculate(mPoseEstimator.getPose(),
+  // mGoal, 0, mGoal.getRotation());
+  // mSwerve.setModuleStates(SwerveSubsystemConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds));
 
   // Called once the command ends or is interrupted.
   @Override

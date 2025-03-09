@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -44,11 +45,11 @@ public class LimelightVision extends SubsystemBase implements Logged {
   Alert frCameraAlert = new Alert("FrontRightCameraProblem", AlertType.kError);
   Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
   @Log(key = "frontaccpose")
-  public static Pose2d flAcceptedPose;  
-  public static int frontAcceptedCount;
+  public  Pose2d frontAcceptedPose;
+  public  int frontAcceptedCount;
   @Log(key = "rearacceptpose")
-  public static Pose2d rearAcceptedPose;
-  public static int rearAcceptedCount;
+  public Pose2d rearAcceptedPose;
+  public int rearAcceptedCount;
 
   /**
    * Checks if the specified limelight is connected
@@ -98,11 +99,11 @@ public class LimelightVision extends SubsystemBase implements Logged {
       return 0;
   }
 
-  public boolean getTXOKDeliverCoral() {
+  public BooleanSupplier getTXOKDeliverCoral() {
     double tx = LimelightHelpers.getTX(frontname);
     double distance = Units.metersToInches(getDistanceToTag(frontname));
     double yerror = Math.tan(Units.degreesToRadians(tx)) * distance;
-    return yerror < 2;
+    return () -> yerror < 2;
   }
 
   @Override
@@ -115,7 +116,7 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
         allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
             && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsrear;
-        
+
       }
 
       SmartDashboard.putBoolean("LL//FrontLeftCamOk", limelightExistsfront);

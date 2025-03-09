@@ -5,6 +5,7 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -42,6 +43,8 @@ public class LimelightTagsUpdate {
                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_cam.camname);
                 m_swerve.distanceLimelightToEstimator = mt2.pose.getTranslation()
                         .getDistance(m_swerve.getPoseEstimator().getEstimatedPosition().getTranslation());
+
+                        SmartDashboard.putBoolean("RejectUpdate", rejectUpdate);
 
                  rejectUpdate = mt2.tagCount == 0 || Math.abs(m_swerve.getGyroRate()) > 720
                 || (mt2.tagCount == 1 && mt2.rawFiducials.length == 1 &&

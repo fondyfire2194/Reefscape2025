@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
 
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers.FloatSerializer;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -99,7 +100,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   // Math.toRadians(40));
 
   public LimelightTagsUpdate frontUpdate = new LimelightTagsUpdate(CameraConstants.frontCamera, this);
-  public LimelightTagsUpdate rearUpdate = new LimelightTagsUpdate(CameraConstants.rearCamera, this);
+  //public LimelightTagsUpdate rearUpdate = new LimelightTagsUpdate(CameraConstants.rearCamera, this);
 
   @Log
   public int reefZone = 0;
@@ -200,7 +201,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via
+    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via
                                             // angle.
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
                                             // simulations since it causes discrepancies not seen in real life.
@@ -217,7 +218,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     // swerveDrive.restoreInternalOffset();
 
-    replaceSwerveModuleFeedforward(0.29943, 2.5238, 0.55783);
+    replaceSwerveModuleFeedforward(0.25, 2.7479, 0.3315);
 
     setupPathPlanner();
 
@@ -255,7 +256,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     frontUpdate.execute();
 
-    rearUpdate.execute();
+ //   rearUpdate.execute();
 
   }
 
@@ -487,12 +488,19 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       DoubleSupplier angularRotationX) {
     return run(() -> {
       // Make the robot mo
-      drive(SwerveMath.scaleTranslation(new Translation2d(
+    //   drive(SwerveMath.scaleTranslation(new Translation2d(
+    //       translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+    //       translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+    //       Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
+    //       true,
+    //       true);
+    // });
+    drive(new Translation2d(
           translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-          Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()),
+          Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity() * 0.7,
           true,
-          false);
+          true);
     });
   }
 

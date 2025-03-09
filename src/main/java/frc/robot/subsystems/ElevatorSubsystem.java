@@ -110,12 +110,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public int posrng;
 
-
   public final Trigger atMin = new Trigger(() -> getLeftPositionMeters() <= .1);
 
   public final Trigger atMax = new Trigger(() -> getLeftPositionMeters() > (maxElevatorHeight.in(Meters) - .2));
-
-
 
   Alert elevatorError = new Alert("ElevetorDifferenceHigh", AlertType.kError);
 
@@ -273,7 +270,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         () -> armClear);
   }
 
-
   public Command setGoalInchesCommand(double targetInches) {
     return Commands.runOnce(() -> setGoalInches(targetInches));
   }
@@ -313,6 +309,16 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left right position diffinches")
   public double getLeftRightDiffInches() {
     return getLeftPositionInches() - getRightPositionInches();
+  }
+
+  @Log.NT(key = "left motor temperature C")
+  public double getLeftMotorTemperatureC() {
+    return leftMotor.getMotorTemperature();
+  }
+
+  @Log.NT(key = "right motor temperature C")
+  public double getRightMotorTemperature() {
+    return rightMotor.getMotorTemperature();
   }
 
   public void position() {
