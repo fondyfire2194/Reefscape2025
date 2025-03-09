@@ -113,15 +113,15 @@ public class CommandFactory {
                 kLevel3,
                 kLevel4,
                 kProcessorDeliver,
-                KAlgaeDeliverBarge,
+                kAlgaeDeliverBarge,
                 kAlgaePickUpL3,
-                KAlgaePickUpL2;
+                kAlgaePickUpL2;
         }
 
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
                 public static final int kTravel = 10;
-                public static final int kProcessorDeliver = 5;
+                public static final int kProcessorDeliver = 10;
                 public static final int kCoralStation = 0;
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
@@ -134,8 +134,9 @@ public class CommandFactory {
 
                 public static final int kokElevatorMove = 90;
                 public static final int kTravel = 100;
-                public static final int kProcessorDeliver = -70;
-                public static final int kBargeDeliver = -70;
+                public static final int kProcessorDeliver = -90;
+                public static final int kBargeDeliver = 45;
+                public static final int kBargeDeliver2 = 70;
                 public static final double kCoralStation = 132;
                 public static final double kLevel1 = 97;
                 public static final double kLevel2 = 97;
@@ -157,7 +158,7 @@ public class CommandFactory {
         public static final class AlgaeRPMSetpoints {
                 public static final double kReefPickUpL123 = -.5;
                 public static final double kProcessorDeliver = 2000;
-                public static final double kBargeDeliver = 2000;
+                public static final double kBargeDeliver = 7000;
                 public static final double kStop = 0;
         }
 
@@ -201,7 +202,11 @@ public class CommandFactory {
                                 setSetpointCommand(Setpoint.kLevel1),
                                 m_llv.getTXOKDeliverCoral());
         }
-
+        
+        public Command deliverToBargeWithArmCommand() {
+                return Commands.parallel(m_gamepieces.deliverAlgaeToBargeCommand(), 
+                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver2)));
+        }
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
@@ -254,14 +259,14 @@ public class CommandFactory {
                                                                 ElevatorSetpoints.kLevel4));
                                 break;
                         case kProcessorDeliver:
+                                temp = safePositionArmElevator(ArmSetpoints.kProcessorDeliver,
+                                                ElevatorSetpoints.kProcessorDeliver);
+                                break;
+                        case kAlgaeDeliverBarge:
                                 temp = safePositionArmElevator(ArmSetpoints.kBargeDeliver,
                                                 ElevatorSetpoints.kBarge);
                                 break;
-                        case KAlgaeDeliverBarge:
-                                temp = safePositionArmElevator(ArmSetpoints.kBargeDeliver,
-                                                ElevatorSetpoints.kBarge);
-                                break;
-                        case KAlgaePickUpL2:
+                        case kAlgaePickUpL2:
                                 temp = safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
                                                 ElevatorSetpoints.kLevel2);
                                 break;

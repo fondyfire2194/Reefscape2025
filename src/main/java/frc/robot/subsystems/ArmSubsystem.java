@@ -96,7 +96,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      */
 
     public final Angle armStartupOffset = Degrees.of(134);
-    public final Angle minAngle = Degrees.of(-75);
+    public final Angle minAngle = Degrees.of(-91);
     public final Angle maxAngle = armStartupOffset;
 
     double TRAJECTORY_VEL = 2 * Math.PI;

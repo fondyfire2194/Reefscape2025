@@ -209,7 +209,7 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand());
 
                 NamedCommands.registerCommand("Intake Algae L2",
-                                cf.setSetpointCommand(Setpoint.KAlgaePickUpL2));
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL2));
 
                 NamedCommands.registerCommand("Intake Algae L3",
                                 cf.setSetpointCommand(Setpoint.kAlgaePickUpL3));
@@ -290,9 +290,9 @@ public class RobotContainer implements Logged {
 
                         driverXbox.a().onTrue(Commands.none());
 
-                        driverXbox.b().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Algae"));
+                        driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae"));
 
-                        driverXbox.x().onTrue(Commands.none());
+                        driverXbox.x().onTrue(gamepieces.deliverAlgaeToBargeCommand().withName("Deliver Barge"));
 
                         driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand().withName("Intake Algae"));
 
@@ -352,14 +352,15 @@ public class RobotContainer implements Logged {
                                         cf.setSetpointCommand(Setpoint.kCoralStation).withName("Set Coral Station"));
 
                         coDriverXbox.povLeft()
-                                        .onTrue(cf.setSetpointCommand(Setpoint.KAlgaePickUpL2)
+                                        .onTrue(cf.setSetpointCommand(Setpoint.kAlgaePickUpL2)
                                                         .withName("Set Algae Pickup L2"));
 
                         coDriverXbox.rightBumper()
                                         .onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
 
                         coDriverXbox.leftBumper()
-                                        .onTrue(Commands.none());
+                                        .onTrue(cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
+                                        .withName("Set Algae Pickup L2"));
 
                         coDriverXbox.leftTrigger().whileTrue(
                                         Commands.defer(
