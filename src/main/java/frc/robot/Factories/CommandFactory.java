@@ -188,25 +188,11 @@ public class CommandFactory {
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
         }
 
-        public Command gamepieceFollowElevator() {
-
-                m_gamepieces.gamepieceController.setReference(m_elevator.getLeftPositionInches(),
-                                ControlType.kPosition);
-
-                return Commands.none();
-        }
-
-        public Command L4L1Decision() {
-                return new ConditionalCommand(
-                                setSetpointCommand(Setpoint.kLevel4),
-                                setSetpointCommand(Setpoint.kLevel1),
-                                m_llv.getTXOKDeliverCoral());
-        }
-        
         public Command deliverToBargeWithArmCommand() {
-                return Commands.parallel(m_gamepieces.deliverAlgaeToBargeCommand(), 
-                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver2)));
+                return Commands.parallel(m_gamepieces.deliverAlgaeToBargeCommand(),
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver2)));
         }
+
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
          * their predefined
@@ -276,6 +262,14 @@ public class CommandFactory {
                                 break;
                 }
                 return temp;
+
+        }
+
+        public Command deliverCoralL4() {
+                return Commands.sequence(
+                                setSetpointCommand(Setpoint.kLevel4),
+                                m_gamepieces.deliverCoralCommand(),
+                                homeElevatorAndArm());
 
         }
 

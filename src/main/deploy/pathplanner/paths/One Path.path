@@ -44,7 +44,7 @@
   ],
   "eventMarkers": [
     {
-      "name": "CompLL",
+      "name": "",
       "waypointRelativePos": 0.7981956315289623,
       "endWaypointRelativePos": 0.9957264957264934,
       "command": null

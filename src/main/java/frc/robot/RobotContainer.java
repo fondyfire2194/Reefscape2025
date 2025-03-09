@@ -39,7 +39,6 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
-import frc.robot.commands.teleopAutos.TeleopToTagV2;
 import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -204,6 +203,14 @@ public class RobotContainer implements Logged {
                 new EventTrigger("Intake Coral")
                                 .onTrue(new IntakeCoralToSwitch(gamepieces, arm, false).withName("IntakeCoral"));
 
+                new EventTrigger("Elevator Arm to Travel").onTrue(cf.setSetpointCommand(Setpoint.kTravel));
+
+                NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
+
+                NamedCommands.registerCommand("Wait For Coral",
+                                Commands.defer(() -> Commands.waitUntil(() -> gamepieces.coralAtIntake()),
+                                                Set.of(gamepieces)));
+
                 NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 
                 NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand());
@@ -300,10 +307,10 @@ public class RobotContainer implements Logged {
 
                         driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro).withName("Zero Gyro"));
 
-                        driverXbox.leftTrigger().onTrue(new IntakeCoralToSwitch(gamepieces, arm, false).withName("IntakeCoral"));
-                                       
+                        driverXbox.leftTrigger().onTrue(
+                                        new IntakeCoralToSwitch(gamepieces, arm, false).withName("IntakeCoral"));
+
                         driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralCommand().withName("Deliver Coral"));
-                                       
 
                         driverXbox.leftBumper().whileTrue(
                                         Commands.defer(() -> Commands.sequence(
@@ -360,7 +367,7 @@ public class RobotContainer implements Logged {
 
                         coDriverXbox.leftBumper()
                                         .onTrue(cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
-                                        .withName("Set Algae Pickup L2"));
+                                                        .withName("Set Algae Pickup L2"));
 
                         coDriverXbox.leftTrigger().whileTrue(
                                         Commands.defer(

@@ -162,7 +162,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.parallel(
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> gamepieceMotor.set(.4))),
-        new WaitCommand(3),
+        new WaitCommand(2),
         stopGamepieceMotorsCommand());
   }
 

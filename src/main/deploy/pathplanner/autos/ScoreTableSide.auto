@@ -5,22 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "BLRStartToE"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DriveToReef"
-                }
-              }
-            ]
+            "pathName": "BLRStartToE"
           }
         },
         {
@@ -30,47 +17,21 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "EToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Elevator Arm To Coral Station"
-                }
-              }
-            ]
+            "pathName": "EToCoSt"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "WaitForCoral"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CoStToC"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Elevator Arm To Coral L4"
-                }
-              }
-            ]
+            "pathName": "CoStToD"
           }
         },
         {
@@ -80,47 +41,21 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Elevator Arm To Coral Station"
-                }
-              }
-            ]
+            "pathName": "DToCoSt"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "WaitForCoral"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CoStToD"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Elevator Arm To Coral L4"
-                }
-              }
-            ]
+            "pathName": "CoStToC"
           }
         },
         {
@@ -130,28 +65,21 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "DToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Elevator Arm To Coral Station"
-                }
-              }
-            ]
+            "pathName": "CToCoSt"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake Coral"
+            "name": "WaitForCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
           }
         }
       ]
