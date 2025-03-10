@@ -200,16 +200,14 @@ public class RobotContainer implements Logged {
                  * Runs later in paths approching coral station
                  */
 
-                new EventTrigger("Intake Coral")
-                                .onTrue(new IntakeCoralToSwitch(gamepieces, arm, false).withName("IntakeCoral"));
-
                 new EventTrigger("Elevator Arm to Travel").onTrue(cf.setSetpointCommand(Setpoint.kTravel));
 
                 NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
 
-                NamedCommands.registerCommand("Wait For Coral",
-                                Commands.defer(() -> Commands.waitUntil(() -> gamepieces.coralAtIntake()),
-                                                Set.of(gamepieces)));
+                NamedCommands.registerCommand("DelayStartIntake",
+                                Commands.sequence(
+                                                Commands.waitSeconds(.5),
+                                                new IntakeCoralToSwitch(gamepieces, arm, false)));
 
                 NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
 

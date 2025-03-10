@@ -66,7 +66,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public final double coralIntakeKd = 0.00;
   public final double coralIntakeKFF = .8 / 5700;
 
-  public double noCoralAtSwitchTime = 10;
+  public double noCoralAtSwitchTime = 15;
 
   private double lockAlgaeSet = .01;
   private int lockAlgaeAmps = 2;
