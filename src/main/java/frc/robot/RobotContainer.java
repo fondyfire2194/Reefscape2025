@@ -201,8 +201,6 @@ public class RobotContainer implements Logged {
                  * Runs later in paths approching coral station
                  */
 
-                new EventTrigger("Elevator Arm to Travel").onTrue(cf.setSetpointCommand(Setpoint.kTravel));
-
                 // NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
                 NamedCommands.registerCommand("Deliver Coral L4", Commands.waitSeconds(1));
 
@@ -215,7 +213,7 @@ public class RobotContainer implements Logged {
 
                                 Commands.waitSeconds(1));
 
-                NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand()
+                NamedCommands.registerCommand("Intake Algae", new DetectAlgaeWhileIntaking(gamepieces)
                                 .withName("Intake Algae"));
 
                 NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand()
@@ -244,14 +242,23 @@ public class RobotContainer implements Logged {
 
                 DriverStation.silenceJoystickConnectionWarning(true);
 
-                boolean isTest = true;
+                boolean isTest = false;
                 // Build an auto chooser. This will use Commands.none() as the default option.
                 // As an example, this will only show autos that start with "comp" while at
                 // competition as defined by the programmer
-                autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-                                (stream) -> isTest
-                                                ? stream.filter(auto -> auto.getName().startsWith("test"))
-                                                : stream);
+
+                if (isTest)
+
+                        autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+                                        (stream) -> isTest
+                                                        ? stream.filter(auto -> auto.getName().startsWith("test"))
+                                                        : stream);
+
+                else
+                        autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+                                        (stream) -> !isTest
+                                                        ? stream.filter(auto -> !auto.getName().startsWith("test"))
+                                                        : stream);
 
                 SmartDashboard.putData("PPAutoChooser", autoChooser);
 

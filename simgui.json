@@ -57,6 +57,9 @@
     "transitory": {
       "CameraPublisher": {
         "open": true
+      },
+      "SmartDashboard": {
+        "open": true
       }
     }
   },

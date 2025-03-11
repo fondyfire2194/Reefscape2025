@@ -123,7 +123,7 @@ public class Robot extends TimedRobot implements Logged {
     disabledTimer.start();
 
     m_robotContainer.drivebase.frontUpdate.setLLRobotorientation();
-  //  m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
+    m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
   }
 
   @Override
@@ -169,8 +169,9 @@ public class Robot extends TimedRobot implements Logged {
     }
     m_robotContainer.setDriveMode();
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
-   // m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
-    m_robotContainer.drivebase.inhibitVision = false;
+    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
+    m_robotContainer.llv.inhibitFrontVision = false;
+    m_robotContainer.llv.inhibitRearVision = true;
   }
 
   /**

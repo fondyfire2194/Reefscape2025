@@ -71,7 +71,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     climberConfig.limitSwitch.forwardLimitSwitchEnabled(false);
 
-    climberConfig.signals.primaryEncoderPositionPeriodMs(10);
+    climberConfig.signals.primaryEncoderPositionPeriodMs(20);
 
     climberMotor.configure(climberConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

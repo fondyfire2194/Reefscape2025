@@ -27,8 +27,6 @@ public class DetectAlgaeWhileIntaking extends Command {
 
   private double sampledRPM;
 
-  private double detectThreshold = .90;
-
   public DetectAlgaeWhileIntaking(GamepieceSubsystem gamepieces) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_gamepieces = gamepieces;
@@ -48,7 +46,7 @@ public class DetectAlgaeWhileIntaking extends Command {
     detectFilter.reset();
     m_gamepieces.disableLimitSwitch();
     m_gamepieces.setCurrentLimit(20);
-    m_gamepieces.motorLocked=false;
+    m_gamepieces.motorLocked = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -66,13 +64,11 @@ public class DetectAlgaeWhileIntaking extends Command {
       detectCount++;
     }
 
-    algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * detectThreshold;
+    algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * m_gamepieces.getAlgaeDetectLevel();
 
     SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
     SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
     SmartDashboard.putBoolean("Algae/Detected", algaeDetected);
-    SmartDashboard.putNumber("Algae/Adjust/DetectThreshold", detectThreshold);
-    
 
   }
 

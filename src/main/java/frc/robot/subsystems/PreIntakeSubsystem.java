@@ -111,7 +111,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                 .forwardSoftLimitEnabled(false)
                 .reverseSoftLimitEnabled(false);
 
-        preintakeConfig.signals.primaryEncoderPositionPeriodMs(5);
+        preintakeConfig.signals.primaryEncoderPositionPeriodMs(20);
 
         preIntakeMotor.configure(preintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

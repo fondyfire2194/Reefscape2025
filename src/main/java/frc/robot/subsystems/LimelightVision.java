@@ -33,6 +33,9 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   public boolean limelightExistsrear;
 
+  public boolean inhibitFrontVision;
+  public boolean inhibitRearVision;
+
   private int loopctr;
 
   public String frontname = VisionConstants.CameraConstants.frontCamera.camname;
@@ -45,8 +48,8 @@ public class LimelightVision extends SubsystemBase implements Logged {
   Alert frCameraAlert = new Alert("FrontRightCameraProblem", AlertType.kError);
   Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
   @Log(key = "frontaccpose")
-  public  Pose2d frontAcceptedPose;
-  public  int frontAcceptedCount;
+  public Pose2d frontAcceptedPose;
+  public int frontAcceptedCount;
   @Log(key = "rearacceptpose")
   public Pose2d rearAcceptedPose;
   public int rearAcceptedCount;
@@ -113,6 +116,8 @@ public class LimelightVision extends SubsystemBase implements Logged {
       if (VisionConstants.CameraConstants.frontCamera.isUsed && loopctr == 0) {
         limelightExistsfront = isLimelightConnected(CameraConstants.frontCamera.camname);
         limelightExistsrear = isLimelightConnected(CameraConstants.rearCamera.camname);
+        CameraConstants.frontCamera.isActive = !inhibitFrontVision && limelightExistsfront;
+        CameraConstants.rearCamera.isActive = !inhibitRearVision && limelightExistsrear;
 
         allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
             && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsrear;
