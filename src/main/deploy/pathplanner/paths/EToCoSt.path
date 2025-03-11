@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.0115,
-        "y": 2.7965
+        "x": 5.322540983606557,
+        "y": 2.8921618852459017
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.689749999999999,
-        "y": 1.5387500000000005
+        "x": 5.022209016393441,
+        "y": 1.7650778688524587
       },
       "isLocked": false,
-      "linkedName": "ReefEPose"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": "BNSAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 117.44291482121379
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

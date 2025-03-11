@@ -16,20 +16,17 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
-import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -68,10 +65,12 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public double noCoralAtSwitchTime = 15;
 
-  private double lockAlgaeSet = .01;
-  private int lockAlgaeAmps = 2;
+  public double lockAlgaeSet = -.1;
+  public int lockAlgaeAmps = 2;
   private int inOutAlgaeAmps = 20;
   public int inOutCoralAmps = 40;
+  private double coralDelverSpeed = .4;
+  public boolean motorLocked = false;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -132,11 +131,21 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void setCurrentLimit(int amps) {
     gamepieceConfig.smartCurrentLimit(amps);
+    gamepieceMotor.configure(gamepieceConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  public int getSmartCurrentLimit() {
+    return gamepieceMotor.configAccessor.getSmartCurrentLimit();
+  }
+
+  public int getSmartCurrentFreeLimit() {
+    return gamepieceMotor.configAccessor.getSmartCurrentFreeLimit();
   }
 
   public void lockMotor() {
-    gamepieceMotor.set(lockAlgaeSet);
+    motorLocked = true;
     setCurrentLimit(lockAlgaeAmps);
+    gamepieceMotor.set(lockAlgaeSet);
   }
 
   public void stopGamepieceMotor() {
@@ -152,16 +161,27 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public Command stopGamepieceMotorsCommand() {
     return Commands.parallel(
+        Commands.runOnce(() -> motorLocked = false),
         Commands.runOnce(() -> stopCoralIntakeMotor()),
         Commands.runOnce(() -> stopGamepieceMotor()));
+  }
+
+  public Command reverseOffSwitch() {
+    return Commands.sequence(
+        Commands.runOnce(() -> motorLocked = false),
+        Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.runOnce(() -> gamepieceMotor.set(-.1)),
+        Commands.waitUntil(() -> !coralAtIntake()),
+        stopGamepieceMotorsCommand());
   }
 
   public Command deliverCoralCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.parallel(
+            Commands.runOnce(() -> motorLocked = false),
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
-            Commands.runOnce(() -> gamepieceMotor.set(.4))),
+            Commands.runOnce(() -> gamepieceMotor.set(coralDelverSpeed))),
         new WaitCommand(2),
         stopGamepieceMotorsCommand());
   }
@@ -173,17 +193,21 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command deliverAlgaeToProcessorCommand() {
-    return Commands.sequence(Commands.parallel(
-        Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
-        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver))),
-        new WaitCommand(5),
+
+    return Commands.sequence(
+        Commands.parallel(
+            Commands.runOnce(() -> motorLocked = false),
+            Commands.runOnce(() -> disableLimitSwitch()),
+            Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
+            Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver))),
+        new WaitCommand(2.5),
         Commands.runOnce(() -> stopGamepieceMotor()));
 
   }
 
   public Command deliverAlgaeToBargeCommand() {
     return Commands.sequence(Commands.parallel(
+        Commands.runOnce(() -> motorLocked = false),
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
         Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver))),
@@ -222,9 +246,17 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
+
+    SmartDashboard.putBoolean("Gamepiece/MotorLocked", motorLocked);
+
+    if (motorLocked) {
+      SmartDashboard.putNumber("Algae/Adjust/LockSpeed", lockAlgaeSet);
+      SmartDashboard.putNumber("Algae/Adjust/LockAmps", lockAlgaeAmps);
+    }
+
     SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Gamepiece/GPLimitAmps", gamepieceMotor.configAccessor.getSmartCurrentLimit());
+    SmartDashboard.putNumber("Gamepiece/GPLimitAmps", getSmartCurrentLimit());
 
     SmartDashboard.putNumber("Gamepiece/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/INTAmps", coralIntakeMotor.getOutputCurrent());
@@ -233,10 +265,12 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void enableLimitSwitch() {
     gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(true);
+    gamepieceMotor.configure(gamepieceConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   public void disableLimitSwitch() {
     gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+    gamepieceMotor.configure(gamepieceConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   @Log(key = "gpswitchenabled")

@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
+
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -11,6 +13,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -27,7 +30,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public final SparkMax preIntakeMotor = new SparkMax(CANIDConstants.preIntakeMotorID, MotorType.kBrushless);
 
-    private SparkClosedLoopController preintakeClosedLoopController = preIntakeMotor.getClosedLoopController();
+    private SparkClosedLoopController preIntakeClosedLoopController = preIntakeMotor.getClosedLoopController();
 
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
@@ -46,7 +49,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public boolean presetOnce;
 
-    public double gearReduction = 10.;
+    public double gearReduction = 100.;
     double degperencderrev = (360) / gearReduction;
 
     double posConvFactor = degperencderrev;
@@ -57,15 +60,22 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     double maxdegpersec = degperencderrev * maxmotorrps;//
 
-    /*
-     * ( (value that goes up) - (value that goes down) )/ 2 = ks .4up .04 down
-     * ( (value that goes up) + (value that goes down) )/2 = kg
-     */
-
-    public double preintakeKp = 0.03;
-
-    public final double preintakeKi = 0.;
+    public double preintakeKp = 0.05;
+    public final double preintakeKi = 0;
     public final double preintakeKd = 0;
+
+    double TRAJECTORY_VEL = 20;
+    double TRAJECTORY_ACCEL = 40;
+
+    public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+            TRAJECTORY_VEL, TRAJECTORY_ACCEL));
+
+    @Log.NT(key = "goal")
+    public TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+
+    @Log.NT(key = "setpoint")
+    public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
+    public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
 
     /**
      * Angles are set so that 90 degrees is with the preintake balanced over
@@ -75,25 +85,17 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
      */
 
     public final double minAngle = 0;
-    public final double maxAngle = 45;
-
-    public double targetRadians;
-    @Log(key = "preintakeff")
-    private double preintakeff;
-
-    private double goalDegrees;
+    public final double maxAngle = 90;
 
     public PreIntakeSubsystem() {
-
-        SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegpersec);
-        SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
 
         preintakeConfig = new SparkMaxConfig();
 
         preintakeConfig
                 .inverted(false)
-                .idleMode(IdleMode.kBrake);
-
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(20, 20);
+              
         preintakeConfig.encoder
                 .positionConversionFactor(posConvFactor)
                 .velocityConversionFactor(velConvFactor);
@@ -102,9 +104,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(preintakeKp)
-                .outputRange(-1, 1);
-
-        preintakeConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+                .outputRange(-.4, 4);
 
         preintakeConfig.softLimit.forwardSoftLimit(maxAngle)
                 .reverseSoftLimit(minAngle)
@@ -117,7 +117,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         preIntakeMotor.getEncoder().setPosition(0);
 
-        goalDegrees = 0;
+        m_goal.position = 0;
 
     }
 
@@ -133,8 +133,26 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return preIntakeMotor.hasActiveWarning();
     }
 
+    public void position() {
+        // Send setpoint to spark max controller
+        nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
+
+        preIntakeClosedLoopController.setReference(
+                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+
+        currentSetpoint = nextSetpoint;
+    }
+
     public Command positionCommand() {
-        return Commands.run(() -> preintakeClosedLoopController.setReference(goalDegrees, ControlType.kPosition));
+        return Commands.run(() -> position());
+    }
+
+    public Command goHome() {
+        return Commands.runOnce(() -> m_goal.position = 0);
+    }
+
+    public Command goFullDown() {
+        return Commands.runOnce(() -> m_goal.position = 90);
     }
 
     public Command jogMotorCommand(DoubleSupplier speed) {
@@ -144,7 +162,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public Command stopMotorCommand() {
         return Commands.runOnce(() -> preIntakeMotor.stopMotor());
-
     }
 
     @Override
@@ -157,10 +174,11 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SmartDashboard.putNumber("FIM/pos", preIntakeMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("FIM/vel", preIntakeMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("FIM/volts",
+        SmartDashboard.putNumber("PIM/pos", preIntakeMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("PIM/vel", preIntakeMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("PIM/volts",
                 preIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+        SmartDashboard.putNumber("PIM/amps", getAmps());
 
     }
 
@@ -178,7 +196,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public Command setGoalDegreesCommand(double targetDegrees) {
-        return Commands.runOnce(() -> goalDegrees = targetDegrees);
+        return Commands.runOnce(() -> m_goal.position = targetDegrees);
 
     }
 
@@ -224,18 +242,9 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                 .getReverseSoftLimit();
     }
 
-    public boolean onPlusHardwareLimit() {
-        return preIntakeMotor.getForwardLimitSwitch().isPressed();
-    }
-
-    public boolean onMinusHardwareLimit() {
-        return preIntakeMotor.getReverseLimitSwitch().isPressed();
-    }
-
     @Log(key = "on limit")
     public boolean onLimit() {
-        return onPlusHardwareLimit() || onMinusHardwareLimit() ||
-                onPlusSoftwareLimit() || onMinusSoftwareLimit();
+        return onPlusSoftwareLimit() || onMinusSoftwareLimit();
     }
 
     public void stop() {

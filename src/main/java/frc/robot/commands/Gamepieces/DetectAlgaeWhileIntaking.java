@@ -27,7 +27,7 @@ public class DetectAlgaeWhileIntaking extends Command {
 
   private double sampledRPM;
 
-  private double detectThreshold = .75;
+  private double detectThreshold = .90;
 
   public DetectAlgaeWhileIntaking(GamepieceSubsystem gamepieces) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -41,32 +41,39 @@ public class DetectAlgaeWhileIntaking extends Command {
     detectFilter = new MedianFilter(algaeDetectLevel);
     sampleCount = 0;
     detectCount = 0;
+    sampledRPM = 0;
+    filteredRPM = 0;
     algaeDetected = false;
     sampleFilter.reset();
     detectFilter.reset();
     m_gamepieces.disableLimitSwitch();
-    m_gamepieces.run(AlgaeRPMSetpoints.kReefPickUpL123);
     m_gamepieces.setCurrentLimit(20);
+    m_gamepieces.motorLocked=false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
-    SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
-    SmartDashboard.putBoolean("Algae/Detected", algaeDetected);
+    m_gamepieces.run(AlgaeRPMSetpoints.kReefPickUpL123);
 
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
-      sampledRPM = sampleFilter.calculate(m_gamepieces.getRPM());
+      sampledRPM = sampleFilter.calculate(-m_gamepieces.getRPM());
+
     else {
-      filteredRPM = detectFilter.calculate(m_gamepieces.getRPM());
+      filteredRPM = detectFilter.calculate(-m_gamepieces.getRPM());
       detectCount++;
     }
-    if (detectCount > numberDetectsWanted) {
-      algaeDetected = filteredRPM < sampledRPM * detectThreshold;
-    }
+
+    algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * detectThreshold;
+
+    SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
+    SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
+    SmartDashboard.putBoolean("Algae/Detected", algaeDetected);
+    SmartDashboard.putNumber("Algae/Adjust/DetectThreshold", detectThreshold);
+    
+
   }
 
   // Called once the command ends or is interrupted.

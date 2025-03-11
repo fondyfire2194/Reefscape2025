@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.littletonrobotics.urcl.URCL;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -62,6 +64,8 @@ public class Robot extends TimedRobot implements Logged {
     Monologue.setupMonologue(m_robotContainer, "/Monologue", false, true);
 
     DriverStation.startDataLog(DataLogManager.getLog());
+
+     URCL.start();
 
     // Create a timer to disable motor brake a few seconds after disable. This will
     // let the robot stop

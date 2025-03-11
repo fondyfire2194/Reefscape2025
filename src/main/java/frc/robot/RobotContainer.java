@@ -10,8 +10,8 @@ import java.util.Set;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
-
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -34,6 +34,7 @@ import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
+import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
@@ -202,25 +203,35 @@ public class RobotContainer implements Logged {
 
                 new EventTrigger("Elevator Arm to Travel").onTrue(cf.setSetpointCommand(Setpoint.kTravel));
 
-                NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
+                // NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
+                NamedCommands.registerCommand("Deliver Coral L4", Commands.waitSeconds(1));
 
+                // NamedCommands.registerCommand("DelayStartIntake",
+                // Commands.sequence(
+                // Commands.waitSeconds(.5),
+                // new IntakeCoralToSwitch(gamepieces, arm, false))
+                // .withName("DelayedIntakeCoral"));
                 NamedCommands.registerCommand("DelayStartIntake",
-                                Commands.sequence(
-                                                Commands.waitSeconds(.5),
-                                                new IntakeCoralToSwitch(gamepieces, arm, false)));
 
-                NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand());
+                                Commands.waitSeconds(1));
 
-                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand());
+                NamedCommands.registerCommand("Intake Algae", gamepieces.intakeAlgaeCommand()
+                                .withName("Intake Algae"));
+
+                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand()
+                                .withName("DeliverAlgaeToProcessor"));
 
                 NamedCommands.registerCommand("Intake Algae L2",
-                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL2));
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL2)
+                                                .withName("IntakeAlgaeL2"));
 
                 NamedCommands.registerCommand("Intake Algae L3",
-                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3));
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3)
+                                                .withName("IntakeAlgaeL3"));
 
                 NamedCommands.registerCommand("Deliver Processor",
-                                cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+                                cf.setSetpointCommand(Setpoint.kProcessorDeliver)
+                                                .withName("Deliver Processor"));
 
                 if (RobotBase.isSimulation())
                         elasim = new ElevatorArmSim(elevator, arm);
@@ -233,7 +244,14 @@ public class RobotContainer implements Logged {
 
                 DriverStation.silenceJoystickConnectionWarning(true);
 
-                autoChooser = AutoBuilder.buildAutoChooser();
+                boolean isTest = true;
+                // Build an auto chooser. This will use Commands.none() as the default option.
+                // As an example, this will only show autos that start with "comp" while at
+                // competition as defined by the programmer
+                autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+                                (stream) -> isTest
+                                                ? stream.filter(auto -> auto.getName().startsWith("test"))
+                                                : stream);
 
                 SmartDashboard.putData("PPAutoChooser", autoChooser);
 
@@ -275,6 +293,8 @@ public class RobotContainer implements Logged {
                 // arm.setDefaultCommand(new PositionHoldArm(arm));
                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
+                // preIn.setDefaultCommand(preIn.positionCommand());
+
         }
 
         private void setTriggerActions() {
@@ -297,9 +317,9 @@ public class RobotContainer implements Logged {
 
                         driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae"));
 
-                        driverXbox.x().onTrue(gamepieces.deliverAlgaeToBargeCommand().withName("Deliver Barge"));
+                        driverXbox.x().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Barge"));
 
-                        driverXbox.y().onTrue(gamepieces.intakeAlgaeCommand().withName("Intake Algae"));
+                        driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(gamepieces).withName("Intake Algae"));
 
                         driverXbox.back().onTrue(drivebase.centerModulesCommand().withName("Center Modules"));
 
@@ -376,7 +396,7 @@ public class RobotContainer implements Logged {
                         // .whileTrue(drivebase.sysIdDriveMotorCommand());
 
                         coDriverXbox.rightTrigger()
-                                        .onTrue(llv.setPOILeft());
+                                        .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));
 
                         coDriverXbox.start().onTrue(
                                         Commands.parallel(
@@ -415,22 +435,20 @@ public class RobotContainer implements Logged {
                         coDriverXbox.x().onTrue(
                                         elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
-                        coDriverXbox.povLeft().onTrue(
-                                        Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
+                        coDriverXbox.povLeft()
+                                        .onTrue(preIn.setGoalDegreesCommand(20));
 
-                        coDriverXbox.povUp().onTrue(
-                                        Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel1)));
+                        coDriverXbox.povUp()
+                                        .onTrue(preIn.setGoalDegreesCommand(0));
 
                         coDriverXbox.povDown()
-                                        .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kLevel4_2)));
+                                        .onTrue(preIn.setGoalDegreesCommand(40));
 
                         coDriverXbox.povRight()
-                                        .onTrue(Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kAlgaeIntake)));
+                                        .onTrue(preIn.setGoalDegreesCommand(90));
 
                         coDriverXbox.leftStick().onTrue(gamepieces.deliverCoralCommand());
-
                 }
-
         }
 
         /**
