@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
-import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
@@ -73,8 +71,6 @@ public class RobotContainer implements Logged {
 
         PreIntakeSubsystem preIn = new PreIntakeSubsystem();
 
-        LimelightVision llv = new LimelightVision();
-
         ElevatorArmSim elasim;
 
         LedStrip ls = new LedStrip();
@@ -88,6 +84,8 @@ public class RobotContainer implements Logged {
         // The robot's subsystems and commands are defined here...
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerve")); // "swerve"));
+
+        LimelightVision llv = new LimelightVision();
 
         CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, llv, ls, driverXbox, coDriverXbox);
 
@@ -179,8 +177,6 @@ public class RobotContainer implements Logged {
 
         Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleSim);
 
-        public final LimelightVision m_llv = new LimelightVision();
-
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
@@ -188,8 +184,6 @@ public class RobotContainer implements Logged {
 
                 NamedCommands.registerCommand("Elevator Arm To Travel",
                                 cf.setSetpointCommand(Setpoint.kTravel));
-
-                new EventTrigger("Check Tag Values").whileTrue(Commands.run(() -> llv.getTXOKDeliverCoral()));
 
                 /*
                  * Runs after robot arrives at reef
@@ -277,7 +271,6 @@ public class RobotContainer implements Logged {
         }
 
         private void setDefaultCommands() {
-
                 drivebase.setDefaultCommand(
                                 Commands.parallel(
                                                 new GetNearestCoralStationPose(drivebase),
@@ -340,20 +333,22 @@ public class RobotContainer implements Logged {
                         driverXbox.leftBumper().whileTrue(
                                         Commands.defer(() -> Commands.sequence(
                                                         drivebase.setSide(Side.LEFT),
+                                                        llv.setPOILeft(),
                                                         new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                         Set.of(drivebase)))
                                         .onFalse(Commands.sequence(
                                                         drivebase.setSide(Side.CENTER),
-                                                        m_llv.clearPOI()).withName("Left Reef PID"));
+                                                        llv.clearPOI()).withName("Left Reef PID"));
 
                         driverXbox.rightBumper().whileTrue(
                                         Commands.defer(() -> Commands.sequence(
                                                         drivebase.setSide(Side.RIGHT),
+                                                        llv.setPOIRight(),
                                                         new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                         Set.of(drivebase)))
                                         .onFalse(Commands.sequence(
                                                         drivebase.setSide(Side.CENTER),
-                                                        m_llv.clearPOI()).withName("Right Reef PID"));
+                                                        llv.clearPOI()).withName("Right Reef PID"));
 
                         driverXbox.povDown().whileTrue(new TurnToReef(drivebase).withName("Turn To Reef"));
                 } /*
@@ -395,12 +390,12 @@ public class RobotContainer implements Logged {
                                                         .withName("Set Algae Pickup L2"));
 
                         coDriverXbox.leftTrigger().whileTrue
-                        //                 Commands.defer(
-                        //                                 () -> gamepieces.jogGamepieceMotorCommand(
-                        //                                                 () -> coDriverXbox.getLeftY()),
-                        //                                 Set.of(gamepieces)))
-                        //                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
-                         (drivebase.sysIdDriveMotorCommand());
+                        // Commands.defer(
+                        // () -> gamepieces.jogGamepieceMotorCommand(
+                        // () -> coDriverXbox.getLeftY()),
+                        // Set.of(gamepieces)))
+                        // .onFalse(gamepieces.stopGamepieceMotorsCommand());
+                        (drivebase.sysIdDriveMotorCommand());
 
                         coDriverXbox.rightTrigger()
                                         .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));
