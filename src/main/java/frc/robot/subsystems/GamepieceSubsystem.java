@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
-import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -95,6 +94,16 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void setAlgaeDetectLevel(double val) {
     algaeDetectLevel = val;
+  }
+
+  public double backupSpeed = .1;
+
+  public double getBackupSpeed() {
+    return backupSpeed;
+  }
+
+  public void setBackupSpeed(double val) {
+    backupSpeed = val;
   }
 
   private int inOutAlgaeAmps = 20;
@@ -218,7 +227,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         new WaitCommand(2),
         stopGamepieceMotorsCommand());
   }
-
 
   public Command deliverAlgaeToProcessorCommand() {
 
@@ -373,6 +381,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     builder.addDoubleProperty("lockalgaeset", this::getLockAlgaeSet, this::setLockAlgaeSet);
     builder.addDoubleProperty("algaeholdamps", this::getLockAlgaeAmps, this::setLockAlgaeAmps);
     builder.addDoubleProperty("algaedetectlevel", this::getAlgaeDetectLevel, this::setAlgaeDetectLevel);
+    builder.addDoubleProperty("coralbackupspeed", this::getBackupSpeed, this::setBackupSpeed);
 
   }
 

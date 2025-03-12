@@ -33,7 +33,7 @@ public class BackupOffSwitchAfterCoraIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_gamepiece.gamepieceMotor.set(-.1);
+    m_gamepiece.gamepieceMotor.set(-m_gamepiece.backupSpeed);
   }
 
   // Called once the command ends or is interrupted.
