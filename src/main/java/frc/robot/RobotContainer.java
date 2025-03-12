@@ -394,13 +394,13 @@ public class RobotContainer implements Logged {
                                         .onTrue(cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
                                                         .withName("Set Algae Pickup L2"));
 
-                        coDriverXbox.leftTrigger().whileTrue(
-                                        Commands.defer(
-                                                        () -> gamepieces.jogGamepieceMotorCommand(
-                                                                        () -> coDriverXbox.getLeftY()),
-                                                        Set.of(gamepieces)))
-                                        .onFalse(gamepieces.stopGamepieceMotorsCommand());
-                        // .whileTrue(drivebase.sysIdDriveMotorCommand());
+                        coDriverXbox.leftTrigger().whileTrue
+                        //                 Commands.defer(
+                        //                                 () -> gamepieces.jogGamepieceMotorCommand(
+                        //                                                 () -> coDriverXbox.getLeftY()),
+                        //                                 Set.of(gamepieces)))
+                        //                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
+                         (drivebase.sysIdDriveMotorCommand());
 
                         coDriverXbox.rightTrigger()
                                         .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));

@@ -66,11 +66,11 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   public LimelightVision() {
 
-    if (VisionConstants.CameraConstants.frontCamera.isUsed) {
+   
       setCamToRobotOffset(VisionConstants.CameraConstants.frontCamera);
-    }
+  
 
-    if (VisionConstants.CameraConstants.rearCamera.isUsed)
+    
       setCamToRobotOffset(VisionConstants.CameraConstants.rearCamera);
 
   }
@@ -94,6 +94,7 @@ public class LimelightVision extends SubsystemBase implements Logged {
         .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, -FieldConstants.centerToReefBranch, 0, 0));
   }
 
+  @Log(key = "distancetotag")
   public double getDistanceToTag(String camname) {
     if (LimelightHelpers.getTV(camname)) {
       Pose3d tag3dpose = LimelightHelpers.getTargetPose3d_CameraSpace(camname);

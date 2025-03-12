@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.892930327868852,
-        "y": 0.7703381147540983
+        "x": 7.084733606557376,
+        "y": 0.5425717213114762
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.455017541519901,
-        "y": 2.601837142561762
+        "x": 5.646820820208425,
+        "y": 2.3740707491191406
       },
       "isLocked": false,
       "linkedName": null
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -48,7 +48,7 @@
   "folder": "BNSAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 130.76360520094124
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

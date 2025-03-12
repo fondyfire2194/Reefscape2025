@@ -28,10 +28,11 @@ public class LimelightTagsUpdate {
     }
 
     public void setLLRobotorientation() {
+        SmartDashboard.putNumber("LLGyroRead", m_swerve.getPose().getRotation().getDegrees());
         LimelightHelpers.SetRobotOrientation(m_cam.camname,
-                m_swerve.getYaw().getDegrees(),
+                m_swerve.getPose().getRotation().getDegrees(),
                 // m_swerve.getHeadingDegrees(),
-                0, 0, 0, 0, 0); // m_swerve.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees()
+                m_swerve.getGyroRate(), 0, 0, 0, 0); // m_swerve.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees()
     }
 
     public void execute() {

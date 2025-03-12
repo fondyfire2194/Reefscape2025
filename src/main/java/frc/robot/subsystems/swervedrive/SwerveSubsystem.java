@@ -204,7 +204,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     // swerveDrive.restoreInternalOffset();
 
-    replaceSwerveModuleFeedforward(0.25, 2.7479, 0.3315);
+    replaceSwerveModuleFeedforward(0.08513, 3.1704, 0.365245);
 
     setupPathPlanner();
 
@@ -227,7 +227,9 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
-    
+    double x = getPose().getX();
+
+    SmartDashboard.putNumber("XXXXXINCHES", Units.metersToInches(x));
 
     frontUpdate.execute();
 

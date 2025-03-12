@@ -12,9 +12,8 @@
       "factor": 0
     },
     "drive": {
-      "diameter": 3.95,
-      "gearRatio": 6.75,
-      "factor": 0
+      "diameter": 3.90,
+      "gearRatio":  8.14122807
     }
   },
   "rampRate": {
