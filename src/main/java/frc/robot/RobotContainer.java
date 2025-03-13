@@ -32,6 +32,7 @@ import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
+import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -293,7 +294,7 @@ public class RobotContainer implements Logged {
                 // arm.setDefaultCommand(new PositionHoldArm(arm));
                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
-                // preIn.setDefaultCommand(preIn.positionCommand());
+                preIn.setDefaultCommand(preIn.positionCommand());
 
         }
 
@@ -326,7 +327,10 @@ public class RobotContainer implements Logged {
                         driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro).withName("Zero Gyro"));
 
                         driverXbox.leftTrigger().onTrue(
-                                        new IntakeCoralToSwitch(gamepieces, arm, false).withName("IntakeCoral"));
+                                        Commands.sequence(
+                                                        new IntakeCoralToSwitch(gamepieces, arm, false)
+                                                                        .withName("IntakeCoral"),
+                                                        new BackupOffSwitchAfterCoraIntake(gamepieces)));
 
                         driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralCommand().withName("Deliver Coral"));
 
@@ -389,13 +393,13 @@ public class RobotContainer implements Logged {
                                         .onTrue(cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
                                                         .withName("Set Algae Pickup L2"));
 
-                        coDriverXbox.leftTrigger().whileTrue
-                        // Commands.defer(
-                        // () -> gamepieces.jogGamepieceMotorCommand(
-                        // () -> coDriverXbox.getLeftY()),
-                        // Set.of(gamepieces)))
-                        // .onFalse(gamepieces.stopGamepieceMotorsCommand());
-                        (drivebase.sysIdDriveMotorCommand());
+                        coDriverXbox.leftTrigger().whileTrue(
+                                        Commands.defer(
+                                                        () -> gamepieces.jogGamepieceMotorCommand(
+                                                                        () -> coDriverXbox.getLeftY()),
+                                                        Set.of(gamepieces)))
+                                        .onFalse(gamepieces.stopGamepieceMotorsCommand());
+                        // (drivebase.sysIdDriveMotorCommand());
 
                         coDriverXbox.rightTrigger()
                                         .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));

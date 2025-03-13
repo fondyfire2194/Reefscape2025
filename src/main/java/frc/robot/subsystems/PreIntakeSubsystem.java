@@ -60,12 +60,12 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     double maxdegpersec = degperencderrev * maxmotorrps;//
 
-    public double preintakeKp = 0.05;
+    public double preintakeKp = 0.075;
     public final double preintakeKi = 0;
     public final double preintakeKd = 0;
 
-    double TRAJECTORY_VEL = 20;
-    double TRAJECTORY_ACCEL = 40;
+    double TRAJECTORY_VEL = 40;
+    double TRAJECTORY_ACCEL = 60;
 
     public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
             TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -95,7 +95,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                 .inverted(false)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(20, 20);
-              
+
         preintakeConfig.encoder
                 .positionConversionFactor(posConvFactor)
                 .velocityConversionFactor(velConvFactor);
@@ -144,7 +144,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public Command positionCommand() {
-        return Commands.run(() -> position());
+        return Commands.run(() -> position(), this);
     }
 
     public Command goHome() {

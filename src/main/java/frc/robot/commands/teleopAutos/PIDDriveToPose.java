@@ -29,9 +29,10 @@ public class PIDDriveToPose extends Command {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(0.1);
-    yController.setTolerance(0.1);
+    xController.setTolerance(0.025);
+    yController.setTolerance(0.025);
     thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
 

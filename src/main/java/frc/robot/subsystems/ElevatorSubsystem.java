@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -152,6 +153,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftConfig
 
+        .inverted(true)
+
+        .idleMode(IdleMode.kBrake)
+
         .smartCurrentLimit(60)
 
         .closedLoopRampRate(0.25)
@@ -181,10 +186,12 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftConfig.softLimit.forwardSoftLimit(maxElevatorHeight.in(Meters))
         .reverseSoftLimit(minElevatorHeight.in(Meters))
-        .forwardSoftLimitEnabled(true)
-        .reverseSoftLimitEnabled(true);
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimitEnabled(false);
 
     rightConfig
+
+        .idleMode(IdleMode.kBrake)
 
         .follow(CANIDConstants.leftElevatorID, false)
 
@@ -218,6 +225,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     // setGoalMeters(minElevatorHeight.in(Meters));
     setGoalMeters(leftEncoder.getPosition());
+
+    SmartDashboard.putNumber("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
+    SmartDashboard.putNumber("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
+
   }
 
   public void runAtVelocity(double metersPerSecond) {
@@ -319,6 +330,14 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "right motor temperature C")
   public double getRightMotorTemperature() {
     return rightMotor.getMotorTemperature();
+  }
+
+  public double getReverseSoftLimit() {
+    return leftMotor.configAccessor.softLimit.getReverseSoftLimit();
+  }
+
+  public double getForwardSoftLimit() {
+    return leftMotor.configAccessor.softLimit.getForwardSoftLimit();
   }
 
   public void position() {

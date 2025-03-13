@@ -126,7 +126,7 @@ public class CommandFactory {
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 29;
-                public static final int kLevel4 = 54;
+                public static final int kLevel4 = 56;
                 public static final int kBarge = 65;
         }
 

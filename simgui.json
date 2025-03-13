@@ -59,6 +59,14 @@
         "open": true
       },
       "SmartDashboard": {
+        "AlgaeInAndHoldTune": {
+          "open": true
+        },
+        "Elevator": {
+          "Values": {
+            "open": true
+          }
+        },
         "open": true
       }
     }

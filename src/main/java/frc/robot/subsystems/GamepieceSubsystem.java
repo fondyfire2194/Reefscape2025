@@ -84,6 +84,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public void setLockAlgaeAmps(double val) {
     lockAlgaeAmps = val;
+    setCurrentLimit((int) val);
   }
 
   public double algaeDetectLevel = .5;
@@ -108,7 +109,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   private int inOutAlgaeAmps = 20;
   public int inOutCoralAmps = 40;
-  private double coralDelverSpeed = .4;
+  private double coralDelverSpeed = .6;
   public boolean motorLocked = false;
   public double detectThreshold;
 
