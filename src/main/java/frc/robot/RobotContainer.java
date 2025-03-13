@@ -380,7 +380,8 @@ public class RobotContainer implements Logged {
                                         cf.setSetpointCommand(Setpoint.kProcessorDeliver).withName("Set Processor"));
 
                         coDriverXbox.povRight().onTrue(
-                                        cf.setSetpointCommand(Setpoint.kCoralStation).withName("Set Coral Station"));
+                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3).withName("Set Algae Pickup L3"));
+                                        //cf.setSetpointCommand(Setpoint.kCoralStation).withName("Set Coral Station"));
 
                         coDriverXbox.povLeft()
                                         .onTrue(cf.setSetpointCommand(Setpoint.kAlgaePickUpL2)
@@ -403,6 +404,8 @@ public class RobotContainer implements Logged {
 
                         // coDriverXbox.rightTrigger()
                         //                 .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));
+                        
+                        coDriverXbox.back().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
 
                         coDriverXbox.rightTrigger().onTrue(preIn.setGoalDegreesCommand(90));
 

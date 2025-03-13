@@ -128,6 +128,9 @@ public class CommandFactory {
                 public static final int kLevel3 = 29;
                 public static final int kLevel4 = 56;
                 public static final int kBarge = 65;
+                public static final int kLevelAlgaeL2 = 29;
+                public static final int kLevelAlgaeL3 = 45;
+
         }
 
         public static final class ArmSetpoints {
@@ -143,7 +146,8 @@ public class CommandFactory {
                 public static final double kLevel3 = 97;
                 public static final double kLevel4_1 = 103;
                 public static final double kLevel4_2 = 85;
-                public static final double kAlgaeIntake = -70;
+                public static final double kAlgaeIntake = -90;
+
 
         }
 
@@ -254,11 +258,11 @@ public class CommandFactory {
                                 break;
                         case kAlgaePickUpL2:
                                 temp = safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
-                                                ElevatorSetpoints.kLevel2);
+                                                ElevatorSetpoints.kLevelAlgaeL2);
                                 break;
                         case kAlgaePickUpL3:
                                 temp = safePositionArmElevator(ArmSetpoints.kAlgaeIntake,
-                                                ElevatorSetpoints.kLevel3);
+                                                ElevatorSetpoints.kLevelAlgaeL3);
                                 break;
                 }
                 return temp;

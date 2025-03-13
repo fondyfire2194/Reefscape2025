@@ -37,7 +37,7 @@ public class IntakeCoralToSwitch extends Command {
     m_gamepiece.setCurrentLimit(m_gamepiece.inOutCoralAmps);
     if (!m_usePIDSpeed) {
       m_gamepiece.gamepieceMotor.set(.25);
-      m_gamepiece.coralIntakeMotor.set(5);
+      m_gamepiece.coralIntakeMotor.set(.35);
     }
   }
 
