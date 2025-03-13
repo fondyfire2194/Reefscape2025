@@ -182,6 +182,27 @@ public class RobotContainer implements Logged {
          */
         public RobotContainer() {
 
+                if (RobotBase.isSimulation()) {
+                        elasim = new ElevatorArmSim(elevator, arm);
+                        DriverStation.silenceJoystickConnectionWarning(true);
+                }
+
+                setNamedCommands();
+
+                setDefaultCommands();
+
+                configureDriverBindings();
+
+                buildAutoChooser();
+
+                setTriggerActions();
+
+                printCommandEvents();
+
+        }
+
+        private void setNamedCommands() {
+
                 boolean pathsOnly = true;
 
                 if (pathsOnly) {
@@ -189,13 +210,12 @@ public class RobotContainer implements Logged {
 
                         NamedCommands.registerCommand("DelayStartIntake",
                                         Commands.waitSeconds(1));
-
                 }
 
                 else {
 
                         NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
-                        
+
                         NamedCommands.registerCommand("DelayStartIntake",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
@@ -208,39 +228,21 @@ public class RobotContainer implements Logged {
                 NamedCommands.registerCommand("SetPOIL", llv.setPOILeft());
                 NamedCommands.registerCommand("ClearPOI", llv.clearPOI());
 
-                NamedCommands.registerCommand("Deliver Algae", gamepieces.deliverAlgaeToProcessorCommand()
-                                .withName("DeliverAlgaeToProcessor"));
-
                 NamedCommands.registerCommand("Intake Algae L2",
-                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL2)
+                                cf.pickupAlgaeL2()
                                                 .withName("IntakeAlgaeL2"));
 
                 NamedCommands.registerCommand("Intake Algae L3",
-                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3)
+                                cf.pickupAlgaeL3()
                                                 .withName("IntakeAlgaeL3"));
 
                 NamedCommands.registerCommand("Deliver Processor",
-                                cf.setSetpointCommand(Setpoint.kProcessorDeliver)
+                                gamepieces.deliverAlgaeToProcessorCommand()
                                                 .withName("Deliver Processor"));
 
                 NamedCommands.registerCommand("Deliver Barge",
                                 cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
                                                 .withName("Deliver Barge"));
-
-                if (RobotBase.isSimulation())
-                        elasim = new ElevatorArmSim(elevator, arm);
-
-                DriverStation.silenceJoystickConnectionWarning(true);
-
-                setDefaultCommands();
-
-                configureDriverBindings();
-
-                buildAutoChooser();
-
-                setTriggerActions();
-
-                printCommandEvents();
 
         }
 

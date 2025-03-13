@@ -6,8 +6,6 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
-import com.revrobotics.spark.SparkBase.ControlType;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -15,7 +13,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ArmSubsystem;
@@ -37,6 +34,7 @@ public class CommandFactory {
         static CommandXboxController m_codr;
 
         LedStrip m_ls;
+     
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
                         GamepieceSubsystem gamepieces, LimelightVision llv, LedStrip ls, CommandXboxController dr,
@@ -50,6 +48,14 @@ public class CommandFactory {
                 m_gamepieces = gamepieces;
                 m_ls = ls;
 
+        }
+
+        public Command pickupAlgaeL2(){
+                return Commands.none();
+        }
+
+        public Command pickupAlgaeL3(){
+                return Commands.none();
         }
 
         public Command deliverAlgaeToBargeCommand(double delaySecs) {
