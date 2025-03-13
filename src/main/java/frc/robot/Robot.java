@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.littletonrobotics.urcl.URCL;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -167,7 +165,9 @@ public class Robot extends TimedRobot implements Logged {
     } else {
       CommandScheduler.getInstance().cancelAll();
     }
-    m_robotContainer.setDriveMode();
+
+    m_robotContainer.configureCoDriverTeleopBindings();
+
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
     m_robotContainer.llv.inhibitFrontVision = false;
@@ -185,7 +185,8 @@ public class Robot extends TimedRobot implements Logged {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    m_robotContainer.setDriveMode();
+
+    m_robotContainer.configureCoDriverTestBindings();
   }
 
   /**

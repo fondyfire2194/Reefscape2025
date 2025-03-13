@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.522,
-        "y": 7.256
+        "x": 1.2946721311475409,
+        "y": 7.003944672131147
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.804684921670984,
-        "y": 7.1361282521617175
+        "x": 2.577357052818525,
+        "y": 6.884072924292864
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LeftCoralStationPose"
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ReefKPose"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": "BSAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -60.42216131873864
+    "rotation": -55.30484646876602
   },
   "useDefaultConstraints": true
 }

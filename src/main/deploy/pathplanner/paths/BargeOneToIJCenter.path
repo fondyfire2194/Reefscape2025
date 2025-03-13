@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.119,
-        "y": 5.595
+        "x": 7.504303278688524,
+        "y": 4.73826844262295
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.776127049180327,
-        "y": 6.788165983606557
+        "x": 6.569262295081967,
+        "y": 5.529456967213114
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BargePoseOne"
     },
     {
       "anchor": {
-        "x": 1.522,
-        "y": 7.256
+        "x": 5.262602459016393,
+        "y": 5.277715163934426
       },
       "prevControl": {
-        "x": 3.728176229508197,
-        "y": 6.776178278688524
+        "x": 5.754098360655737,
+        "y": 5.961014344262295
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "IJCenterPose"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -57.34854046975
+    "rotation": -122.73522627210743
   },
   "reversed": false,
-  "folder": "BSAuto",
+  "folder": "CenterAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -121.4967867981023
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

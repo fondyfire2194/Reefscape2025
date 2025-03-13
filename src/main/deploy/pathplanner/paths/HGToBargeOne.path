@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.0,
-        "y": 0.6
+        "x": 5.885963114754098,
+        "y": 3.9470799180327862
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.730218521606412,
-        "y": 1.5660826942579855
+        "x": 6.885963114754099,
+        "y": 3.9470799180327862
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ReefGHCenterPose"
     },
     {
       "anchor": {
-        "x": 5.25061475409836,
-        "y": 2.7842725409836064
+        "x": 7.504303278688524,
+        "y": 4.73826844262295
       },
       "prevControl": {
-        "x": 5.385954765523757,
-        "y": 2.551311963808464
+        "x": 6.504303278688524,
+        "y": 4.73826844262295
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BargePoseOne"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 121.43
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "CenterAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

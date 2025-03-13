@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "SetPOIR"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "BLRStartToF"
@@ -23,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "EToCoSt"
+                  "pathName": "FToCoSt"
                 }
               },
               {
@@ -33,6 +39,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetPOIL"
           }
         },
         {
@@ -64,6 +76,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetPOIR"
           }
         },
         {

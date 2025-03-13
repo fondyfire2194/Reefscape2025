@@ -5,9 +5,15 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "SetPOIL"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "BLBSToJ"
+            "pathName": "BLBSToI"
           }
         },
         {
@@ -23,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "JToCoSt"
+                  "pathName": "IToCoSt"
                 }
               },
               {
@@ -33,6 +39,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetPOIR"
           }
         },
         {
@@ -67,22 +79,21 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CoStToB"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
-                }
-              }
-            ]
+            "name": "SetPOIL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CoStToK"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
           }
         }
       ]

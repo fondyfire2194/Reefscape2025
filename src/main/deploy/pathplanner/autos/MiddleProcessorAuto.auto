@@ -9,9 +9,15 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "SetPOIR"
+                }
+              },
+              {
                 "type": "path",
                 "data": {
-                  "pathName": "HGDeliverL4"
+                  "pathName": "CenterToH"
                 }
               },
               {
@@ -30,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "ColectAlgaeHG"
+                  "pathName": "HToG"
                 }
               },
               {
@@ -49,7 +55,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "DeliverAlgaeHG"
+                  "pathName": "HGToProcessor"
                 }
               },
               {
@@ -68,70 +74,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "PickUpIJ"
+                  "pathName": "ProcessorToEFCenter"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "Intake Algae L3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "DeliverIJAlgae"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Deliver Processor"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PickUpEFAlgae"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake Algae L3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "DeliverEFAlgae"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Deliver Processor"
                 }
               }
             ]

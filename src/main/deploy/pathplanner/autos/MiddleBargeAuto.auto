@@ -5,77 +5,69 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "HGDeliverL4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Deliver Coral L4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ColectAlgaeHG"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake Algae L2"
-                }
-              }
-            ]
+            "name": "SetPOIR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DeliverHGToBarge"
+            "pathName": "CenterToH"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "PickUpIJFromBarge"
+            "pathName": "HToG"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Algae L2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DeliverIJToBarge"
+            "pathName": "HGToBargeOne"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DeliverBarge"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "PickUpEFFromBarge"
+            "pathName": "BargeOneToIJCenter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Algae L3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DeliverEFToBarge"
+            "pathName": "IJCenterToBargeTwo"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "MoveFromLine"
+            "name": "DeliverBarge"
           }
         }
       ]

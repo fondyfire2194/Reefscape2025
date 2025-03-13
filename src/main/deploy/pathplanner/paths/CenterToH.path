@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.215,
-        "y": 5.254
+        "x": 7.5282786885245905,
+        "y": 4.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.215,
-        "y": 5.254
+        "x": 6.183330603382419,
+        "y": 4.179486255689565
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "CenterStartPose"
     },
     {
       "anchor": {
-        "x": 7.648155737704917,
-        "y": 5.254
+        "x": 5.9,
+        "y": 4.2
       },
       "prevControl": {
-        "x": 6.648155737704917,
-        "y": 5.254
+        "x": 7.982440446580046,
+        "y": 4.2
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ReefHPose"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": "CenterAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -121.43
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
