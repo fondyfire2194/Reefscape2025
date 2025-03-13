@@ -401,8 +401,10 @@ public class RobotContainer implements Logged {
                                         .onFalse(gamepieces.stopGamepieceMotorsCommand());
                         // (drivebase.sysIdDriveMotorCommand());
 
-                        coDriverXbox.rightTrigger()
-                                        .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));
+                        // coDriverXbox.rightTrigger()
+                        //                 .onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d())));
+
+                        coDriverXbox.rightTrigger().onTrue(preIn.setGoalDegreesCommand(90));
 
                         coDriverXbox.start().onTrue(
                                         Commands.parallel(

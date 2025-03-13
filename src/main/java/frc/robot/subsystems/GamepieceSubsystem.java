@@ -66,7 +66,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public double noCoralAtSwitchTime = 15;
 
-  public double lockAlgaeSet = -.1;
+  public double lockAlgaeSet = -.05;
 
   public double getLockAlgaeSet() {
     return lockAlgaeSet;
@@ -87,7 +87,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     setCurrentLimit((int) val);
   }
 
-  public double algaeDetectLevel = .5;
+  public double algaeDetectLevel = .05;
 
   public double getAlgaeDetectLevel() {
     return algaeDetectLevel;

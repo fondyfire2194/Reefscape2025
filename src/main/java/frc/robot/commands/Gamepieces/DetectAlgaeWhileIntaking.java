@@ -76,6 +76,7 @@ public class DetectAlgaeWhileIntaking extends Command {
   @Override
   public void end(boolean interrupted) {
     m_gamepieces.lockMotor();
+   // m_gamepieces.gamepieceMotor.set(0);
   }
 
   // Returns true when the command should end.
