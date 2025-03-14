@@ -94,8 +94,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private Alert allErrors = new Alert("AllErrors", AlertType.kError);
   @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
-  double TRAJECTORY_VEL = 2;
-  double TRAJECTORY_ACCEL = 2;
+  double TRAJECTORY_VEL = 3;
+  double TRAJECTORY_ACCEL = 3;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));

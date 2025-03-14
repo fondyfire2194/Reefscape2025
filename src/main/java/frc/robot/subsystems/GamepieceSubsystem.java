@@ -225,7 +225,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
             Commands.runOnce(() -> motorLocked = false),
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> gamepieceMotor.set(coralDelverSpeed))),
-        new WaitCommand(2),
+        new WaitCommand(1),
         stopGamepieceMotorsCommand());
   }
 
@@ -372,7 +372,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public Command jogCoralIntakeMotorsCommand(DoubleSupplier speed) {
     return Commands.parallel(
-        Commands.run(() -> gamepieceMotor.setVoltage(-speed.getAsDouble() * RobotController.getBatteryVoltage())),
+        Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())),
         Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 

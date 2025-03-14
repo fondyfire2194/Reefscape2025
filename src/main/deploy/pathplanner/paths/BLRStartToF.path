@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.322540983606557,
-        "y": 2.868186475409835
+        "x": 5.32,
+        "y": 2.89
       },
       "prevControl": {
-        "x": 5.913544589012194,
-        "y": 2.0044236260847414
+        "x": 6.293545081967213,
+        "y": 1.561526639344263
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefFPose"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

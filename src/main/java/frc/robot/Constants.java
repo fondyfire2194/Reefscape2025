@@ -26,8 +26,8 @@ public final class Constants {
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms spark max velocity lag
-  public static final double WHEEL_BASE = Units.inchesToMeters(27.);
-  public static final double TRACK_WIDTH = Units.inchesToMeters(22.75);
+  public static final double WHEEL_BASE = Units.inchesToMeters(26.5);
+  public static final double TRACK_WIDTH = Units.inchesToMeters(20.75);
   public static final double MAX_SPEED = 4.5;
   public static final double MAX_ACCEL = 8.3;
   public static final double WHEEL_NORM = Math.sqrt(Math.pow(WHEEL_BASE / 2, 2) + Math.pow(TRACK_WIDTH / 2, 2));

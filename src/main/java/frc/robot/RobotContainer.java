@@ -10,6 +10,8 @@ import java.util.Set;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -35,6 +37,7 @@ import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.commands.teleopAutos.DriveToNearestCoralStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
@@ -203,7 +206,7 @@ public class RobotContainer implements Logged {
 
         private void setNamedCommands() {
 
-                boolean pathsOnly = true;
+                boolean pathsOnly =false;
 
                 if (pathsOnly) {
                         NamedCommands.registerCommand("Deliver Coral L4", Commands.waitSeconds(1));
@@ -213,6 +216,10 @@ public class RobotContainer implements Logged {
                 }
 
                 else {
+
+                        
+                        NamedCommands.registerCommand("PoseCorrect", 
+                        new PIDDriveToPose(drivebase, new Pose2d(5.32, 2.89, Rotation2d.fromDegrees(120))));
 
                         NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
 
@@ -321,7 +328,7 @@ public class RobotContainer implements Logged {
                                                 new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 
-                driverXbox.povDown().whileTrue(new TurnToReef(drivebase).withName("Turn To Reef"));
+                driverXbox.povDown().whileTrue(new DriveToNearestCoralStation(drivebase));
         }
 
         public void configureCoDriverTeleopBindings() {
@@ -352,7 +359,7 @@ public class RobotContainer implements Logged {
                                 cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge).withName("Set Algae Pickup L2"));
 
                 coDriverXbox.leftTrigger().whileTrue(
-                                Commands.defer(() -> gamepieces.jogGamepieceMotorCommand(() -> coDriverXbox.getLeftY()),
+                                Commands.defer(() -> gamepieces.jogCoralIntakeMotorsCommand(() -> coDriverXbox.getLeftY()),
                                                 Set.of(gamepieces)))
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
