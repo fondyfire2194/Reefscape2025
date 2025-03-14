@@ -37,6 +37,7 @@ import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
 import frc.robot.commands.teleopAutos.DriveToNearestCoralStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
@@ -68,7 +69,7 @@ public class RobotContainer implements Logged {
 
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
-        ClimberSubsystem climber = new ClimberSubsystem();
+        //ClimberSubsystem climber = new ClimberSubsystem();
 
         GamepieceSubsystem gamepieces = new GamepieceSubsystem();
 
@@ -180,6 +181,8 @@ public class RobotContainer implements Logged {
 
         Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleSim);
 
+        public boolean correctAngle = false;
+
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
@@ -206,7 +209,7 @@ public class RobotContainer implements Logged {
 
         private void setNamedCommands() {
 
-                boolean pathsOnly =false;
+                boolean pathsOnly = false;
 
                 if (pathsOnly) {
                         NamedCommands.registerCommand("Deliver Coral L4", Commands.waitSeconds(1));
@@ -217,9 +220,9 @@ public class RobotContainer implements Logged {
 
                 else {
 
-                        
-                        NamedCommands.registerCommand("PoseCorrect", 
-                        new PIDDriveToPose(drivebase, new Pose2d(5.32, 2.89, Rotation2d.fromDegrees(120))));
+                        NamedCommands.registerCommand("PoseCorrect",
+                                        new PIDDriveToPose(drivebase,
+                                                        new Pose2d(5.32, 2.89, Rotation2d.fromDegrees(120))));
 
                         NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
 
@@ -254,22 +257,37 @@ public class RobotContainer implements Logged {
         }
 
         private void setDefaultCommands() {
+                // drivebase.setDefaultCommand(
+                //                 Commands.parallel(
+                //                                 new GetNearestCoralStationPose(drivebase),
+                //                                 new GetNearestReefZonePose(drivebase, ls),
+                //                                 drivebase.driveCommand(
+                //                                                 () -> -MathUtil.applyDeadband(
+                //                                                                 driverXbox.getLeftY()
+                //                                                                                 * getAllianceFactor(),
+                //                                                                 OperatorConstants.LEFT_Y_DEADBAND),
+                //                                                 () -> -MathUtil.applyDeadband(
+                //                                                                 driverXbox.getLeftX()
+                //                                                                                 * getAllianceFactor(),
+
+                //                                                                 OperatorConstants.DEADBAND),
+                //                                                 () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
+                //                                                                 OperatorConstants.RIGHT_X_DEADBAND))));
+
                 drivebase.setDefaultCommand(
                                 Commands.parallel(
                                                 new GetNearestCoralStationPose(drivebase),
                                                 new GetNearestReefZonePose(drivebase, ls),
-                                                drivebase.driveCommand(
-                                                                () -> -MathUtil.applyDeadband(
-                                                                                driverXbox.getLeftY()
-                                                                                                * getAllianceFactor(),
-                                                                                OperatorConstants.LEFT_Y_DEADBAND),
-                                                                () -> -MathUtil.applyDeadband(
-                                                                                driverXbox.getLeftX()
-                                                                                                * getAllianceFactor(),
+                                                new TeleopSwerve(drivebase,
+                                                                () -> driverXbox.getLeftY()
+                                                                                 * getAllianceFactor(),
+                                                                                
+                                                                () -> driverXbox.getLeftX()
+                                                                                 * getAllianceFactor(),
 
-                                                                                OperatorConstants.DEADBAND),
-                                                                () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-                                                                                OperatorConstants.RIGHT_X_DEADBAND))));
+                                                                () -> driverXbox.getRightX(), 
+                                                                () -> correctAngle)));
+                                                                                
 
                 elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
 
@@ -281,7 +299,7 @@ public class RobotContainer implements Logged {
 
         private void configureDriverBindings() {
 
-                driverXbox.a().onTrue(Commands.none());
+                driverXbox.a().onTrue(Commands.runOnce(() -> correctAngle = !correctAngle));
 
                 driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae"));
 
@@ -359,13 +377,14 @@ public class RobotContainer implements Logged {
                                 cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge).withName("Set Algae Pickup L2"));
 
                 coDriverXbox.leftTrigger().whileTrue(
-                                Commands.defer(() -> gamepieces.jogCoralIntakeMotorsCommand(() -> coDriverXbox.getLeftY()),
+                                Commands.defer(() -> gamepieces
+                                                .jogCoralIntakeMotorsCommand(() -> coDriverXbox.getLeftY()),
                                                 Set.of(gamepieces)))
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
                 coDriverXbox.back().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
 
-                coDriverXbox.rightTrigger().onTrue(preIn.setGoalDegreesCommand(90));
+                //coDriverXbox.rightTrigger().onTrue(preIn.setGoalDegreesCommand(90));
 
                 coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
                                 arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
@@ -389,8 +408,8 @@ public class RobotContainer implements Logged {
                                                 Set.of(gamepieces)))
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
-                coDriverXbox.leftTrigger().whileTrue(new JogClimber(climber, coDriverXbox))
-                                .onFalse(Commands.runOnce(() -> climber.stop()));
+                // coDriverXbox.leftTrigger().whileTrue(new JogClimber(climber, coDriverXbox))
+                //                 .onFalse(Commands.runOnce(() -> climber.stop()));
 
                 coDriverXbox.y().onTrue(
                                 elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));

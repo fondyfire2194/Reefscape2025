@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.littletonrobotics.urcl.URCL;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -76,10 +78,7 @@ public class Robot extends TimedRobot implements Logged {
       PortForwarder.add(port, "limelight.local", port);
     }
 
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    // Set the resolution
-    camera.setResolution(640, 480);
-
+    URCL.start();
   }
 
   /**
