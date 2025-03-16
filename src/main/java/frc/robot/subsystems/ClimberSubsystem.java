@@ -51,7 +51,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     climberConfig
         .inverted(false)
-        .smartCurrentLimit(20, 20)
+        .smartCurrentLimit(40, 40)
         .idleMode(IdleMode.kBrake);
 
         climberConfig.softLimit.forwardSoftLimit(maxAngle.in(Degrees))

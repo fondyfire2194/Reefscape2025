@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
@@ -32,6 +33,7 @@ import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
+import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
@@ -69,7 +71,7 @@ public class RobotContainer implements Logged {
 
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
-        //ClimberSubsystem climber = new ClimberSubsystem();
+        ClimberSubsystem climber = new ClimberSubsystem();
 
         GamepieceSubsystem gamepieces = new GamepieceSubsystem();
 
@@ -258,21 +260,21 @@ public class RobotContainer implements Logged {
 
         private void setDefaultCommands() {
                 // drivebase.setDefaultCommand(
-                //                 Commands.parallel(
-                //                                 new GetNearestCoralStationPose(drivebase),
-                //                                 new GetNearestReefZonePose(drivebase, ls),
-                //                                 drivebase.driveCommand(
-                //                                                 () -> -MathUtil.applyDeadband(
-                //                                                                 driverXbox.getLeftY()
-                //                                                                                 * getAllianceFactor(),
-                //                                                                 OperatorConstants.LEFT_Y_DEADBAND),
-                //                                                 () -> -MathUtil.applyDeadband(
-                //                                                                 driverXbox.getLeftX()
-                //                                                                                 * getAllianceFactor(),
+                // Commands.parallel(
+                // new GetNearestCoralStationPose(drivebase),
+                // new GetNearestReefZonePose(drivebase, ls),
+                // drivebase.driveCommand(
+                // () -> -MathUtil.applyDeadband(
+                // driverXbox.getLeftY()
+                // * getAllianceFactor(),
+                // OperatorConstants.LEFT_Y_DEADBAND),
+                // () -> -MathUtil.applyDeadband(
+                // driverXbox.getLeftX()
+                // * getAllianceFactor(),
 
-                //                                                                 OperatorConstants.DEADBAND),
-                //                                                 () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-                //                                                                 OperatorConstants.RIGHT_X_DEADBAND))));
+                // OperatorConstants.DEADBAND),
+                // () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
+                // OperatorConstants.RIGHT_X_DEADBAND))));
 
                 drivebase.setDefaultCommand(
                                 Commands.parallel(
@@ -280,17 +282,17 @@ public class RobotContainer implements Logged {
                                                 new GetNearestReefZonePose(drivebase, ls),
                                                 new TeleopSwerve(drivebase,
                                                                 () -> driverXbox.getLeftY()
-                                                                                 * getAllianceFactor(),
-                                                                                
-                                                                () -> driverXbox.getLeftX()
-                                                                                 * getAllianceFactor(),
+                                                                                * getAllianceFactor(),
 
-                                                                () -> driverXbox.getRightX(), 
+                                                                () -> driverXbox.getLeftX()
+                                                                                * getAllianceFactor(),
+
+                                                                () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
-                                                                                
 
                 elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
 
+                //elevator.setDefaultCommand(new PositionHoldElevator(elevator, arm));
                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
                 preIn.setDefaultCommand(preIn.positionCommand());
@@ -301,9 +303,9 @@ public class RobotContainer implements Logged {
 
                 driverXbox.a().onTrue(Commands.runOnce(() -> correctAngle = !correctAngle));
 
-                driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae"));
+                driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae Barge"));
 
-                driverXbox.x().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Barge"));
+                driverXbox.x().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Algae Processor"));
 
                 driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(gamepieces).withName("Intake Algae"));
 
@@ -347,6 +349,12 @@ public class RobotContainer implements Logged {
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 
                 driverXbox.povDown().whileTrue(new DriveToNearestCoralStation(drivebase));
+
+                driverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
+
+                driverXbox.povLeft().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(45)));
+
+                driverXbox.povRight().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(0)));
         }
 
         public void configureCoDriverTeleopBindings() {
@@ -371,10 +379,13 @@ public class RobotContainer implements Logged {
                 coDriverXbox.povLeft()
                                 .onTrue(cf.setSetpointCommand(Setpoint.kAlgaePickUpL2).withName("Set Algae Pickup L2"));
 
+                coDriverXbox.povUp()
+                                .onTrue(preIn.setGoalDegreesCommand(0));
+
                 coDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
 
                 coDriverXbox.leftBumper().onTrue(
-                                cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge).withName("Set Algae Pickup L2"));
+                                cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge).withName("Set Algae Barge"));
 
                 coDriverXbox.leftTrigger().whileTrue(
                                 Commands.defer(() -> gamepieces
@@ -382,12 +393,18 @@ public class RobotContainer implements Logged {
                                                 Set.of(gamepieces)))
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
-                coDriverXbox.back().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
+                coDriverXbox.back()
+                                .onTrue(Commands.parallel(
+                                                preIn.setGoalDegreesCommand(90),
+                                                Commands.runOnce(() -> arm.setGoalDegrees(97))));
 
-                //coDriverXbox.rightTrigger().onTrue(preIn.setGoalDegreesCommand(90));
+                coDriverXbox.rightTrigger().onTrue(climber.jogClimberCommand(() -> coDriverXbox.getLeftX()));
 
-                coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
-                                arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
+                // (preIn.setGoalDegreesCommand(90));
+
+                // coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
+                // arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
+                coDriverXbox.start().onTrue(preIn.setGoalDegreesCommand(10));
 
         }
 
@@ -409,18 +426,33 @@ public class RobotContainer implements Logged {
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
                 // coDriverXbox.leftTrigger().whileTrue(new JogClimber(climber, coDriverXbox))
-                //                 .onFalse(Commands.runOnce(() -> climber.stop()));
+                // .onFalse(Commands.runOnce(() -> climber.stop()));
 
-                coDriverXbox.y().onTrue(
-                                elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+                // coDriverXbox.y().onTrue(
+                // elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 
-                coDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+                // coDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
-                coDriverXbox.b().onTrue(
-                                elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
+                // coDriverXbox.b().onTrue(
+                // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
-                coDriverXbox.x().onTrue(
-                                elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
+                // coDriverXbox.x().onTrue(
+                // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
+
+                
+                 // SYS ID ElEVATOR TESTS
+                 coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
+                 kForward));
+                 
+                 coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
+                 kReverse));
+                 
+                 coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.
+                 kForward));
+                 
+                 coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.
+                 kReverse));
+                 
 
                 coDriverXbox.povLeft()
                                 .onTrue(preIn.setGoalDegreesCommand(20));

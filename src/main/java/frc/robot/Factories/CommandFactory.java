@@ -127,15 +127,15 @@ public class CommandFactory {
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
                 public static final int kTravel = 10;
-                public static final int kProcessorDeliver = 10;
+                public static final int kProcessorDeliver = 5;
                 public static final int kCoralStation = 0;
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 29;
                 public static final int kLevel4 = 56;
                 public static final int kBarge = 65;
-                public static final int kLevelAlgaeL2 = 29;
-                public static final int kLevelAlgaeL3 = 45;
+                public static final int kLevelAlgaeL2 = 28;
+                public static final int kLevelAlgaeL3 = 43;
 
         }
 
@@ -166,8 +166,8 @@ public class CommandFactory {
         }
 
         public static final class AlgaeRPMSetpoints {
-                public static final double kReefPickUpL123 = -.5;
-                public static final double kProcessorDeliver = 2000;
+                public static final double kReefPickUpL123 = -.6;
+                public static final double kProcessorDeliver = 3000;
                 public static final double kBargeDeliver = 7000;
                 public static final double kStop = 0;
         }
@@ -177,6 +177,13 @@ public class CommandFactory {
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)),
                                 Commands.waitUntil(() -> m_elevator.armClear),
                                 m_elevator.setGoalInchesCommand(inches));
+        }
+
+        public Command safePositionArmBarge(double degrees, double inches) {
+                return Commands.sequence(
+                                m_elevator.setGoalInchesCommand(inches), 
+                                Commands.waitUntil(() -> m_elevator.atPosition()), 
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)));
         }
 
         public Command safePositionArmElevatorL4(double degrees_first, double degrees_second, double inches) {
@@ -259,7 +266,7 @@ public class CommandFactory {
                                                 ElevatorSetpoints.kProcessorDeliver);
                                 break;
                         case kAlgaeDeliverBarge:
-                                temp = safePositionArmElevator(ArmSetpoints.kBargeDeliver,
+                                temp = safePositionArmBarge(ArmSetpoints.kBargeDeliver,
                                                 ElevatorSetpoints.kBarge);
                                 break;
                         case kAlgaePickUpL2:

@@ -25,9 +25,9 @@ public class TeleopSwerve extends Command {
     private DoubleSupplier rotationSup;
     private BooleanSupplier angleCorrection;
 
-    private SlewRateLimiter translationLimiter = new SlewRateLimiter(3.0);
-    private SlewRateLimiter strafeLimiter = new SlewRateLimiter(3.0);
-    private SlewRateLimiter rotationLimiter = new SlewRateLimiter(3.0);
+    private SlewRateLimiter translationLimiter = new SlewRateLimiter(5.0);
+    private SlewRateLimiter strafeLimiter = new SlewRateLimiter(5.0);
+    private SlewRateLimiter rotationLimiter = new SlewRateLimiter(5.0);
 
     public PIDController thetaController = new PIDController(1.5, 0, 0);
 
@@ -39,7 +39,7 @@ public class TeleopSwerve extends Command {
             BooleanSupplier angleCorrection) {
         m_swerve = swerve;
         addRequirements(m_swerve);
-        
+
         this.angleCorrection = angleCorrection;
         this.translationSup = translationSup;
         this.strafeSup = strafeSup;
@@ -57,27 +57,32 @@ public class TeleopSwerve extends Command {
     @Override
     public void execute() {
         /* Get Values, Deadband */
-        Rotation2d target = m_swerve.reefTargetPose.getRotation();
-        
-        target = target.rotateBy(new Rotation2d(Math.PI));
-        
+        Rotation2d target;
+        double distanceToCoralStation = m_swerve.coralStationFinalTargetPose.getTranslation()
+        .getDistance(m_swerve.getPose().getTranslation());
+        if (distanceToCoralStation < 2) {
+            target = m_swerve.coralStationFinalTargetPose.getRotation();
+        } else {
+            target = m_swerve.reefTargetPose.getRotation();
+            target = target.rotateBy(new Rotation2d(Math.PI));
+        }
+
         double translationVal = translationLimiter.calculate(
                 -MathUtil.applyDeadband(translationSup.getAsDouble(), OperatorConstants.LEFT_Y_DEADBAND));
         double strafeVal = strafeLimiter.calculate(
                 -MathUtil.applyDeadband(strafeSup.getAsDouble(), OperatorConstants.DEADBAND));
-        
 
         double rotationVal;
-        
+
         if (angleCorrection.getAsBoolean()) {
             rotationVal = thetaController
-            .calculate(m_swerve.getPose().getRotation().getRadians(), target.getRadians());
+                    .calculate(m_swerve.getPose().getRotation().getRadians(), target.getRadians());
         } else {
             rotationVal = rotationLimiter.calculate(
-                -MathUtil.applyDeadband(rotationSup.getAsDouble(), OperatorConstants.RIGHT_X_DEADBAND));
+                    -MathUtil.applyDeadband(rotationSup.getAsDouble(), OperatorConstants.RIGHT_X_DEADBAND));
             rotationVal = rotationVal * 0.7;
         }
-        
+
         /* Drive */
         m_swerve.drive(new Translation2d(
                 translationVal * m_swerve.swerveDrive.getMaximumChassisVelocity(),

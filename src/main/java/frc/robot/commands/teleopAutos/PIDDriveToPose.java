@@ -20,8 +20,8 @@ public class PIDDriveToPose extends Command {
   private final SwerveSubsystem swerve;
   private Pose2d target;
 
-  private final PIDController xController = new PIDController(2.5, 0, 0);
-  private final PIDController yController = new PIDController(2.5, 0, 0);
+  private final PIDController xController = new PIDController(2.8, 0, 0);
+  private final PIDController yController = new PIDController(2.8, 0, 0);
   private final PIDController thetaController = new PIDController(3, 0, 0);
 
   /** Creates a new PIDDriveToPose. */
@@ -29,8 +29,14 @@ public class PIDDriveToPose extends Command {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(0.025);
-    yController.setTolerance(0.025);
+    xController.setTolerance(0.0125);
+    yController.setTolerance(0.0125);
+
+    // xController.setIZone(0.2);
+    // xController.setIntegratorRange(-0.05, 0.05);
+    // yController.setIZone(0.2);
+    // yController.setIntegratorRange(-0.05, 0.05);
+
     thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);

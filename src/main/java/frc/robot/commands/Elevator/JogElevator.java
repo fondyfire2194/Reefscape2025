@@ -31,7 +31,7 @@ public class JogElevator extends Command {
     @Override
     public void execute() {
 
-        double stickValue = -gamepad.getRightY() / 4;
+        double stickValue = -gamepad.getRightY() / 12;
 
         if (Math.abs(stickValue) < deadband)
             stickValue = 0;

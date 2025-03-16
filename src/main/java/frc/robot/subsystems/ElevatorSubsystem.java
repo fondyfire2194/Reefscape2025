@@ -28,17 +28,21 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.Factories.CommandFactory;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
 import static edu.wpi.first.units.Units.*;
+
+import java.util.function.Consumer;
 
 public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
@@ -71,10 +75,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
    * ( (value that goes up) + (value that goes down) )/2 = kg .8
    */
-  public final double elevatorKs = .3;
-  public final double elevatorKg = .5;
-  public final double elevatorKv = 12 / maxVelocityMPS;
-  public final double elevatorKa = 0.3;
+
+   //Got these values from sysID
+  public final double elevatorKs = 0.27788;//.3; //0.36
+  public final double elevatorKg = 0.5;//.5; //0.56
+  public final double elevatorKv = 2.2404;//12 / maxVelocityMPS;
+  public final double elevatorKa = 0.41589;//0.3;
+  
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
@@ -136,6 +143,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public boolean telemetry = true;
 
   public double tolerance_inches = 3;
+
+  private final SysIdRoutine routine = new SysIdRoutine(
+      new SysIdRoutine.Config(Volts.of(0.2).per(Second), Volts.of(2), null),
+      new SysIdRoutine.Mechanism(this::setVoltageSysId, this::logMotors, this));
 
   /**
    * Subsystem constructor.
@@ -233,6 +244,35 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public void runAtVelocity(double metersPerSecond) {
     leftClosedLoopController.setReference(metersPerSecond, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
+  }
+
+  public void setVoltageSysId(Voltage voltage) {
+    leftMotor.setVoltage(voltage); 
+    rightMotor.setVoltage(voltage); 
+  }
+
+  public void logMotors(SysIdRoutineLog log) {
+    SmartDashboard.putNumber("ElevatorTest/volts", leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("ElevatorTest/velocity", getLeftVelocityMetersPerSecond());
+    SmartDashboard.putNumber("ElevatorTest/position", getLeftPositionMeters());
+
+
+    log.motor("elevator-motor-left")
+        .voltage(Volts.of(leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage()))
+        .linearPosition(Meters.of(getLeftPositionMeters()))
+        .linearVelocity(MetersPerSecond.of(getLeftVelocityMetersPerSecond()));
+    // log.motor("elevator-motor-right")
+    //     .voltage(Volts.of(rightMotor.getBusVoltage() * RobotController.getBatteryVoltage()))
+    //     .linearPosition(Meters.of(getRightPositionMeters()))
+    //     .linearVelocity(MetersPerSecond.of(getVelocityMetersPerSecond()));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return routine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return routine.dynamic(direction);
   }
 
   /**
@@ -353,7 +393,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     double accelV = accel * elevatorKa;
     SmartDashboard.putNumber("Elevator/accv", accelV);
-    leftff += accelV;
+
+    //leftff += accelV;
     SmartDashboard.putNumber("Elevator/ffacc", leftff);
     currentSetpoint = nextSetpoint;
 
