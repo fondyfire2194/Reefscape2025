@@ -3,8 +3,8 @@
   "robotLength": 1.0,
   "holonomicMode": true,
   "pathFolders": [
-    "BNSAuto",
-    "BSAuto",
+    "ProcessorSide",
+    "NonProcessorSide",
     "CenterAuto"
   ],
   "autoFolders": [],

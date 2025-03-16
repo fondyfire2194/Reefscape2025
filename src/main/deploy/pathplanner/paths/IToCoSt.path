@@ -45,7 +45,7 @@
     "rotation": -55.30484646876602
   },
   "reversed": false,
-  "folder": "BSAuto",
+  "folder": "NonProcessorSide",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -120.96375653207356

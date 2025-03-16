@@ -45,7 +45,7 @@
     "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "BNSAuto",
+  "folder": "ProcessorSide",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 51.54629078329403
