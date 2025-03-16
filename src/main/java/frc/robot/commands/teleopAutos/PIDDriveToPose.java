@@ -42,6 +42,23 @@ public class PIDDriveToPose extends Command {
     addRequirements(swerve);
   }
 
+  public PIDDriveToPose(SwerveSubsystem swerve, Pose2d target, double tolerance) {
+    this.swerve = swerve;
+    this.target = target;
+
+    xController.setTolerance(tolerance);
+    yController.setTolerance(tolerance);
+
+    // xController.setIZone(0.2);
+    // xController.setIntegratorRange(-0.05, 0.05);
+    // yController.setIZone(0.2);
+    // yController.setIntegratorRange(-0.05, 0.05);
+
+    thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    addRequirements(swerve);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {

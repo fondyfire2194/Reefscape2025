@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.File;
 import java.util.Set;
+import java.util.jar.Attributes.Name;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
+import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
@@ -38,7 +40,6 @@ import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
-import frc.robot.commands.teleopAutos.DriveToNearestCoralStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
@@ -231,28 +232,34 @@ public class RobotContainer implements Logged {
                                                         new IntakeCoralToSwitch(gamepieces, arm, false))
                                                         .withName("DelayedIntakeCoral"));
 
+                        NamedCommands.registerCommand("ArmToTravel",
+
+                                        Commands.sequence(
+                                                        Commands.runOnce(() -> SmartDashboard.putBoolean("AAAA", true)),
+
+                                                        arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1)));
+                        NamedCommands.registerCommand("SetPOIR", llv.setPOIRight());
+                        NamedCommands.registerCommand("SetPOIL", llv.setPOILeft());
+                        NamedCommands.registerCommand("ClearPOI", llv.clearPOI());
+
+                        NamedCommands.registerCommand("Intake Algae L2",
+                                        cf.pickupAlgaeL2()
+                                                        .withName("IntakeAlgaeL2"));
+
+                        NamedCommands.registerCommand("Intake Algae L3",
+                                        cf.pickupAlgaeL3()
+                                                        .withName("IntakeAlgaeL3"));
+                        
+                        NamedCommands.registerCommand("ElevatorToProcessor", cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
+                        NamedCommands.registerCommand("Deliver Processor",
+                                        gamepieces.deliverAlgaeToProcessorCommand()
+                                                        .withName("Deliver Processor"));
+
+                        NamedCommands.registerCommand("Deliver Barge",
+                                        cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
+                                                        .withName("Deliver Barge"));
                 }
-
-                NamedCommands.registerCommand("SetPOIR", llv.setPOIRight());
-                NamedCommands.registerCommand("SetPOIL", llv.setPOILeft());
-                NamedCommands.registerCommand("ClearPOI", llv.clearPOI());
-
-                NamedCommands.registerCommand("Intake Algae L2",
-                                cf.pickupAlgaeL2()
-                                                .withName("IntakeAlgaeL2"));
-
-                NamedCommands.registerCommand("Intake Algae L3",
-                                cf.pickupAlgaeL3()
-                                                .withName("IntakeAlgaeL3"));
-
-                NamedCommands.registerCommand("Deliver Processor",
-                                gamepieces.deliverAlgaeToProcessorCommand()
-                                                .withName("Deliver Processor"));
-
-                NamedCommands.registerCommand("Deliver Barge",
-                                cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
-                                                .withName("Deliver Barge"));
-
         }
 
         private void setDefaultCommands() {
@@ -344,8 +351,10 @@ public class RobotContainer implements Logged {
                                                 new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 
-                driverXbox.povDown().whileTrue(new DriveToNearestCoralStation(drivebase));
+                // driverXbox.povDown().whileTrue(new DriveToNearestCoralStation(drivebase));
 
+                driverXbox.povDown()
+                                .onTrue(Commands.none());
                 driverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
 
                 driverXbox.povLeft().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(45)));
@@ -435,20 +444,14 @@ public class RobotContainer implements Logged {
                 // coDriverXbox.x().onTrue(
                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
-                
-                 // SYS ID ElEVATOR TESTS
-                 coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
-                 kForward));
-                 
-                 coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.
-                 kReverse));
-                 
-                 coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.
-                 kForward));
-                 
-                 coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.
-                 kReverse));
-                 
+                // SYS ID ElEVATOR TESTS
+                coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+                coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+                coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+                coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
                 coDriverXbox.povLeft()
                                 .onTrue(preIn.setGoalDegreesCommand(20));

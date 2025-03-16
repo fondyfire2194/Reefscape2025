@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -34,7 +35,6 @@ public class CommandFactory {
         static CommandXboxController m_codr;
 
         LedStrip m_ls;
-     
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
                         GamepieceSubsystem gamepieces, LimelightVision llv, LedStrip ls, CommandXboxController dr,
@@ -50,11 +50,12 @@ public class CommandFactory {
 
         }
 
-        public Command pickupAlgaeL2(){
-                return Commands.none();
+        public Command pickupAlgaeL2() {
+                return Commands.parallel(setSetpointCommand(Setpoint.kAlgaePickUpL2),
+                                new DetectAlgaeWhileIntaking(m_gamepieces));
         }
 
-        public Command pickupAlgaeL3(){
+        public Command pickupAlgaeL3() {
                 return Commands.none();
         }
 
@@ -154,7 +155,6 @@ public class CommandFactory {
                 public static final double kLevel4_2 = 85;
                 public static final double kAlgaeIntake = -90;
 
-
         }
 
         public static final class CoralRPMSetpoints {
@@ -181,8 +181,8 @@ public class CommandFactory {
 
         public Command safePositionArmBarge(double degrees, double inches) {
                 return Commands.sequence(
-                                m_elevator.setGoalInchesCommand(inches), 
-                                Commands.waitUntil(() -> m_elevator.atPosition()), 
+                                m_elevator.setGoalInchesCommand(inches),
+                                Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)));
         }
 

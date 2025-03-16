@@ -5,17 +5,17 @@
 package frc.robot;
 
 import org.littletonrobotics.urcl.URCL;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.VisionConstants.CameraConstants;
+import frc.robot.utils.LimelightHelpers;
 import monologue.Logged;
 import monologue.Monologue;
 import monologue.Annotations.Log;
@@ -128,6 +128,66 @@ public class Robot extends TimedRobot implements Logged {
     if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME)) {
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
+    }
+    /**
+     * 
+     * targetpose_robotspace doubleArray 3D transform of the primary in-view
+     * AprilTag in the coordinate system of the Robot
+     * (array (6)) [tx, ty, tz, pitch, yaw, roll] (meters, degrees)
+     * 
+     * botpose_targetspace doubleArray 3D transform of the robot in the coordinate
+     * system of the primary in-view AprilTag
+     * (array (6)) [tx, ty, tz, pitch, yaw, roll] (meters, degrees)
+     * 
+     * 
+     */
+
+    boolean tagSeen = LimelightHelpers.getTV(CameraConstants.frontCamera.camname);
+
+    SmartDashboard.putBoolean("AutoAlign/Tag Seen", tagSeen);
+
+    if (tagSeen) {
+      double targetDistance = 3;
+      Pose2d p2d = LimelightHelpers.getTargetPose3d_RobotSpace(CameraConstants.frontCamera.camname).toPose2d();
+      double distance = m_robotContainer.llv.getDistanceToTag(CameraConstants.frontCamera.camname);
+      double[] data = new double[6];
+
+      data = LimelightHelpers.pose2dToArray(p2d);
+
+      double tx = data[0];
+      // double ty = data[1];
+      // double tz = data[2];
+      // double pitch = data[3];
+      // double roll = data[4];
+      double yaw = data[5];
+
+      SmartDashboard.putNumber("AutoAlign/TX", tx);
+      SmartDashboard.putNumber("AutoAlign/Yaw", yaw);
+
+      boolean txOnTarget = Math.abs(tx) < .1;
+      boolean txClosePlus = tx > 0 && tx < 1;
+      boolean txCloseMinus = tx < 0 && tx > -1;
+
+      SmartDashboard.putBoolean("AutoAlign/TXOnTarget", txOnTarget);
+      SmartDashboard.putBoolean("AutoAlign/TXClosePlus", txClosePlus);
+      SmartDashboard.putBoolean("AutoAlign/TXCloseMinus", txCloseMinus);
+
+      boolean yawOnTarget = Math.abs(yaw) < .1;
+      boolean yawClosePlus = tx > 0 && tx < 1;
+      boolean yawCloseMinus = tx < 0 && tx > -1;
+
+      SmartDashboard.putBoolean("AutoAlign/YawOnTarget", yawOnTarget);
+      SmartDashboard.putBoolean("AutoAlign/YawClosePlus", yawClosePlus);
+      SmartDashboard.putBoolean("AutoAlign/YawCloseMINUS", yawCloseMinus);
+      double distanceError = targetDistance - distance;
+      boolean distanceOnTarget = Math.abs(distanceError) < .01;
+      boolean distanceClosePlus = (distanceError) > 0 && (distanceError) < .01;
+      boolean distanceCloseMinus = distanceError < 0 && distanceError > -1;
+
+      SmartDashboard.putBoolean("AutoAlign/DistanceOnTarget", distanceOnTarget);
+      SmartDashboard.putBoolean("AutoAlign/DistanceClosePlus", distanceClosePlus);
+      SmartDashboard.putBoolean("AutoAlign/DistanceCloseMINUS", distanceCloseMinus);
+
     }
   }
 

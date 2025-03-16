@@ -17,9 +17,9 @@ public class PositionHoldElevatorPID extends Command {
     private final ArmSubsystem m_arm;
 
     private PIDController pidController;
-    private double kp = 12.;
+    private double kp = 14.;
     private double ki = 0;
-    private double kd = 0;
+    private double kd = 0.2;
     private double izone = .5;
     private double minIntegral = -.1;
     private double maxIntegral = .1;
@@ -65,9 +65,12 @@ public class PositionHoldElevatorPID extends Command {
             SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);
             SmartDashboard.putNumber("Elevator/PID/currsetvel", elevator.currentSetpoint.velocity);
             SmartDashboard.putNumber("Elevator/PID/setpos", elevator.nextSetpoint.position);
+
         } else {
+            SmartDashboard.putNumber("Elevator/PID/position", elevator.getLeftPositionMeters());
             SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
             SmartDashboard.putNumber("Elevator/PID/mps", mps);
+            SmartDashboard.putNumber("Elevator/PID/mpsRead", elevator.getLeftVelocityMetersPerSecond());
             SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
             SmartDashboard.putBoolean("Elevator/PID/poserror", pidController.atSetpoint());
         }

@@ -23,10 +23,16 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Deliver Coral L4"
+                  "name": "ArmToTravel"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
           }
         },
         {
@@ -61,29 +67,16 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Deliver Processor"
+                  "name": "ElevatorToProcessor"
                 }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ProcessorToEFCenter"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake Algae L3"
-                }
-              }
-            ]
+            "name": "Deliver Processor"
           }
         }
       ]

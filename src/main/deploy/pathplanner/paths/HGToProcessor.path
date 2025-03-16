@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.885963114754098,
-        "y": 3.9470799180327862
+        "x": 5.886,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.9388319672131145,
-        "y": 4.193852459016393
+        "x": 6.9388688524590165,
+        "y": 4.246772540983606
       },
       "isLocked": false,
       "linkedName": "ReefGHCenterPose"
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 2.2,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

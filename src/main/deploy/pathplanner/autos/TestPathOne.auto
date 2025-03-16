@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "BLRStartToF"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BLRStart2ToF1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToTravel"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetPOIR"
+                }
+              }
+            ]
           }
         },
         {

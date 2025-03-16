@@ -225,7 +225,9 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
             Commands.runOnce(() -> motorLocked = false),
             Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> gamepieceMotor.set(coralDelverSpeed))),
-        new WaitCommand(1),
+        new WaitCommand(0.1),
+        Commands.waitUntil(() ->!coralAtIntake()),
+        new WaitCommand(0.1),
         stopGamepieceMotorsCommand());
   }
 
@@ -284,7 +286,10 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
 
+
+
     SmartDashboard.putBoolean("Gamepiece/MotorLocked", motorLocked);
+    SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
 
     SmartDashboard.putNumber("Algae/Adjust/LockSpeed", lockAlgaeSet);
     SmartDashboard.putNumber("Algae/Adjust/LockAmps", lockAlgaeAmps);
