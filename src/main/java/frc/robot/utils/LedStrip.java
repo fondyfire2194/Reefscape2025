@@ -20,6 +20,12 @@ public class LedStrip {
     public AddressableLEDBufferView m_view2;
     public AddressableLEDBufferView m_view3;
     public AddressableLEDBufferView m_view4;
+    public AddressableLEDBufferView m_view5;
+    public AddressableLEDBufferView m_view6;
+    public AddressableLEDBufferView m_view7;
+
+
+
 
     public AddressableLEDSim m_LedSim;
     LEDPattern red = LEDPattern.solid(Color.kRed);
@@ -27,7 +33,8 @@ public class LedStrip {
     LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     LEDPattern blue = LEDPattern.solid(Color.kBlue);
     LEDPattern white = LEDPattern.solid(Color.kAntiqueWhite);
-
+    
+    
     LEDPattern off = LEDPattern.solid(Color.kBlack);
 
     public LedStrip() {
@@ -38,6 +45,9 @@ public class LedStrip {
         m_view1 = new AddressableLEDBufferView(m_ledbuffer, 1, 9);
         m_view2 = new AddressableLEDBufferView(m_ledbuffer, 10, 14);
         m_view3 = new AddressableLEDBufferView(m_ledbuffer, 15, 19);
+        m_view4 = new AddressableLEDBufferView(m_ledbuffer, 20, 24);
+        m_view5 = new AddressableLEDBufferView(m_ledbuffer, 25, 29);
+        m_view6 = new AddressableLEDBufferView(m_ledbuffer, 30, 34);
 
         m_led.setData(m_ledbuffer);
         m_led.start();

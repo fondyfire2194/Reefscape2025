@@ -48,7 +48,7 @@
   "folder": "ProcessorSide",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 51.54629078329403
+    "rotation": 54.0
   },
   "useDefaultConstraints": true
 }

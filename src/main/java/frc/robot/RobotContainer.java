@@ -249,8 +249,9 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("Intake Algae L3",
                                         cf.pickupAlgaeL3()
                                                         .withName("IntakeAlgaeL3"));
-                        
-                        NamedCommands.registerCommand("ElevatorToProcessor", cf.setSetpointCommand(Setpoint.kProcessorDeliver));
+
+                        NamedCommands.registerCommand("ElevatorToProcessor",
+                                        cf.setSetpointCommand(Setpoint.kProcessorDeliver));
 
                         NamedCommands.registerCommand("Deliver Processor",
                                         gamepieces.deliverAlgaeToProcessorCommand()
@@ -403,7 +404,8 @@ public class RobotContainer implements Logged {
                                                 preIn.setGoalDegreesCommand(90),
                                                 Commands.runOnce(() -> arm.setGoalDegrees(97))));
 
-                coDriverXbox.rightTrigger().onTrue(climber.jogClimberCommand(() -> coDriverXbox.getLeftX()));
+                coDriverXbox.rightTrigger().whileTrue(climber.jogClimberCommand(() -> coDriverXbox.getLeftX()))
+                                .onFalse(Commands.runOnce(() -> climber.stop()));
 
                 // (preIn.setGoalDegreesCommand(90));
 
