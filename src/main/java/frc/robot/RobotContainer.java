@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,13 +28,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
-import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
-import frc.robot.commands.Climber.JogClimber;
 import frc.robot.commands.Elevator.JogElevator;
-import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
@@ -44,7 +42,6 @@ import frc.robot.commands.teleopAutos.DriveToNearestCoralStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
-import frc.robot.commands.teleopAutos.TurnToReef;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
@@ -292,7 +289,6 @@ public class RobotContainer implements Logged {
 
                 elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
 
-                //elevator.setDefaultCommand(new PositionHoldElevator(elevator, arm));
                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
                 preIn.setDefaultCommand(preIn.positionCommand());
