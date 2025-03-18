@@ -315,7 +315,7 @@ public class RobotContainer implements Logged {
 
                 driverXbox.back().onTrue(drivebase.centerModulesCommand().withName("Center Modules"));
 
-                driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyro).withName("Zero Gyro"));
+                driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
 
                 driverXbox.leftTrigger().onTrue(
                                 Commands.sequence(
@@ -402,7 +402,7 @@ public class RobotContainer implements Logged {
                 coDriverXbox.back()
                                 .onTrue(Commands.parallel(
                                                 preIn.setGoalDegreesCommand(90),
-                                                Commands.runOnce(() -> arm.setGoalDegrees(97))));
+                                                Commands.runOnce(() -> arm.setGoalDegrees(-90))));
 
                 coDriverXbox.rightTrigger().whileTrue(climber.jogClimberCommand(() -> coDriverXbox.getLeftX()))
                                 .onFalse(Commands.runOnce(() -> climber.stop()));

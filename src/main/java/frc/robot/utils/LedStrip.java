@@ -4,6 +4,8 @@
 
 package frc.robot.utils;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
@@ -24,17 +26,16 @@ public class LedStrip {
     public AddressableLEDBufferView m_view6;
     public AddressableLEDBufferView m_view7;
 
-
-
-
     public AddressableLEDSim m_LedSim;
     LEDPattern red = LEDPattern.solid(Color.kRed);
     LEDPattern green = LEDPattern.solid(Color.kGreen);
     LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     LEDPattern blue = LEDPattern.solid(Color.kBlue);
     LEDPattern white = LEDPattern.solid(Color.kAntiqueWhite);
-    
-    
+    // LEDPattern color1Zone = LEDPattern.solid(new Color());
+    LEDPattern coral_intake = LEDPattern.solid(Color.kGreen).blink(Seconds.of(0.2));
+    LEDPattern coral_out = LEDPattern.solid(Color.kRed).blink(Seconds.of(0.2));
+
     LEDPattern off = LEDPattern.solid(Color.kBlack);
 
     public LedStrip() {
@@ -58,27 +59,34 @@ public class LedStrip {
     }
 
     public void setViewOneSolidColor(int reefZone) {
-        switch (reefZone) {
-            case 0:
-                off.applyTo(m_view1);
-                break;
-            case 1:
-            case 4:
-                red.applyTo(m_view1);
-                break;
-            case 3:
-            case 5:
-                green.applyTo(m_view1);
-                break;
-            case 2:
-            case 6:
-                yellow.applyTo(m_view1);
-                break;
-            default:
-                off.applyTo(m_view1);
-                break;
-        }
-        m_led.setData(m_ledbuffer);
+            switch (reefZone) {
+                case 0:
+                    off.applyTo(m_ledbuffer);
+                    break;
+                case 1:
+                    blue.applyTo(m_ledbuffer);
+                    break;
+                case 2:
+                    red.applyTo(m_ledbuffer);
+                    break;
+                case 3:
+                    blue.applyTo(m_ledbuffer);
+                    break;
+                case 4:
+                    red.applyTo(m_ledbuffer);
+                    break;
+                case 5:
+                    blue.applyTo(m_ledbuffer);
+                    break;
+                case 6:
+                    red.applyTo(m_ledbuffer);
+                    break;
+                default:
+                    off.applyTo(m_ledbuffer);
+                    break;
+            }
+            m_led.setData(m_ledbuffer);
+           
 
     }
 
@@ -102,6 +110,7 @@ public class LedStrip {
     }
 
     public void setViewThreeSolidColor(int setpoint) {
+
         switch (setpoint) {
             case 0:
                 off.applyTo(m_view3);

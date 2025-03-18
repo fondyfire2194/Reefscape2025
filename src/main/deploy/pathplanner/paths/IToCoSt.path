@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.38247950819672,
-        "y": 5.205788934426229
+        "x": 5.304066780821918,
+        "y": 5.212029109589041
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.039606557377048,
-        "y": 6.3989549180327865
+        "x": 3.9611938300022453,
+        "y": 6.405195093195599
       },
       "isLocked": false,
       "linkedName": "ReefIPose"
     },
     {
       "anchor": {
-        "x": 1.2946721311475409,
-        "y": 7.003944672131147
+        "x": 1.2471318493150685,
+        "y": 7.045162671232877
       },
       "prevControl": {
-        "x": 3.5008483606557377,
-        "y": 6.52412295081967
+        "x": 3.453308078823266,
+        "y": 6.5653409499214
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.2,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2946721311475409,
-        "y": 7.003944672131147
+        "x": 1.2471318493150685,
+        "y": 7.045162671232877
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.577357052818525,
-        "y": 6.884072924292864
+        "x": 2.529816770986052,
+        "y": 6.925290923394594
       },
       "isLocked": false,
       "linkedName": "LeftCoralStationPose"
     },
     {
       "anchor": {
-        "x": 3.896,
-        "y": 5.313678278688524
+        "x": 3.846575342465753,
+        "y": 5.317208904109589
       },
       "prevControl": {
-        "x": 3.3205901639344266,
-        "y": 5.961014344262295
+        "x": 3.27116550640018,
+        "y": 5.9645449696833595
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.2,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -61.69924423399362
+    "rotation": -59.99999999999999
   },
   "reversed": false,
   "folder": "NonProcessorSide",

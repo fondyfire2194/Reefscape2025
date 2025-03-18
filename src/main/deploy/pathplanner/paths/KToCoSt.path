@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.896,
-        "y": 5.313678278688524
+        "x": 3.846575342465753,
+        "y": 5.317208904109589
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9731721311475408,
-        "y": 6.440409836065572
+        "x": 2.923747473613294,
+        "y": 6.443940461486637
       },
       "isLocked": false,
       "linkedName": "ReefKPose"
     },
     {
       "anchor": {
-        "x": 1.2946721311475409,
-        "y": 7.003944672131147
+        "x": 1.2471318493150685,
+        "y": 7.045162671232877
       },
       "prevControl": {
-        "x": 2.2181639344262294,
-        "y": 6.3203319672131135
+        "x": 2.170623652593757,
+        "y": 6.361549966314843
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.2,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -48,7 +48,7 @@
   "folder": "NonProcessorSide",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -61.69924423399362
+    "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
 }
