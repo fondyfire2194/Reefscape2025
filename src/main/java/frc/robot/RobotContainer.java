@@ -95,7 +95,7 @@ public class RobotContainer implements Logged {
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
-        // Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
+        Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
 
         Trigger stickyFaulTrigger = new Trigger(
                         () -> gamepieces.getStickyFault() || arm.getStickyFault() || elevator.getStickyFault());
@@ -504,6 +504,9 @@ public class RobotContainer implements Logged {
 
                 reefZoneChange.onTrue(rumble(driverXbox, RumbleType.kLeftRumble, .25))
                                 .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
+
+                coralAtIntake.onTrue(ls.getCoralIntakeLEDsCommand())
+                        .onFalse(ls.getCoralDeliverLEDsCommand());
         }
 
         /**
