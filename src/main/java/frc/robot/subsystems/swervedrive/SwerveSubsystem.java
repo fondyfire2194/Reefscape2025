@@ -226,6 +226,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
+    publisher.set(getPose());
 
     double x = getPose().getX();
 
@@ -612,7 +613,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
    * @return The robot's pose
    */
 
-  @Log.NT(key = "poseestimate")
+  
   public Pose2d getPose() {
     return swerveDrive.getPose();
   }

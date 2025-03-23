@@ -43,6 +43,7 @@ import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
+import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
@@ -313,7 +314,8 @@ public class RobotContainer implements Logged {
 
                 driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(gamepieces).withName("Intake Algae"));
 
-                driverXbox.back().onTrue(drivebase.centerModulesCommand().withName("Center Modules"));
+                driverXbox.back().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
+                 arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
 
                 driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
 
@@ -352,10 +354,8 @@ public class RobotContainer implements Logged {
                                                 new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 
-                // driverXbox.povDown().whileTrue(new DriveToNearestCoralStation(drivebase));
+                driverXbox.povDown().whileTrue(new PIDDriveToPoseCoralStation(drivebase));
 
-                driverXbox.povDown()
-                                .onTrue(Commands.none());
                 driverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
 
                 driverXbox.povLeft().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(45)));

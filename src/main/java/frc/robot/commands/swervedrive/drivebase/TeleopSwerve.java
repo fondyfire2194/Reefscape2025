@@ -80,7 +80,7 @@ public class TeleopSwerve extends Command {
         } else {
             rotationVal = rotationLimiter.calculate(
                     -MathUtil.applyDeadband(rotationSup.getAsDouble(), OperatorConstants.RIGHT_X_DEADBAND));
-            rotationVal = rotationVal * 0.7;
+            rotationVal = rotationVal * 1;
         }
 
         /* Drive */

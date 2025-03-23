@@ -86,12 +86,12 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   public Command setPOIRight() {
     return Commands
-        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, -FieldConstants.centerToReefBranch, 0, 0));
+        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, 0, 0, 0));
   }
 
   public Command setPOILeft() {
     return Commands
-        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, FieldConstants.centerToReefBranch, 0, 0));
+        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, 0, 0, 0));
   }
 
   @Log(key = "distancetotag")
