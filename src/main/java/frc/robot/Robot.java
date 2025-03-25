@@ -161,33 +161,6 @@ public class Robot extends TimedRobot implements Logged {
       // double roll = data[4];
       double yaw = data[5];
 
-      SmartDashboard.putNumber("AutoAlign/TX", tx);
-      SmartDashboard.putNumber("AutoAlign/Yaw", yaw);
-
-      boolean txOnTarget = Math.abs(tx) < .1;
-      boolean txClosePlus = tx > 0 && tx < 1;
-      boolean txCloseMinus = tx < 0 && tx > -1;
-
-      SmartDashboard.putBoolean("AutoAlign/TXOnTarget", txOnTarget);
-      SmartDashboard.putBoolean("AutoAlign/TXClosePlus", txClosePlus);
-      SmartDashboard.putBoolean("AutoAlign/TXCloseMinus", txCloseMinus);
-
-      boolean yawOnTarget = Math.abs(yaw) < .1;
-      boolean yawClosePlus = tx > 0 && tx < 1;
-      boolean yawCloseMinus = tx < 0 && tx > -1;
-
-      SmartDashboard.putBoolean("AutoAlign/YawOnTarget", yawOnTarget);
-      SmartDashboard.putBoolean("AutoAlign/YawClosePlus", yawClosePlus);
-      SmartDashboard.putBoolean("AutoAlign/YawCloseMINUS", yawCloseMinus);
-      double distanceError = targetDistance - distance;
-      boolean distanceOnTarget = Math.abs(distanceError) < .01;
-      boolean distanceClosePlus = (distanceError) > 0 && (distanceError) < .01;
-      boolean distanceCloseMinus = distanceError < 0 && distanceError > -1;
-
-      SmartDashboard.putBoolean("AutoAlign/DistanceOnTarget", distanceOnTarget);
-      SmartDashboard.putBoolean("AutoAlign/DistanceClosePlus", distanceClosePlus);
-      SmartDashboard.putBoolean("AutoAlign/DistanceCloseMINUS", distanceCloseMinus);
-
     }
   }
 
@@ -198,7 +171,13 @@ public class Robot extends TimedRobot implements Logged {
   @Override
   public void autonomousInit() {
     m_robotContainer.setMotorBrake(true);
-    m_robotContainer.llv.setPOILeft();
+
+    m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
+    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
+
+    m_robotContainer.llv.inhibitFrontVision = false;
+    m_robotContainer.llv.inhibitRearVision = true;
+    
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -224,7 +203,8 @@ public class Robot extends TimedRobot implements Logged {
     } else {
       CommandScheduler.getInstance().cancelAll();
     }
-
+    m_robotContainer.setMotorBrake(true);
+    
     m_robotContainer.configureCoDriverTeleopBindings();
 
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);

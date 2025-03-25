@@ -42,8 +42,6 @@ import monologue.Logged;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.function.Consumer;
-
 public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public final double kElevatorGearing = 62. / 9.;
@@ -239,7 +237,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     SmartDashboard.putNumber("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
     SmartDashboard.putNumber("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
-
+    SmartDashboard.putNumber("Elevator/Values/maxvelmps", maxVelocityMPS);
   }
 
   public void runAtVelocity(double metersPerSecond) {

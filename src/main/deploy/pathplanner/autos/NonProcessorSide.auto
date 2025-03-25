@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetPOIL"
+            "name": null
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetPOIR"
+            "name": null
           }
         },
         {
@@ -81,7 +81,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetPOIL"
+            "name": null
           }
         },
         {
@@ -100,6 +100,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "SevenRiversAutos",
   "choreoAuto": false
 }

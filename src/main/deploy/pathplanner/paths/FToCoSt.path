@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.394,
-        "y": 2.913
+        "x": 5.04075,
+        "y": 2.728249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.813569672131148,
-        "y": 1.6423032786885248
+        "x": 5.460319672131148,
+        "y": 1.4575532786885241
       },
       "isLocked": false,
       "linkedName": "ReefFPose"

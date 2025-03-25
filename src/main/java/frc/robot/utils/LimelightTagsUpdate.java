@@ -20,7 +20,7 @@ public class LimelightTagsUpdate {
     public LimelightTagsUpdate(CameraConstants.CameraValues cam, SwerveSubsystem swerve) {
         m_cam = cam;
         m_swerve = swerve;
-      
+
     }
 
     public void setUseMegatag2(boolean on) {
@@ -37,7 +37,7 @@ public class LimelightTagsUpdate {
 
     public void execute() {
 
-        if ( m_cam.isActive &&  LimelightHelpers.getTV(m_cam.camname)) {
+        if (m_cam.isActive && LimelightHelpers.getTV(m_cam.camname)) {
             setLLRobotorientation();
             if (m_useMegaTag2) {
                 setLLRobotorientation();
@@ -45,13 +45,13 @@ public class LimelightTagsUpdate {
                 m_swerve.distanceLimelightToEstimator = mt2.pose.getTranslation()
                         .getDistance(m_swerve.getPoseEstimator().getEstimatedPosition().getTranslation());
 
-                        SmartDashboard.putBoolean("RejectUpdate", rejectUpdate);
+                rejectUpdate = mt2.tagCount == 0 || Math.abs(m_swerve.getGyroRate()) > 720
+                        || (mt2.tagCount == 1 && mt2.rawFiducials.length == 1 &&
+                                mt2.rawFiducials[0].ambiguity > .7
+                                && mt2.rawFiducials[0].distToCamera > 4);
 
-                 rejectUpdate = mt2.tagCount == 0 || Math.abs(m_swerve.getGyroRate()) > 720
-                || (mt2.tagCount == 1 && mt2.rawFiducials.length == 1 &&
-                mt2.rawFiducials[0].ambiguity > .7
-                && mt2.rawFiducials[0].distToCamera > 4);
-                
+                SmartDashboard.putBoolean("RejectUpdateMT2" + m_cam.camname, rejectUpdate);
+
                 if (!rejectUpdate) {
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(1.0,
                             1.0, 9999999));
@@ -68,6 +68,8 @@ public class LimelightTagsUpdate {
                         || mt1.tagCount == 1 && mt1.rawFiducials.length == 1 &&
                                 mt1.rawFiducials[0].ambiguity > .7
                                 && mt1.rawFiducials[0].distToCamera > 5;
+
+                SmartDashboard.putBoolean("RejectUpdateMT1" + m_cam.camname, rejectUpdate);
 
                 if (!rejectUpdate) {
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,

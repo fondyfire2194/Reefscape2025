@@ -14,11 +14,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.VisionConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.utils.LimelightHelpers;
 import monologue.Annotations.Log;
@@ -49,7 +46,11 @@ public class LimelightVision extends SubsystemBase implements Logged {
   Alert rearCameraAlert = new Alert("RearCameraProblem", AlertType.kInfo);
   @Log(key = "frontaccpose")
   public Pose2d frontAcceptedPose;
+  @Log(key = "frontacccount")
   public int frontAcceptedCount;
+  @Log(key = "frontrejectupdate")
+  public boolean frontRejectUpdate;
+
   @Log(key = "rearacceptpose")
   public Pose2d rearAcceptedPose;
   public int rearAcceptedCount;
@@ -66,32 +67,14 @@ public class LimelightVision extends SubsystemBase implements Logged {
 
   public LimelightVision() {
 
-   
-      setCamToRobotOffset(VisionConstants.CameraConstants.frontCamera);
-  
+    setCamToRobotOffset(VisionConstants.CameraConstants.frontCamera);
 
-    
-      setCamToRobotOffset(VisionConstants.CameraConstants.rearCamera);
+    setCamToRobotOffset(VisionConstants.CameraConstants.rearCamera);
 
   }
 
   public void setAprilTagFilter(String camname) {
     LimelightHelpers.SetFiducialIDFiltersOverride(camname, autoTagFilter);
-  }
-
-  public Command clearPOI() {
-    return Commands
-        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, 0, 0, 0));
-  }
-
-  public Command setPOIRight() {
-    return Commands
-        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, 0, 0, 0));
-  }
-
-  public Command setPOILeft() {
-    return Commands
-        .runOnce(() -> LimelightHelpers.SetFidcuial3DOffset(frontname, 0, 0, 0));
   }
 
   @Log(key = "distancetotag")

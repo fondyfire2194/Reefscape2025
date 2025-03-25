@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetPOIR"
+            "name": null
           }
         },
         {
@@ -74,6 +74,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "SevenRiversAutos",
   "choreoAuto": false
 }

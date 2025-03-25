@@ -24,12 +24,15 @@ public class PositionHoldElevatorPID extends Command {
     private double minIntegral = -.1;
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
-    private double maxrate = 2;
+    private double maxuprate = 2;
+    private double maxdownrate = 2;
+    
     private boolean toggle;
+    private double ffGain = .1;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator, ArmSubsystem arm) {
         this.elevator = elevator;
-        m_arm=arm;
+        m_arm = arm;
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.elevator);
     }
@@ -48,18 +51,19 @@ public class PositionHoldElevatorPID extends Command {
     @Override
     public void execute() {
 
-        
         elevator.armClear = checkArmClear();
 
         SmartDashboard.putNumber("Elevator/poslim",
-        Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
+                Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
 
         toggle = !toggle;
 
         elevator.nextSetpoint = elevator.m_profile.calculate(.02, elevator.currentSetpoint, elevator.m_goal);
 
         double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
-
+      
+       // mps += elevator.nextSetpoint.velocity * ffGain;
+        
         if (toggle) {
             SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
             SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);
@@ -72,9 +76,9 @@ public class PositionHoldElevatorPID extends Command {
             SmartDashboard.putNumber("Elevator/PID/mps", mps);
             SmartDashboard.putNumber("Elevator/PID/mpsRead", elevator.getLeftVelocityMetersPerSecond());
             SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
-            SmartDashboard.putBoolean("Elevator/PID/poserror", pidController.atSetpoint());
+            SmartDashboard.putBoolean("Elevator/PID/atSetpoint", pidController.atSetpoint());
         }
-        mps = MathUtil.clamp(mps, -maxrate, maxrate);
+        mps = MathUtil.clamp(mps, -maxdownrate, maxuprate);
 
         SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
 
@@ -82,10 +86,7 @@ public class PositionHoldElevatorPID extends Command {
 
         elevator.currentSetpoint = elevator.nextSetpoint;
 
-        
     }
-
-
 
     @Override
     public void end(boolean interrupted) {
@@ -99,6 +100,5 @@ public class PositionHoldElevatorPID extends Command {
     private boolean checkArmClear() {
         return Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()) < elevator.armClearAngleDeg;
     }
-
 
 }

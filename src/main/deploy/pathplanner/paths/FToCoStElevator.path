@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0,
-        "y": 6.0
+        "x": 5.04075,
+        "y": 2.728249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.0,
-        "y": 6.0
+        "x": 4.760420629583594,
+        "y": 2.4794253417342205
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ReefFPose"
     },
     {
       "anchor": {
-        "x": 5.7,
-        "y": 6.0
+        "x": 1.5307499999999998,
+        "y": 0.7782499999999993
       },
       "prevControl": {
-        "x": 4.7,
-        "y": 6.0
+        "x": 2.542160152288128,
+        "y": 1.3320000924252784
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 54.0
   },
   "reversed": false,
   "folder": "Test Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 119.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -27,7 +27,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Deliver Coral L4"
+                        "name": "ElevatorToL4"
                       }
                     }
                   ]
@@ -35,11 +35,23 @@
               }
             ]
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorToHome"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "TestAutos",
   "choreoAuto": false
 }
