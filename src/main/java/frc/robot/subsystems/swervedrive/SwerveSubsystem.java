@@ -206,7 +206,12 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     replaceSwerveModuleFeedforward(0.08513, 3.1704, 0.365245);
 
+    swerveDrive.setMaximumAttainableSpeeds(4.5, Math.PI * 4);
+
     setupPathPlanner();
+
+    SmartDashboard.putNumber("MaxVel", swerveDrive.getMaximumChassisVelocity());
+    SmartDashboard.putNumber("MaxRot", Units.radiansToDegrees(swerveDrive.getMaximumChassisAngularVelocity()));
 
   }
 

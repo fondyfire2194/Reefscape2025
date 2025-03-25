@@ -78,8 +78,8 @@ public class TeleopSwerve extends Command {
             rotationVal = thetaController
                     .calculate(m_swerve.getPose().getRotation().getRadians(), target.getRadians());
         } else {
-            rotationVal = rotationLimiter.calculate(
-                    -MathUtil.applyDeadband(rotationSup.getAsDouble(), OperatorConstants.RIGHT_X_DEADBAND));
+            rotationVal = //rotationLimiter.calculate(
+                    -MathUtil.applyDeadband(rotationSup.getAsDouble(), OperatorConstants.RIGHT_X_DEADBAND);//);
             rotationVal = rotationVal * 1;
         }
 

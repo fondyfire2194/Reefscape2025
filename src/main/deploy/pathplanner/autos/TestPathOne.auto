@@ -11,59 +11,29 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLRStart2ToF1"
+                  "pathName": "Test Path"
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "ArmToTravel"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetPOIR"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.1
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Deliver Coral L4"
+                      }
+                    }
+                  ]
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral L4"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "FToCoSt"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoStToC"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral L4"
           }
         }
       ]

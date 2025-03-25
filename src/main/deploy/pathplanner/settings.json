@@ -20,7 +20,7 @@
   "driveGearing": 8.141,
   "maxDriveSpeed": 3.5,
   "driveMotorType": "vortex",
-  "driveCurrentLimit": 60.0,
+  "driveCurrentLimit": 40.0,
   "wheelCOF": 1.2,
   "flModuleX": 0.337,
   "flModuleY": 0.264,
