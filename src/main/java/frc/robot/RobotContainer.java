@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -328,6 +329,13 @@ public class RobotContainer implements Logged {
                 driverXbox.rightBumper().and(driverXbox.leftBumper()).whileTrue(
                                 Commands.defer(() -> Commands.sequence(
                                                 drivebase.setSide(Side.CENTER),
+                                                new ConditionalCommand(
+                                                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL2),
+                                                                cf.setSetpointCommand(Setpoint.kAlgaePickUpL3),
+                                                                () -> (drivebase.reefZone == 1
+                                                                                || drivebase.reefZone == 3
+                                                                                || drivebase.reefZone == 5)),
+                                                new DetectAlgaeWhileIntaking(gamepieces),
                                                 new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 

@@ -4,6 +4,8 @@
 
 package frc.robot.commands.Elevator;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +15,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class PositionHoldElevator extends Command {
     private final ElevatorSubsystem elevator;
     private final ArmSubsystem m_arm;
+    private Debouncer armClearDebouncer;
 
     public PositionHoldElevator(ElevatorSubsystem elevator, ArmSubsystem arm) {
         this.elevator = elevator;
@@ -22,9 +25,10 @@ public class PositionHoldElevator extends Command {
 
     @Override
     public void initialize() {
-        elevator.posrng = 911;
+        armClearDebouncer = new Debouncer(.2, DebounceType.kRising);
         double temp = elevator.getLeftPositionMeters();
         elevator.setGoalMeters(temp);
+
     }
 
     @Override
@@ -35,7 +39,7 @@ public class PositionHoldElevator extends Command {
         if (!openLoop)
             elevator.position();
 
-        elevator.armClear = checkArmClear();
+        elevator.armClear = armClearDebouncer.calculate(checkArmClear());
         SmartDashboard.putNumber("Elevator/poslim",
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
     }

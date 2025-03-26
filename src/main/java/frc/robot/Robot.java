@@ -65,8 +65,6 @@ public class Robot extends TimedRobot implements Logged {
 
     DriverStation.startDataLog(DataLogManager.getLog());
 
-    // URCL.start();
-
     // Create a timer to disable motor brake a few seconds after disable. This will
     // let the robot stop
     // immediately when disabled, but then also let it be pushed more
@@ -172,12 +170,15 @@ public class Robot extends TimedRobot implements Logged {
   public void autonomousInit() {
     m_robotContainer.setMotorBrake(true);
 
+    // new PositionHoldArmPID(m_robotContainer.arm).schedule();
+    // new PositionHoldElevator(m_robotContainer.elevator, m_robotContainer.arm).schedule();
+
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
 
     m_robotContainer.llv.inhibitFrontVision = false;
     m_robotContainer.llv.inhibitRearVision = true;
-    
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -203,8 +204,13 @@ public class Robot extends TimedRobot implements Logged {
     } else {
       CommandScheduler.getInstance().cancelAll();
     }
-    m_robotContainer.setMotorBrake(true);
+
     
+    // new PositionHoldArmPID(m_robotContainer.arm).schedule();
+    // new PositionHoldElevator(m_robotContainer.elevator, m_robotContainer.arm).schedule();
+
+    m_robotContainer.setMotorBrake(true);
+
     m_robotContainer.configureCoDriverTeleopBindings();
 
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
@@ -224,6 +230,9 @@ public class Robot extends TimedRobot implements Logged {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    // new PositionHoldArmPID(m_robotContainer.arm).schedule();
+    // new PositionHoldElevator(m_robotContainer.elevator, m_robotContainer.arm).schedule();
 
     m_robotContainer.configureCoDriverTestBindings();
   }

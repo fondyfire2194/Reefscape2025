@@ -74,12 +74,11 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * ( (value that goes up) + (value that goes down) )/2 = kg .8
    */
 
-   //Got these values from sysID
-  public final double elevatorKs = 0.27788;//.3; //0.36
-  public final double elevatorKg = 0.5;//.5; //0.56
-  public final double elevatorKv = 2.2404;//12 / maxVelocityMPS;
-  public final double elevatorKa = 0.41589;//0.3;
-  
+  // Got these values from sysID
+  public final double elevatorKs = 0.27788;// .3; //0.36
+  public final double elevatorKg = 0.5;// .5; //0.56
+  public final double elevatorKv = 2.2404;// 12 / maxVelocityMPS;
+  public final double elevatorKa = 0.41589;// 0.3;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
@@ -99,8 +98,16 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private Alert allErrors = new Alert("AllErrors", AlertType.kError);
   @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
+/*
+ * target is 1.5 meters in 1 second
+ * average velocity = 1.5  meters per second
+ * max velocity = 2 * ave = 3 meters per second
+ * accel = max velocity/2*t = 3/2 = 1.5 say 2
+ * 
+*/
+
   double TRAJECTORY_VEL = 3;
-  double TRAJECTORY_ACCEL = 5;
+  double TRAJECTORY_ACCEL = 2;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -183,7 +190,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
-        .outputRange(-.75, .75, ClosedLoopSlot.kSlot1);
+        .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
     leftConfig.
 
@@ -245,8 +252,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void setVoltageSysId(Voltage voltage) {
-    leftMotor.setVoltage(voltage); 
-    rightMotor.setVoltage(voltage); 
+    leftMotor.setVoltage(voltage);
+    rightMotor.setVoltage(voltage);
   }
 
   public void logMotors(SysIdRoutineLog log) {
@@ -254,15 +261,15 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     SmartDashboard.putNumber("ElevatorTest/velocity", getLeftVelocityMetersPerSecond());
     SmartDashboard.putNumber("ElevatorTest/position", getLeftPositionMeters());
 
-
     log.motor("elevator-motor-left")
         .voltage(Volts.of(leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage()))
         .linearPosition(Meters.of(getLeftPositionMeters()))
         .linearVelocity(MetersPerSecond.of(getLeftVelocityMetersPerSecond()));
     // log.motor("elevator-motor-right")
-    //     .voltage(Volts.of(rightMotor.getBusVoltage() * RobotController.getBatteryVoltage()))
-    //     .linearPosition(Meters.of(getRightPositionMeters()))
-    //     .linearVelocity(MetersPerSecond.of(getVelocityMetersPerSecond()));
+    // .voltage(Volts.of(rightMotor.getBusVoltage() *
+    // RobotController.getBatteryVoltage()))
+    // .linearPosition(Meters.of(getRightPositionMeters()))
+    // .linearVelocity(MetersPerSecond.of(getVelocityMetersPerSecond()));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -392,7 +399,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     double accelV = accel * elevatorKa;
     SmartDashboard.putNumber("Elevator/accv", accelV);
 
-    //leftff += accelV;
+    // leftff += accelV;
     SmartDashboard.putNumber("Elevator/ffacc", leftff);
     currentSetpoint = nextSetpoint;
 
@@ -451,10 +458,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
       SmartDashboard.putNumber("Elevator/RightAmps",
           rightMotor.getOutputCurrent());
 
-      SmartDashboard.putNumber("Elevator/positionleft", Units.metersToInches(getLeftPositionMeters()));
-      SmartDashboard.putNumber("Elevator/Velleft", Units.metersToInches(leftEncoder.getVelocity()));
-      SmartDashboard.putNumber("Elevator/positionright", Units.metersToInches(rightEncoder.getPosition()));
-      SmartDashboard.putNumber("Elevator/Velright", Units.metersToInches(rightEncoder.getVelocity()));
+      SmartDashboard.putNumber("Elevator/positionleftinches", Units.metersToInches(getLeftPositionMeters()));
+      SmartDashboard.putNumber("Elevator/Velleftipsec", Units.metersToInches(leftEncoder.getVelocity()));
+      SmartDashboard.putNumber("Elevator/positionrightinches", Units.metersToInches(rightEncoder.getPosition()));
+      SmartDashboard.putNumber("Elevator/Velrightipsec", Units.metersToInches(rightEncoder.getVelocity()));
 
       SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
     }

@@ -20,7 +20,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -112,15 +111,15 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     private int inPositionCtr;
 
     public double targetRadians;
-    @Log(key = "armff")
+
     private double armff;
 
     public ArmSubsystem() {
 
-        // SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
-        // SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
-        // SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
-        // SmartDashboard.putNumber("Arm/Values/kv", armKv);
+        SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
+        SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
+        SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
+        SmartDashboard.putNumber("Arm/Values/kv", armKv);
 
         armConfig = new SparkMaxConfig();
 
@@ -143,7 +142,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
                 .i(0, ClosedLoopSlot.kSlot1)
                 .d(0, ClosedLoopSlot.kSlot1)
                 .velocityFF(1 / maxradpersec, ClosedLoopSlot.kSlot1)
-                .outputRange(-.75, .75, ClosedLoopSlot.kSlot1);
+                .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
         armConfig.limitSwitch.forwardLimitSwitchEnabled(false);
 
@@ -189,9 +188,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
-        // SmartDashboard.putNumber("Arm/pos", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
-        // SmartDashboard.putNumber("Arm/vel", Units.radiansToDegrees(armMotor.getEncoder().getVelocity()));
-        // SmartDashboard.putNumber("Arm/volts", armMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+        // SmartDashboard.putNumber("Arm/pos",
+        // Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
+        // SmartDashboard.putNumber("Arm/vel",
+        // Units.radiansToDegrees(armMotor.getEncoder().getVelocity()));
+        // SmartDashboard.putNumber("Arm/volts", armMotor.getAppliedOutput() *
+        // RobotController.getBatteryVoltage());
 
     }
 
@@ -214,8 +216,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
-        // SmartDashboard.putNumber("Arm/setpos", Units.radiansToDegrees(nextSetpoint.position));
-        // SmartDashboard.putNumber("Arm/setvel", Units.radiansToDegrees(nextSetpoint.velocity));
+        // SmartDashboard.putNumber("Arm/setpos",
+        // Units.radiansToDegrees(nextSetpoint.position));
+        // SmartDashboard.putNumber("Arm/setvel",
+        // Units.radiansToDegrees(nextSetpoint.velocity));
 
         armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
 
@@ -228,7 +232,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         currentSetpoint = nextSetpoint;
 
         // SmartDashboard.putNumber("Arm/ff", armff);
-        // SmartDashboard.putNumber("Arm/poserror", m_goal.position - armMotor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Arm/poserror", m_goal.position -
+        // armMotor.getEncoder().getPosition());
 
         armClosedLoopController.setReference(
                 nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
@@ -252,12 +257,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public void setGoalDegrees(double targetDegrees) {
         double targetRads = Units.degreesToRadians(targetDegrees);
         setGoalRadians(targetRads);
-
     }
 
     public Command setGoalDegreesCommand(double targetDegrees) {
         return Commands.runOnce(() -> setGoalDegrees(targetDegrees));
-
     }
 
     public void runAtVelocity(double radiansPerSecond) {

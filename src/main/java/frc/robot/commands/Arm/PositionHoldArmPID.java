@@ -23,8 +23,11 @@ public class PositionHoldArmPID extends Command {
     private double minIntegral = -.1;
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
-    private double maxrate = 6;
+    private double maxplusrate = 6;
+    private double maxminusrate = 6;
+
     private boolean toggle;
+    private boolean showTelemetry = true;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
@@ -41,7 +44,8 @@ public class PositionHoldArmPID extends Command {
         pidController.setTolerance(tolerance);
         double temp = arm.getAngleRadians();
         arm.setGoalRadians(temp);
-        SmartDashboard.putData(" Arm/PID/controller", pidController);
+        if (showTelemetry)
+            SmartDashboard.putData(" Arm/PID/controller", pidController);
     }
 
     @Override
@@ -53,25 +57,28 @@ public class PositionHoldArmPID extends Command {
 
         double radpersec = pidController.calculate(arm.getAngleRadians(), arm.nextSetpoint.position);
 
-        if (toggle) {
-
-            SmartDashboard.putNumber("Arm/PID/goalpos", arm.m_goal.position);
-            SmartDashboard.putNumber("Arm/PID/currsetpos", arm.currentSetpoint.position);
-            SmartDashboard.putNumber("Arm/PID/currsetvel", arm.currentSetpoint.velocity);
-            SmartDashboard.putNumber("Arm/PID/setpos", arm.nextSetpoint.position);
-        } else {
-            SmartDashboard.putNumber("Arm/PID/setvel", arm.nextSetpoint.velocity);
-            SmartDashboard.putNumber("Arm/PID/radpersec", radpersec);
-            SmartDashboard.putNumber("Arm/PID/poserror", pidController.getError());
-            SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
+        if (showTelemetry) {
+            if (toggle) {
+                SmartDashboard.putNumber("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
+                SmartDashboard.putNumber("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
+                SmartDashboard.putNumber("Arm/PID/currsetvel", Units.radiansToDegrees(arm.currentSetpoint.velocity));
+                SmartDashboard.putNumber("Arm/PID/setpos", Units.radiansToDegrees(arm.nextSetpoint.position));
+            } else {
+                SmartDashboard.putNumber("Arm/PID/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
+                SmartDashboard.putNumber("Arm/PID/degpersec", Units.radiansToDegrees(radpersec));
+                SmartDashboard.putNumber("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
+                SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
+            }
         }
-        radpersec = MathUtil.clamp(radpersec, -maxrate, maxrate);
+        radpersec = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
 
-        SmartDashboard.putNumber("Arm/PID/mpsclamped", radpersec);
+        if (showTelemetry)
+            SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
 
         arm.runAtVelocity(radpersec);
 
         arm.currentSetpoint = arm.nextSetpoint;
+
     }
 
     @Override

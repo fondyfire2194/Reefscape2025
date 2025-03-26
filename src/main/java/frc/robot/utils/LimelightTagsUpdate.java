@@ -53,8 +53,8 @@ public class LimelightTagsUpdate {
                 SmartDashboard.putBoolean("RejectUpdateMT2" + m_cam.camname, rejectUpdate);
 
                 if (!rejectUpdate) {
-                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(1.0,
-                            1.0, 9999999));
+                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.5,
+                            0.5, 9999999));
                     m_swerve.getPoseEstimator().addVisionMeasurement(
                             mt2.pose,
                             mt2.timestampSeconds);

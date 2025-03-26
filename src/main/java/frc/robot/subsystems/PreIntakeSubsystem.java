@@ -94,7 +94,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         preintakeConfig
                 .inverted(false)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(20, 20);
+                .smartCurrentLimit(40);
 
         preintakeConfig.encoder
                 .positionConversionFactor(posConvFactor)
