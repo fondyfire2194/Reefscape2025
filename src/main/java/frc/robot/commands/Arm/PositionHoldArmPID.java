@@ -27,7 +27,6 @@ public class PositionHoldArmPID extends Command {
     private double maxminusrate = 6;
 
     private boolean toggle;
-    private boolean showTelemetry = true;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
@@ -44,7 +43,7 @@ public class PositionHoldArmPID extends Command {
         pidController.setTolerance(tolerance);
         double temp = arm.getAngleRadians();
         arm.setGoalRadians(temp);
-        if (showTelemetry)
+        if (arm.showTelemetry)
             SmartDashboard.putData(" Arm/PID/controller", pidController);
     }
 
@@ -57,7 +56,7 @@ public class PositionHoldArmPID extends Command {
 
         double radpersec = pidController.calculate(arm.getAngleRadians(), arm.nextSetpoint.position);
 
-        if (showTelemetry) {
+        if (arm.showTelemetry) {
             if (toggle) {
                 SmartDashboard.putNumber("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
                 SmartDashboard.putNumber("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
@@ -72,7 +71,7 @@ public class PositionHoldArmPID extends Command {
         }
         radpersec = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
 
-        if (showTelemetry)
+        if (arm.showTelemetry)
             SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
 
         arm.runAtVelocity(radpersec);

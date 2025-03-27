@@ -6,12 +6,9 @@ package frc.robot.commands.Elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
@@ -29,7 +26,7 @@ public class PositionHoldElevatorPID extends Command {
     private double maxdownrate = 2;
 
     private boolean toggle;
-    private boolean showTelemetry = true;
+    
     private double ffGain = .2;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
@@ -41,14 +38,13 @@ public class PositionHoldElevatorPID extends Command {
 
     @Override
     public void initialize() {
-       // armClearDebouncer = new Debouncer(.2, DebounceType.kRising);
         pidController.setIZone(izone);
         pidController.disableContinuousInput();
         pidController.setIntegratorRange(minIntegral, maxIntegral);
         pidController.setTolerance(tolerance);
         double temp = elevator.getLeftPositionMeters();
         elevator.setGoalMeters(temp);
-        if (showTelemetry)
+        if (elevator.showTelemetry)
             SmartDashboard.putData(" Elevator/PID/controller", pidController);
     }
 
@@ -64,7 +60,7 @@ public class PositionHoldElevatorPID extends Command {
 
          mps += elevator.nextSetpoint.velocity * ffGain;
 
-        if (showTelemetry) {
+        if (elevator.showTelemetry) {
 
             if (toggle) {
                 SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
@@ -83,7 +79,7 @@ public class PositionHoldElevatorPID extends Command {
         }
         mps = MathUtil.clamp(mps, -maxdownrate, maxuprate);
 
-        if (showTelemetry)
+        if (elevator.showTelemetry)
             SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
 
         elevator.runAtVelocity(mps);

@@ -116,13 +116,17 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     private double armff;
 
+    public boolean showTelemetry;
+
     public ArmSubsystem() {
+
+        if(showTelemetry){
 
         SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
         SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
         SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
         SmartDashboard.putNumber("Arm/Values/kv", armKv);
-
+        }
         armConfig = new SparkMaxConfig();
 
         armConfig
