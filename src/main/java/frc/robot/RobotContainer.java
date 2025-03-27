@@ -285,9 +285,9 @@ public class RobotContainer implements Logged {
                                                                 () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
 
-                elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
+                // elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
 
-                arm.setDefaultCommand(new PositionHoldArmPID(arm));
+                // arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 

@@ -16,33 +16,32 @@ import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
-    private final ArmSubsystem m_arm;
-    private Debouncer armClearDebouncer;
+ 
     private PIDController pidController;
-    private double kp = 14.;
+    private double kp = 10.;
     private double ki = 0;
     private double kd = 0.2;
     private double izone = .5;
     private double minIntegral = -.1;
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
-    private double maxuprate = 2;
+    private double maxuprate = 5;
     private double maxdownrate = 2;
 
     private boolean toggle;
     private boolean showTelemetry = true;
-    private double ffGain = .1;
+    private double ffGain = .2;
 
-    public PositionHoldElevatorPID(ElevatorSubsystem elevator, ArmSubsystem arm) {
+    public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
-        m_arm = arm;
+     
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.elevator);
     }
 
     @Override
     public void initialize() {
-        armClearDebouncer = new Debouncer(.2, DebounceType.kRising);
+       // armClearDebouncer = new Debouncer(.2, DebounceType.kRising);
         pidController.setIZone(izone);
         pidController.disableContinuousInput();
         pidController.setIntegratorRange(minIntegral, maxIntegral);
@@ -56,10 +55,6 @@ public class PositionHoldElevatorPID extends Command {
     @Override
     public void execute() {
 
-        elevator.armClear = armClearDebouncer.calculate(checkArmClear());
-
-        SmartDashboard.putNumber("Elevator/poslim",
-                Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
 
         toggle = !toggle;
 
@@ -67,7 +62,7 @@ public class PositionHoldElevatorPID extends Command {
 
         double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
-        // mps += elevator.nextSetpoint.velocity * ffGain;
+         mps += elevator.nextSetpoint.velocity * ffGain;
 
         if (showTelemetry) {
 
@@ -106,8 +101,6 @@ public class PositionHoldElevatorPID extends Command {
         return false;
     }
 
-    private boolean checkArmClear() {
-        return Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()) < elevator.armClearAngleDeg;
-    }
+  
 
 }

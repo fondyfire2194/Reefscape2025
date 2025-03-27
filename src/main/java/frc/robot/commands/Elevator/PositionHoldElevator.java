@@ -39,7 +39,6 @@ public class PositionHoldElevator extends Command {
         if (!openLoop)
             elevator.position();
 
-        elevator.armClear = armClearDebouncer.calculate(checkArmClear());
         SmartDashboard.putNumber("Elevator/poslim",
                 Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()));
     }
@@ -53,7 +52,5 @@ public class PositionHoldElevator extends Command {
         return false;
     }
 
-    private boolean checkArmClear() {
-        return Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()) < elevator.armClearAngleDeg;
-    }
+  
 }

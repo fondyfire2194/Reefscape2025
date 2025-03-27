@@ -6,6 +6,7 @@ package frc.robot.Factories;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -175,7 +176,9 @@ public class CommandFactory {
         public Command safePositionArmElevator(double degrees, double inches) {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)),
-                                Commands.waitUntil(() -> m_elevator.armClear),
+                                // Commands.waitUntil(() -> m_elevator.armClear),
+                                Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
+                                                .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(inches));
         }
 
@@ -189,7 +192,9 @@ public class CommandFactory {
         public Command safePositionArmElevatorL4(double degrees_first, double degrees_second, double inches) {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_first)),
-                                Commands.waitUntil(() -> m_elevator.armClear),
+                                // Commands.waitUntil(() -> m_elevator.armClear),
+                                Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
+                                                .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(inches),
                                 new WaitCommand(0.2),
                                 Commands.waitUntil(() -> m_elevator.atPosition()),
@@ -199,7 +204,9 @@ public class CommandFactory {
         public Command homeElevatorAndArm() {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                                Commands.waitUntil(() -> m_elevator.armClear),
+        
+                                Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
+                                                .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
                                 Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));

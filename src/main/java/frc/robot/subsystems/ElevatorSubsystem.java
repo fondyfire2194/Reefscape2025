@@ -107,7 +107,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 */
 
   double TRAJECTORY_VEL = 3;
-  double TRAJECTORY_ACCEL = 2;
+  double TRAJECTORY_ACCEL = 4;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -140,10 +140,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   @Log.NT(key = "left ff")
   private double leftff;
-
-  public double armClearAngleDeg = 104;
-  @Log.NT(key = "arm clear")
-  public boolean armClear;
+  
+  // @Log.NT(key = "arm clear")
+  // public boolean armClear;
 
   public boolean telemetry = true;
 
@@ -186,7 +185,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         .outputRange(-1, 1)
 
         // Set PID values for velocity control in slot 1
-        .p(0.0001, ClosedLoopSlot.kSlot1)
+        .p(0.001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
@@ -213,7 +212,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .smartCurrentLimit(60)
 
-        .closedLoopRampRate(0.25).closedLoop
+        .closedLoopRampRate(0.05).closedLoop
 
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
 
@@ -319,13 +318,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     // inPositionCtr = 0;
   }
 
-  public Command setGoalInchesWithArmCheck(double targetInches) {
-    return new ConditionalCommand(
-        Commands.runOnce(() -> setGoalInches(targetInches)),
-        CommandFactory.rumbleCoDriver(RumbleType.kBothRumble, 1),
-        () -> armClear);
-  }
-
+ 
   public Command setGoalInchesCommand(double targetInches) {
     return Commands.runOnce(() -> setGoalInches(targetInches));
   }
@@ -444,7 +437,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     if (telemetry) {
 
       SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
-      SmartDashboard.putBoolean("Elevator/armClear", armClear);
+  
       SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
       SmartDashboard.putNumber("Elevator/LeftVolts",
           leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
