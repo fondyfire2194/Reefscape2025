@@ -244,16 +244,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   }
 
-  public Command deliverAlgaeToBargeCommand() {
-    return Commands.sequence(Commands.parallel(
-        Commands.runOnce(() -> motorLocked = false),
-        Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
-        Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver))),
-        new WaitCommand(5),
-        Commands.runOnce(() -> stopGamepieceMotor()));
-
-  }
 
   public void run(double speed) {
     gamepieceMotor.set(speed);

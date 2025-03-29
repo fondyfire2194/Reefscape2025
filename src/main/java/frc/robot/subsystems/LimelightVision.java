@@ -13,7 +13,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.VisionConstants;
 import frc.robot.VisionConstants.CameraConstants;
@@ -97,7 +96,6 @@ public class LimelightVision extends SubsystemBase implements Logged {
   public void periodic() {
 
     if (RobotBase.isReal()) {
-      if (VisionConstants.CameraConstants.frontCamera.isUsed && loopctr == 0) {
         limelightExistsfront = isLimelightConnected(CameraConstants.frontCamera.camname);
         limelightExistsrear = isLimelightConnected(CameraConstants.rearCamera.camname);
         CameraConstants.frontCamera.isActive = !inhibitFrontVision && limelightExistsfront;
@@ -106,10 +104,9 @@ public class LimelightVision extends SubsystemBase implements Logged {
         allcamsok = VisionConstants.CameraConstants.frontCamera.isUsed && limelightExistsfront
             && VisionConstants.CameraConstants.rearCamera.isUsed && limelightExistsrear;
 
-      }
+      
+      flCameraAlert.set(!CameraConstants.frontCamera.isActive);
 
-      SmartDashboard.putBoolean("LL//FrontLeftCamOk", limelightExistsfront);
-      SmartDashboard.putBoolean("LL//RearCamOk", limelightExistsrear);
     }
   }
 

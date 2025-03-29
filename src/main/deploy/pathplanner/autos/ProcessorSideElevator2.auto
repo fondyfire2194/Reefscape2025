@@ -5,15 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "BLBSToI"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BLRStart2ToF1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToL4"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Deliver Coral L4"
+            "name": "Deliver Coral"
           }
         },
         {
@@ -23,7 +36,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "IToCoSt"
+                  "pathName": "FToCoStElevator"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToHome"
                 }
               },
               {
@@ -36,52 +55,34 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "CoStToL"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral L4"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LToCoSt"
+                  "pathName": "CoStToC"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "DelayStartIntake"
+                  "name": "ElevatorToL4"
                 }
               }
             ]
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "CoStToK"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Deliver Coral L4"
+            "name": "Deliver Coral"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SevenRiversAutos",
+  "folder": "TestAutos",
   "choreoAuto": false
 }

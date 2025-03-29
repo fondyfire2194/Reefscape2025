@@ -100,6 +100,19 @@ public final class VisionConstants {
     public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
     public static final double DISTANCE_CUTOFF = 4.0;
 
+    public static final double frontCameraTxAtLeftSideReef = 25;    
+    public static final double frontCameraTxAtCenterReef = 0;    
+    public static final double frontCameraTxAtRightSideReef = -25;
+
+    public static final double frontCameraTyAtLeftSideReef = 25;    
+    public static final double frontCameraTyAtCenterReef = 0;    
+    public static final double frontCameraTyAtRightSideReef = -25;
+
+    public static final double frontCameraTaAtLeftSideReef = 25;    
+    public static final double frontCameraTaAtCenterReef = 0;    
+    public static final double frontCameraTaAtRightSideReef = -25;
+    
+
   }
 
 }

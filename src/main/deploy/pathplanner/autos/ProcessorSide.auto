@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": null
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "BLRStart2ToF1"
@@ -39,12 +33,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
           }
         },
         {
@@ -79,12 +67,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": null
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "CoStToD"
@@ -94,25 +76,6 @@
           "type": "named",
           "data": {
             "name": "Deliver Coral L4"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "DToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
-                }
-              }
-            ]
           }
         }
       ]

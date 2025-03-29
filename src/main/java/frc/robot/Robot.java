@@ -5,10 +5,17 @@
 package frc.robot;
 
 import org.littletonrobotics.urcl.URCL;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,9 +25,9 @@ import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.utils.LimelightHelpers;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
-import monologue.Annotations.Log;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,6 +45,12 @@ public class Robot extends TimedRobot implements Logged {
 
   private Timer disabledTimer;
 
+  private String lastAutName = "";
+  private boolean lastAllianceWasRed;
+
+  Pose2d startingPoseAtBlueAlliance = new Pose2d();
+  Pose2d startingPose = new Pose2d();
+
   @Log
   Pose2d result;
 
@@ -53,7 +66,7 @@ public class Robot extends TimedRobot implements Logged {
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
    * 
-   * Radio SSID is Fondy2194
+   * Radio SSID is Fondy25
    */
   @Override
   public void robotInit() {
@@ -63,10 +76,12 @@ public class Robot extends TimedRobot implements Logged {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    Monologue.setupMonologue(m_robotContainer, "/Monologue", false, true);
+    if (RobotBase.isReal()) {
 
-    DriverStation.startDataLog(DataLogManager.getLog());
+      Monologue.setupMonologue(m_robotContainer, "/Monologue", false, true);
 
+      DriverStation.startDataLog(DataLogManager.getLog());
+    }
     // Create a timer to disable motor brake a few seconds after disable. This will
     // let the robot stop
     // immediately when disabled, but then also let it be pushed more
@@ -77,8 +92,12 @@ public class Robot extends TimedRobot implements Logged {
     for (int port = 5800; port <= 5809; port++) {
       PortForwarder.add(port, "limelight.local", port);
     }
-
-    URCL.start();
+    if (RobotBase.isReal()) {
+      URCL.start();
+      UsbCamera camera = CameraServer.startAutomaticCapture();
+      // Set the resolution
+      camera.setResolution(640, 480);
+    }
   }
 
   /**
@@ -129,39 +148,29 @@ public class Robot extends TimedRobot implements Logged {
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
-    /**
-     * 
-     * targetpose_robotspace doubleArray 3D transform of the primary in-view
-     * AprilTag in the coordinate system of the Robot
-     * (array (6)) [tx, ty, tz, pitch, yaw, roll] (meters, degrees)
-     * 
-     * botpose_targetspace doubleArray 3D transform of the robot in the coordinate
-     * system of the primary in-view AprilTag
-     * (array (6)) [tx, ty, tz, pitch, yaw, roll] (meters, degrees)
-     * 
-     * 
-     */
 
-    boolean tagSeen = LimelightHelpers.getTV(CameraConstants.frontCamera.camname);
+    boolean isRed = m_robotContainer.drivebase.isRedAlliance();
+    String autname = m_robotContainer.autoChooser.getSelected().getName();
 
-    SmartDashboard.putBoolean("AutoAlign/Tag Seen", tagSeen);
+    SmartDashboard.putBoolean("AUTBlue", m_robotContainer.drivebase.isBlueAlliance());
+    SmartDashboard.putBoolean("AUTRED", isRed);
 
-    if (tagSeen) {
-      double targetDistance = 3;
-      Pose2d p2d = LimelightHelpers.getTargetPose3d_RobotSpace(CameraConstants.frontCamera.camname).toPose2d();
-      double distance = m_robotContainer.llv.getDistanceToTag(CameraConstants.frontCamera.camname);
-      double[] data = new double[6];
+    SmartDashboard.putString("autname", autname);
 
-      data = LimelightHelpers.pose2dToArray(p2d);
-
-      double tx = data[0];
-      // double ty = data[1];
-      // double tz = data[2];
-      // double pitch = data[3];
-      // double roll = data[4];
-      double yaw = data[5];
-
+    if (!autname.startsWith("I") && (autname != lastAutName || lastAllianceWasRed != isRed)) {
+      startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
+      startingPose = isRed ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance) : startingPoseAtBlueAlliance;
+      SmartDashboard.putString("autPoseR", startingPose.toString());
     }
+    lastAutName = autname;
+    lastAllianceWasRed = isRed;
+    m_robotContainer.drivebase.resetOdometry(startingPose);
+
+    LimelightHelpers.SetRobotOrientation(CameraConstants.frontCamera.camname,
+        m_robotContainer.drivebase.getPose().getRotation().getDegrees(),
+        // m_swerve.getHeadingDegrees(),
+        m_robotContainer.drivebase.getGyroRate(), 0, 0, 0, 0);
+
   }
 
   /**
@@ -182,6 +191,8 @@ public class Robot extends TimedRobot implements Logged {
     m_robotContainer.llv.inhibitRearVision = true;
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    SmartDashboard.putString("Autname", m_autonomousCommand.getName());
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -207,7 +218,6 @@ public class Robot extends TimedRobot implements Logged {
       CommandScheduler.getInstance().cancelAll();
     }
 
-    
     new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 

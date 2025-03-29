@@ -8,12 +8,13 @@ import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DetectAlgaeWhileIntaking extends Command {
 
-  private final GamepieceSubsystem m_gamepieces;
+  private final AlgaeSubsystem m_algae;
   private MedianFilter sampleFilter;
   private MedianFilter detectFilter;
   private int algaeDetectLevel = 20;
@@ -27,9 +28,9 @@ public class DetectAlgaeWhileIntaking extends Command {
 
   private double sampledRPM;
 
-  public DetectAlgaeWhileIntaking(GamepieceSubsystem gamepieces) {
+  public DetectAlgaeWhileIntaking(AlgaeSubsystem algae) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_gamepieces = gamepieces;
+    m_algae=algae;
   }
 
   // Called when the command is initially scheduled.
@@ -44,27 +45,24 @@ public class DetectAlgaeWhileIntaking extends Command {
     algaeDetected = false;
     sampleFilter.reset();
     detectFilter.reset();
-    m_gamepieces.disableLimitSwitch();
-    m_gamepieces.setCurrentLimit(20);
-    m_gamepieces.motorLocked = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    m_gamepieces.run(AlgaeRPMSetpoints.kReefPickUpL123);
+    m_algae.run(AlgaeRPMSetpoints.kReefPickUpL123);
 
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
-      sampledRPM = sampleFilter.calculate(-m_gamepieces.getRPM());
+      sampledRPM = sampleFilter.calculate(-m_algae.getRPM());
 
     else {
-      filteredRPM = detectFilter.calculate(-m_gamepieces.getRPM());
+      filteredRPM = detectFilter.calculate(-m_algae.getRPM());
       detectCount++;
     }
 
-    algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * m_gamepieces.getAlgaeDetectLevel();
+    algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * m_algae.getAlgaeDetectLevel();
 
     SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
     SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
@@ -75,8 +73,7 @@ public class DetectAlgaeWhileIntaking extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_gamepieces.lockMotor();
-   // m_gamepieces.gamepieceMotor.set(0);
+    m_algae.lockMotor();
   }
 
   // Returns true when the command should end.

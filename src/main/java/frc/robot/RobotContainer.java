@@ -31,7 +31,6 @@ import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
-import frc.robot.commands.Gamepieces.BackupOffSwitchAfterCoraIntake;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -40,10 +39,13 @@ import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.LimelightVision;
+import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
 import monologue.Logged;
@@ -63,11 +65,13 @@ public class RobotContainer implements Logged {
 
         ElevatorSubsystem elevator = new ElevatorSubsystem();
 
-        // ClimberSubsystem climber = new ClimberSubsystem();
+        ClimberSubsystem climber = new ClimberSubsystem();
 
         GamepieceSubsystem gamepieces = new GamepieceSubsystem();
 
-        // PreIntakeSubsystem preIn = new PreIntakeSubsystem();
+        PreIntakeSubsystem preIn = new PreIntakeSubsystem();
+
+        AlgaeSubsystem algae = new AlgaeSubsystem();
 
         // ElevatorArmSim elasim;
 
@@ -85,7 +89,7 @@ public class RobotContainer implements Logged {
 
         LimelightVision llv = new LimelightVision();
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, llv, ls, driverXbox, coDriverXbox);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, algae, llv, ls, driverXbox, coDriverXbox);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
@@ -254,22 +258,6 @@ public class RobotContainer implements Logged {
         }
 
         private void setDefaultCommands() {
-                // drivebase.setDefaultCommand(
-                // Commands.parallel(
-                // new GetNearestCoralStationPose(drivebase),
-                // new GetNearestReefZonePose(drivebase, ls),
-                // drivebase.driveCommand(
-                // () -> -MathUtil.applyDeadband(
-                // driverXbox.getLeftY()
-                // * getAllianceFactor(),
-                // OperatorConstants.LEFT_Y_DEADBAND),
-                // () -> -MathUtil.applyDeadband(
-                // driverXbox.getLeftX()
-                // * getAllianceFactor(),
-
-                // OperatorConstants.DEADBAND),
-                // () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
-                // OperatorConstants.RIGHT_X_DEADBAND))));
 
                 drivebase.setDefaultCommand(
                                 Commands.parallel(
@@ -285,11 +273,11 @@ public class RobotContainer implements Logged {
                                                                 () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
 
-                // elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator, arm));
+                elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
 
-                // arm.setDefaultCommand(new PositionHoldArmPID(arm));
+                arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
-                // preIn.setDefaultCommand(preIn.positionCommand());
+                preIn.setDefaultCommand(preIn.positionCommand());
 
         }
 
@@ -301,7 +289,7 @@ public class RobotContainer implements Logged {
 
                 driverXbox.x().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Algae Processor"));
 
-                driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(gamepieces).withName("Intake Algae"));
+                driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(algae).withName("Intake Algae"));
 
                 driverXbox.back().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
                                 arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
@@ -335,7 +323,7 @@ public class RobotContainer implements Logged {
                                                                 () -> (drivebase.reefZone == 1
                                                                                 || drivebase.reefZone == 3
                                                                                 || drivebase.reefZone == 5)),
-                                                new DetectAlgaeWhileIntaking(gamepieces),
+                                                new DetectAlgaeWhileIntaking(algae),
                                                 new PIDDriveToPose(drivebase, drivebase.reefTargetPose)),
                                                 Set.of(drivebase)).withName("Center Reef PID"));
 
@@ -343,11 +331,9 @@ public class RobotContainer implements Logged {
 
                 driverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
 
-                // driverXbox.povLeft().onTrue(Commands.runOnce(() ->
-                // preIn.setGoalDegreesCommand(45)));
+                driverXbox.povLeft().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(45)));
 
-                // driverXbox.povRight().onTrue(Commands.runOnce(() ->
-                // preIn.setGoalDegreesCommand(0)));
+                driverXbox.povRight().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(0)));
         }
 
         public void configureCoDriverTeleopBindings() {
@@ -386,20 +372,19 @@ public class RobotContainer implements Logged {
                                                 Set.of(gamepieces)))
                                 .onFalse(gamepieces.stopGamepieceMotorsCommand());
 
-                // coDriverXbox.back()
-                // .onTrue(Commands.parallel(
-                // preIn.setGoalDegreesCommand(90),
-                // Commands.runOnce(() -> arm.setGoalDegrees(-90))));
+                coDriverXbox.back()
+                                .onTrue(Commands.parallel(
+                                                preIn.setGoalDegreesCommand(90),
+                                                Commands.runOnce(() -> arm.setGoalDegrees(-90))));
 
-                // coDriverXbox.rightTrigger().whileTrue(climber.jogClimberCommand(() ->
-                // coDriverXbox.getLeftX()))
-                // .onFalse(Commands.runOnce(() -> climber.stop()));
+                coDriverXbox.rightTrigger().whileTrue(climber.jogClimberCommand(() -> coDriverXbox.getLeftX()))
+                                .onFalse(Commands.runOnce(() -> climber.stop()));
 
                 // (preIn.setGoalDegreesCommand(90));
 
-                // coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
-                // arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
-                // coDriverXbox.start().onTrue(preIn.setGoalDegreesCommand(10));
+                coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
+                                arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
+                coDriverXbox.start().onTrue(preIn.setGoalDegreesCommand(10));
 
         }
 

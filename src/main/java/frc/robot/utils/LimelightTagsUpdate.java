@@ -5,7 +5,9 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -52,9 +54,10 @@ public class LimelightTagsUpdate {
 
                 SmartDashboard.putBoolean("RejectUpdateMT2" + m_cam.camname, rejectUpdate);
 
-                if (!rejectUpdate) {
-                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(0.5,
-                            0.5, 9999999));
+                if (!rejectUpdate && inField(mt2.pose)) {
+                    double standard_devs = 0.5;//mt2.rawFiducials[0].distToCamera / 2;
+                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(standard_devs,
+                            standard_devs, 9999999));
                     m_swerve.getPoseEstimator().addVisionMeasurement(
                             mt2.pose,
                             mt2.timestampSeconds);
@@ -71,7 +74,7 @@ public class LimelightTagsUpdate {
 
                 SmartDashboard.putBoolean("RejectUpdateMT1" + m_cam.camname, rejectUpdate);
 
-                if (!rejectUpdate) {
+                if (!rejectUpdate && inField(mt1.pose)) {
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,
                             .7, 1));
                     m_swerve.getPoseEstimator().addVisionMeasurement(
@@ -80,5 +83,12 @@ public class LimelightTagsUpdate {
                 }
             }
         }
+    }
+
+    private boolean inField(Pose2d pose) {
+        boolean inLength = pose.getX() > 0 && pose.getX() < FieldConstants.FIELD_LENGTH;
+        boolean inWidth = pose.getY() > 0 && pose.getX() < FieldConstants.FIELD_WIDTH;
+
+        return inLength && inWidth;
     }
 }

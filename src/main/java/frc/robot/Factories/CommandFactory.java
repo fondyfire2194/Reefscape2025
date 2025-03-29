@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -31,6 +32,7 @@ public class CommandFactory {
         ElevatorSubsystem m_elevator;
         ArmSubsystem m_arm;
         GamepieceSubsystem m_gamepieces;
+        AlgaeSubsystem m_algae;
         LimelightVision m_llv;
         static CommandXboxController m_dr;
         static CommandXboxController m_codr;
@@ -38,7 +40,7 @@ public class CommandFactory {
         LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        GamepieceSubsystem gamepieces, LimelightVision llv, LedStrip ls, CommandXboxController dr,
+                        GamepieceSubsystem gamepieces, AlgaeSubsystem algae, LimelightVision llv, LedStrip ls, CommandXboxController dr,
                         CommandXboxController codr) {
                 m_swerve = swerve;
                 m_dr = dr;
@@ -47,13 +49,14 @@ public class CommandFactory {
                 m_elevator = elevator;
                 m_llv = llv;
                 m_gamepieces = gamepieces;
+                m_algae=algae;
                 m_ls = ls;
 
         }
 
         public Command pickupAlgaeL2() {
                 return Commands.parallel(setSetpointCommand(Setpoint.kAlgaePickUpL2),
-                                new DetectAlgaeWhileIntaking(m_gamepieces));
+                                new DetectAlgaeWhileIntaking(m_algae));
         }
 
         public Command pickupAlgaeL3() {
@@ -65,7 +68,7 @@ public class CommandFactory {
                                 m_arm.setGoalDegreesCommand(ArmSetpoints.kBargeDeliver),
                                 Commands.sequence(
                                                 Commands.waitSeconds(delaySecs),
-                                                m_gamepieces.deliverAlgaeToBargeCommand()));
+                                                m_algae.deliverAlgaeToBargeCommand()));
 
         }
 
@@ -213,7 +216,7 @@ public class CommandFactory {
         }
 
         public Command deliverToBargeWithArmCommand() {
-                return Commands.parallel(m_gamepieces.deliverAlgaeToBargeCommand(),
+                return Commands.parallel(m_algae.deliverAlgaeToBargeCommand(),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver2)));
         }
 

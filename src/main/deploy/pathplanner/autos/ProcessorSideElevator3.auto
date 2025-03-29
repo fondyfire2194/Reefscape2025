@@ -1,0 +1,163 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BLRStart2ToF1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToL4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "FToCoStElevator"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToHome"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CoStToC"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToL4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CToCoSt"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToHome"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CoStToDElevator"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToL4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "DToCoSt"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToHome"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartIntake"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "TestAutos",
+  "choreoAuto": false
+}

@@ -61,6 +61,8 @@ public final class Constants {
     public static final int coralIntakeID = 24;
     public static final int climberID = 25;
     public static final int preIntakeMotorID = 26;
+    public static final int algaeRightID = 27;
+    public static final int algaeLeftID = 28;
 
   }
 
