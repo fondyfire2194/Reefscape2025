@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,6 +42,11 @@ public class ClimberSubsystem extends SubsystemBase {
   public final double climberKi = 0.0;
   public final double climberKd = 0.00;
   public final double climberKFF = .95 / 11000;
+
+  public Servo climber_servo;
+
+  public final double servo_lock_position = 0.7;
+  public final double servo_unlock_position = 0.5;
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
@@ -75,6 +81,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     climberMotor.configure(climberConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    climber_servo = new Servo(1);
   }
 
   @Override
@@ -99,6 +106,18 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public double getAmps() {
     return climberMotor.getOutputCurrent();
+  }
+
+  public void setServo(double servo_pos) {
+    climber_servo.set(servo_pos);
+  }
+
+  public void lockClimber() {
+    climber_servo.set(servo_lock_position);
+  }
+
+  public void unlockClimber() {
+    climber_servo.set(servo_unlock_position);
   }
 
   public double getVolts() {

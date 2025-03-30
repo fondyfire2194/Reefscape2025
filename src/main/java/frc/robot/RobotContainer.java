@@ -420,13 +420,15 @@ public class RobotContainer implements Logged {
                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
                 // SYS ID ElEVATOR TESTS
-                coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                // coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                // coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-                coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                // coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-                coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                // coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));co
 
-                coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                coDriverXbox.a().onTrue(Commands.runOnce(() -> climber.lockClimber()));
+                coDriverXbox.b().onTrue(Commands.runOnce(() -> climber.unlockClimber()));
 
                 // coDriverXbox.povLeft()
                 // .onTrue(preIn.setGoalDegreesCommand(20));
