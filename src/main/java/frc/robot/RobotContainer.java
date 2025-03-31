@@ -287,7 +287,7 @@ public class RobotContainer implements Logged {
 
                 driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae Barge"));
 
-                driverXbox.x().onTrue(gamepieces.deliverAlgaeToProcessorCommand().withName("Deliver Algae Processor"));
+                driverXbox.x().onTrue(algae.deliverAlgaeToProcessorCommand().withName("Deliver Algae Processor"));
 
                 driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(algae).withName("Intake Algae"));
 

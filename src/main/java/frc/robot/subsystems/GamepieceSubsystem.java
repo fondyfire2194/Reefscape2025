@@ -16,8 +16,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -66,36 +64,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public double noCoralAtSwitchTime = 15;
 
-  public double lockAlgaeSet = -.05;
 
-  public double getLockAlgaeSet() {
-    return lockAlgaeSet;
-  }
 
-  public void setLockAlgaeSet(double val) {
-    lockAlgaeSet = val;
-  }
-
-  public double lockAlgaeAmps = 2;
-
-  public double getLockAlgaeAmps() {
-    return lockAlgaeAmps;
-  }
-
-  public void setLockAlgaeAmps(double val) {
-    lockAlgaeAmps = val;
-    setCurrentLimit((int) val);
-  }
-
-  public double algaeDetectLevel = .05;
-
-  public double getAlgaeDetectLevel() {
-    return algaeDetectLevel;
-  }
-
-  public void setAlgaeDetectLevel(double val) {
-    algaeDetectLevel = val;
-  }
 
   public double backupSpeed = .1;
 
@@ -106,8 +76,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public void setBackupSpeed(double val) {
     backupSpeed = val;
   }
-
-  private int inOutAlgaeAmps = 20;
   public int inOutCoralAmps = 40;
   private double coralDelverSpeed = .6;
   public boolean motorLocked = false;
@@ -169,7 +137,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
     coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    SmartDashboard.putData("AlgaeInAndHoldTune", this);
   }
 
   public void setCurrentLimit(int amps) {
@@ -183,12 +150,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public int getSmartCurrentFreeLimit() {
     return gamepieceMotor.configAccessor.getSmartCurrentFreeLimit();
-  }
-
-  public void lockMotor() {
-    motorLocked = true;
-    setCurrentLimit((int) lockAlgaeAmps);
-    gamepieceMotor.set(lockAlgaeSet);
   }
 
   public void stopGamepieceMotor() {
@@ -235,9 +196,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
     return Commands.sequence(
         Commands.parallel(
-            Commands.runOnce(() -> motorLocked = false),
             Commands.runOnce(() -> disableLimitSwitch()),
-            Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
             Commands.runOnce(() -> runGamepieceMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver))),
         new WaitCommand(2.5),
         Commands.runOnce(() -> stopGamepieceMotor()));
@@ -278,15 +237,12 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
 
 
-    SmartDashboard.putBoolean("Gamepiece/MotorLocked", motorLocked);
     SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
 
-    SmartDashboard.putNumber("Algae/Adjust/LockSpeed", lockAlgaeSet);
-    SmartDashboard.putNumber("Algae/Adjust/LockAmps", lockAlgaeAmps);
 
     SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Gamepiece/GPLimitAmps", getSmartCurrentLimit());
+
 
     SmartDashboard.putNumber("Gamepiece/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/INTAmps", coralIntakeMotor.getOutputCurrent());
@@ -371,14 +327,5 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    builder.setSmartDashboardType("AlgaeInAndHoldTune");
-    builder.addDoubleProperty("lockalgaeset", this::getLockAlgaeSet, this::setLockAlgaeSet);
-    builder.addDoubleProperty("algaeholdamps", this::getLockAlgaeAmps, this::setLockAlgaeAmps);
-    builder.addDoubleProperty("algaedetectlevel", this::getAlgaeDetectLevel, this::setAlgaeDetectLevel);
-    builder.addDoubleProperty("coralbackupspeed", this::getBackupSpeed, this::setBackupSpeed);
-
-  }
 
 }

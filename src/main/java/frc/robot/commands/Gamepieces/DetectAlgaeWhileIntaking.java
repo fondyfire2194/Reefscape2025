@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
 import frc.robot.subsystems.AlgaeSubsystem;
-import frc.robot.subsystems.GamepieceSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DetectAlgaeWhileIntaking extends Command {
