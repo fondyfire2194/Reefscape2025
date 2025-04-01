@@ -194,7 +194,8 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
     // swerveDrive.restoreInternalOffset();
 
-    replaceSwerveModuleFeedforward(0.08513, 3.1704, 0.365245);
+    //replaceSwerveModuleFeedforward(0.08513, 3.1704, 0.365245);
+    replaceSwerveModuleFeedforward(0.0625865, 2.78975, 0.25);
 
     swerveDrive.setMaximumAttainableSpeeds(4.5, Math.PI * 4);
 
@@ -409,7 +410,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
         SwerveDriveTest.setDriveSysIdRoutine(
             new Config(),
             this, swerveDrive, 12, false),
-        3.0, 5.0, 3.0);
+        3.0, 5.0, 2.5);
   }
 
   /**

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -102,6 +103,7 @@ public class RobotContainer implements Logged {
 
         Trigger elevatorTipping = new Trigger(() -> Math.abs(drivebase.swerveDrive.getRoll().getDegrees()) > 5);
 
+        EventTrigger eventTriggerL4 = new EventTrigger("ElevatorL4Event");
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
         // controls are front-left positive
@@ -256,6 +258,8 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("Deliver Barge",
                                         cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge)
                                                         .withName("Deliver Barge"));
+
+                        eventTriggerL4.onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
                 }
         }
 
@@ -300,9 +304,10 @@ public class RobotContainer implements Logged {
 
                 driverXbox.leftTrigger().onTrue(new IntakeCoralToSwitch(gamepieces, arm, false)
                                 .withName("IntakeCoral"))
-                                .whileTrue(new TeleopSwerveStation(drivebase, () -> driverXbox.getLeftY()*getAllianceFactor(),
-                                () -> driverXbox.getLeftY()*getAllianceFactor(),
-                                () -> driverXbox.getLeftX()));
+                                .whileTrue(new TeleopSwerveStation(drivebase,
+                                                () -> driverXbox.getLeftY() * getAllianceFactor(),
+                                                () -> driverXbox.getLeftY() * getAllianceFactor(),
+                                                () -> driverXbox.getLeftX()));
 
                 driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralCommand().withName("Deliver Coral"));
 
@@ -334,7 +339,8 @@ public class RobotContainer implements Logged {
 
                 driverXbox.povDown().whileTrue(new PIDDriveToPoseCoralStation(drivebase));
 
-                driverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(-90)));
+                driverXbox.povUp().onTrue(Commands.sequence(Commands.runOnce(() -> arm.setGoalDegrees(0)),
+                                new DetectAlgaeWhileIntaking(algae)));
 
                 driverXbox.povLeft().onTrue(Commands.runOnce(() -> preIn.setGoalDegreesCommand(45)));
 
@@ -426,7 +432,7 @@ public class RobotContainer implements Logged {
 
                 // SYS ID ElEVATOR TESTS
                 // coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-                // coDriverXbox.a().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                coDriverXbox.a().whileTrue(drivebase.sysIdDriveMotorCommand());
 
                 // coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 

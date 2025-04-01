@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLRStart2ToF1"
+                  "pathName": "BLRStart2ToF1Elevator"
                 }
               },
               {
@@ -61,7 +61,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CoStToC"
+                  "pathName": "CoStToCElevator"
                 }
               },
               {

@@ -12,16 +12,16 @@
         "y": 1.5375512295081972
       },
       "isLocked": false,
-      "linkedName": "ReefFPose"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.234733606557377,
-        "y": 1.058043032786885
+        "x": 1.209,
+        "y": 0.983
       },
       "prevControl": {
-        "x": 2.40952868852459,
-        "y": 1.3457479508196706
+        "x": 2.3837950819672136,
+        "y": 1.2707049180327856
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,7 +29,21 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6983050847457634,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {

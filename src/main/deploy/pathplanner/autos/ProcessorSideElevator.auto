@@ -13,25 +13,6 @@
                 "data": {
                   "pathName": "BLRStart2ToF1Elevator"
                 }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.2
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ElevatorToL4"
-                      }
-                    }
-                  ]
-                }
               }
             ]
           }
@@ -49,7 +30,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "ElevatorToHome"
+                  "name": "DelayStartIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "FToCoStElevator"
                 }
               },
               {
@@ -59,22 +46,16 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.2
                       }
                     },
                     {
-                      "type": "path",
+                      "type": "named",
                       "data": {
-                        "pathName": "FToCoStElevator"
+                        "name": "ElevatorToHome"
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
                 }
               }
             ]
