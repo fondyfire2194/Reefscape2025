@@ -252,7 +252,7 @@ public class RobotContainer implements Logged {
                                                         .withName("IntakeAlgaeL3"));
 
                         NamedCommands.registerCommand("Deliver Processor",
-                                        gamepieces.deliverAlgaeToProcessorCommand()
+                                        algae.deliverAlgaeToProcessorCommand()
                                                         .withName("Deliver Processor"));
 
                         NamedCommands.registerCommand("Deliver Barge",
