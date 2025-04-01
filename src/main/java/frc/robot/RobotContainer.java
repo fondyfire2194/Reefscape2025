@@ -325,7 +325,7 @@ public class RobotContainer implements Logged {
                                                 Set.of(drivebase)));
 
                 driverXbox.rightBumper().and(driverXbox.leftBumper()).whileTrue(
-                                Commands.defer(() -> Commands.sequence(
+                                Commands.defer(() -> Commands.parallel(
                                                 drivebase.setSide(Side.CENTER),
                                                 new ConditionalCommand(
                                                                 cf.setSetpointCommand(Setpoint.kAlgaePickUpL2),

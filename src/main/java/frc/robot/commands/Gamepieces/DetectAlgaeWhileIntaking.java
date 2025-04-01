@@ -44,13 +44,14 @@ public class DetectAlgaeWhileIntaking extends Command {
     algaeDetected = false;
     sampleFilter.reset();
     detectFilter.reset();
+    m_algae.run(AlgaeRPMSetpoints.kReefPickUpL123);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    m_algae.run(AlgaeRPMSetpoints.kReefPickUpL123);
+    
 
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
