@@ -95,7 +95,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      */
 
     public final Angle armStartupOffset = Degrees.of(134);
-    public final Angle minAngle = Degrees.of(-91);
+    public final Angle minAngle = Degrees.of(-10);
     public final Angle maxAngle = armStartupOffset;
 
     public double armClearAngleDeg = 104;
@@ -116,7 +116,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     private double armff;
 
-    public boolean showTelemetry;
+    public boolean showTelemetry = true;
 
     public ArmSubsystem() {
 
@@ -155,7 +155,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         armConfig.softLimit.forwardSoftLimit(maxAngle.in(Radians))
                 .reverseSoftLimit(minAngle.in(Radians))
                 .forwardSoftLimitEnabled(true)
-                .reverseSoftLimitEnabled(true);
+                .reverseSoftLimitEnabled(true); //disabled for rehoming the arm
 
         armConfig.signals.primaryEncoderPositionPeriodMs(10);
 

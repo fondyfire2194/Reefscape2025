@@ -58,7 +58,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   public final double algaeKd = 0.00;
   public final double algaeKFF = .9 / 11000;
 
-  public double lockAlgaeSet = -.05;
+  public double lockAlgaeSet = -.1;
 
   public double getLockAlgaeSet() {
     return lockAlgaeSet;
@@ -117,7 +117,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     algaeRightConfig = new SparkMaxConfig();
 
     algaeRightConfig
-        .inverted(true)
+        .inverted(false)
         .smartCurrentLimit(inOutalgaeAmps)
         .idleMode(IdleMode.kBrake);
 
@@ -174,7 +174,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     motorLocked = true;
     setCurrentLimit((int) lockAlgaeAmps);
     algaeRightMotor.set(lockAlgaeSet);
-    algaeLeftMotor.set(lockAlgaeSet);
+    //algaeLeftMotor.set(lockAlgaeSet);
   }
 
   public void stopalgaeMotor() {
@@ -208,14 +208,15 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> motorLocked = false),
         Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
         Commands.runOnce(() -> runalgaeMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver))),
-        new WaitCommand(5),
+        new WaitCommand(2),
         Commands.runOnce(() -> stopalgaeMotor()));
 
   }
 
   public void run(double speed) {
+    setCurrentLimit(30);
     algaeRightMotor.set(speed);
-    algaeLeftMotor.set(speed);
+    //algaeLeftMotor.set(speed);
   }
 
   public void runalgaeMotorAtVelocity(double rpm) {
@@ -301,8 +302,8 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
 
   public Command jogalgaeIntakeMotorsCommand(DoubleSupplier speed) {
     return Commands.parallel(
-        Commands.run(() -> algaeRightMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())),
-        Commands.run(() -> algaeLeftMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
+        Commands.run(() -> algaeRightMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
+        //Commands.run(() -> algaeLeftMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
 
   @Override

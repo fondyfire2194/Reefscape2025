@@ -35,6 +35,7 @@ import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
+import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
@@ -89,7 +90,8 @@ public class RobotContainer implements Logged {
 
         LimelightVision llv = new LimelightVision();
 
-        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, algae, llv, ls, driverXbox, coDriverXbox);
+        CommandFactory cf = new CommandFactory(drivebase, elevator, arm, gamepieces, algae, llv, ls, driverXbox,
+                        coDriverXbox);
 
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
@@ -285,7 +287,7 @@ public class RobotContainer implements Logged {
 
                 driverXbox.a().onTrue(Commands.runOnce(() -> correctAngle = !correctAngle));
 
-                driverXbox.b().onTrue(cf.deliverToBargeWithArmCommand().withName("Deliver Algae Barge"));
+                driverXbox.b().onTrue(algae.deliverAlgaeToBargeCommand().withName("Deliver Algae Barge"));
 
                 driverXbox.x().onTrue(algae.deliverAlgaeToProcessorCommand().withName("Deliver Algae Processor"));
 
@@ -297,7 +299,10 @@ public class RobotContainer implements Logged {
                 driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
 
                 driverXbox.leftTrigger().onTrue(new IntakeCoralToSwitch(gamepieces, arm, false)
-                                .withName("IntakeCoral"));
+                                .withName("IntakeCoral"))
+                                .whileTrue(new TeleopSwerveStation(drivebase, () -> driverXbox.getLeftY()*getAllianceFactor(),
+                                () -> driverXbox.getLeftY()*getAllianceFactor(),
+                                () -> driverXbox.getLeftX()));
 
                 driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralCommand().withName("Deliver Coral"));
 

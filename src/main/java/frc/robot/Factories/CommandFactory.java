@@ -132,15 +132,15 @@ public class CommandFactory {
         public static final class ElevatorSetpoints {
                 public static final int kHome = 0;
                 public static final int kTravel = 10;
-                public static final int kProcessorDeliver = 5;
+                public static final int kProcessorDeliver = 8;
                 public static final int kCoralStation = 0;
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 29;
                 public static final int kLevel4 = 57;
                 public static final int kBarge = 65;
-                public static final int kLevelAlgaeL2 = 26;
-                public static final int kLevelAlgaeL3 = 41;
+                public static final int kLevelAlgaeL2 = 30;
+                public static final int kLevelAlgaeL3 = 45;
 
         }
 
@@ -148,16 +148,15 @@ public class CommandFactory {
 
                 public static final int kokElevatorMove = 90;
                 public static final int kTravel = 100;
-                public static final int kProcessorDeliver = -90;
-                public static final int kBargeDeliver = 45;
-                public static final int kBargeDeliver2 = 70;
+                public static final int kProcessorDeliver = 15;
+                public static final int kBargeDeliver = 85;
                 public static final double kCoralStation = 132;
                 public static final double kLevel1 = 97;
                 public static final double kLevel2 = 97;
                 public static final double kLevel3 = 97;
                 public static final double kLevel4_1 = 103;
                 public static final double kLevel4_2 = 85;
-                public static final double kAlgaeIntake = -90;
+                public static final double kAlgaeIntake = 0;
 
         }
 
@@ -172,7 +171,7 @@ public class CommandFactory {
         public static final class AlgaeRPMSetpoints {
                 public static final double kReefPickUpL123 = -.6;
                 public static final double kProcessorDeliver = 3000;
-                public static final double kBargeDeliver = 7000;
+                public static final double kBargeDeliver = 9000;
                 public static final double kStop = 0;
         }
 
@@ -188,7 +187,7 @@ public class CommandFactory {
         public Command safePositionArmBarge(double degrees, double inches) {
                 return Commands.sequence(
                                 m_elevator.setGoalInchesCommand(inches),
-                                Commands.waitUntil(() -> m_elevator.atPosition()),
+                                //Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)));
         }
 
@@ -215,10 +214,7 @@ public class CommandFactory {
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
         }
 
-        public Command deliverToBargeWithArmCommand() {
-                return Commands.parallel(m_algae.deliverAlgaeToBargeCommand(),
-                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kBargeDeliver2)));
-        }
+        
 
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to
