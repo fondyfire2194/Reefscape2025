@@ -192,6 +192,18 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         stopGamepieceMotorsCommand());
   }
 
+  public Command deliverCoralFasterCommand() {
+    return Commands.sequence(
+        Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.parallel(
+            Commands.runOnce(() -> motorLocked = false),
+            Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
+            Commands.runOnce(() -> gamepieceMotor.set(0.8))),
+        new WaitCommand(0.1),
+        Commands.waitUntil(() ->!coralAtIntake()),
+        new WaitCommand(0.1),
+        stopGamepieceMotorsCommand());
+  }
  
 
 

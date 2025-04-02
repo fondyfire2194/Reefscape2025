@@ -120,12 +120,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public ArmSubsystem() {
 
-        if(showTelemetry){
+        if (showTelemetry) {
 
-        SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
-        SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
-        SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
-        SmartDashboard.putNumber("Arm/Values/kv", armKv);
+            SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
+            SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
+            SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
+            SmartDashboard.putNumber("Arm/Values/kv", armKv);
         }
         armConfig = new SparkMaxConfig();
 
@@ -155,7 +155,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         armConfig.softLimit.forwardSoftLimit(maxAngle.in(Radians))
                 .reverseSoftLimit(minAngle.in(Radians))
                 .forwardSoftLimitEnabled(true)
-                .reverseSoftLimitEnabled(true); //disabled for rehoming the arm
+                .reverseSoftLimitEnabled(true);
 
         armConfig.signals.primaryEncoderPositionPeriodMs(10);
 
@@ -182,6 +182,18 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean getWarnings() {
         return armMotor.hasActiveWarning();
+    }
+
+    public void disableSoftLimits() {
+        armConfig.softLimit.forwardSoftLimitEnabled(false);
+        armConfig.softLimit.reverseSoftLimitEnabled(false);
+        armMotor.configure(armConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    public void enableSoftLimits() {
+        armConfig.softLimit.forwardSoftLimitEnabled(true);
+        armConfig.softLimit.reverseSoftLimitEnabled(true);
+        armMotor.configure(armConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     @Override

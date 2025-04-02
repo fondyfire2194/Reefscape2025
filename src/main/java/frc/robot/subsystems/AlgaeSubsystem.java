@@ -68,7 +68,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     lockAlgaeSet = val;
   }
 
-  public double lockAlgaeAmps = 2;
+  public double lockAlgaeAmps = 3;
 
   public double getLockAlgaeAmps() {
     return lockAlgaeAmps;

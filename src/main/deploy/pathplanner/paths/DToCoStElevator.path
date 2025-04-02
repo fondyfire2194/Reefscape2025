@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 1.2089999999999999,
-        "y": 0.9829999999999995
+        "x": 1.292208904109589,
+        "y": 1.0649400684931505
       },
       "prevControl": {
-        "x": 2.5642499999999995,
-        "y": 1.5484999999999989
+        "x": 2.6474589041095884,
+        "y": 1.63044006849315
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "RightCoralStationPose"
+      "linkedName": "RightCoralStationPoseElevator"
     }
   ],
   "rotationTargets": [],

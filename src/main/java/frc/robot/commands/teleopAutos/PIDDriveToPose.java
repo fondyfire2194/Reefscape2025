@@ -4,6 +4,7 @@
 
 package frc.robot.commands.teleopAutos;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,35 +30,46 @@ public class PIDDriveToPose extends Command {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(0.0125);
-    yController.setTolerance(0.0125);
+    xController.setTolerance(0.02); ///0.0125
+    yController.setTolerance(0.02);
+    xController.setIZone(0.05);
+    xController.setIntegratorRange(-0.07, 0.07);
+    yController.setIZone(0.05);
+    yController.setIntegratorRange(-0.07, 0.07);
 
-    // xController.setIZone(0.2);
-    // xController.setIntegratorRange(-0.05, 0.05);
-    // yController.setIZone(0.2);
-    // yController.setIntegratorRange(-0.05, 0.05);
+    xController.setI(0.03);
+    yController.setI(0.03);
+    xController.setP(3);
+    yController.setP(3);
+
+
 
     thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
 
-  public PIDDriveToPose(SwerveSubsystem swerve, Pose2d target, double tolerance) {
+  public PIDDriveToPose(SwerveSubsystem swerve, Pose2d target, double toleranceTranslation, double toleranceAngle) {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(tolerance);
-    yController.setTolerance(tolerance);
+    xController.setTolerance(toleranceTranslation);
+    yController.setTolerance(toleranceTranslation);
+    xController.setI(0);
+    yController.setI(0);
+    xController.setP(3.8); //0.3.4
+    yController.setP(3.8);
 
     // xController.setIZone(0.2);
     // xController.setIntegratorRange(-0.05, 0.05);
     // yController.setIZone(0.2);
     // yController.setIntegratorRange(-0.05, 0.05);
 
-    thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
+    thetaController.setTolerance(Rotation2d.fromDegrees(toleranceAngle).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
+   
 
   // Called when the command is initially scheduled.
   @Override
@@ -69,7 +81,7 @@ public class PIDDriveToPose extends Command {
     double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
     double baseOffsetY = RobotConstants.placementOffsetY;
     if (m_side == Side.CENTER)
-    baseOffsetX += Units.inchesToMeters(9);
+      baseOffsetX += Units.inchesToMeters(7);
       tl2d = new Translation2d(baseOffsetX, baseOffsetY);
     if (m_side == Side.RIGHT)
       tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset + baseOffsetY);
