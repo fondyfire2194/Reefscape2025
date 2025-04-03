@@ -164,7 +164,7 @@ public class Robot extends TimedRobot implements Logged {
     }
     lastAutName = autname;
     lastAllianceWasRed = isRed;
-    m_robotContainer.drivebase.resetOdometry(startingPose);
+    //m_robotContainer.drivebase.resetOdometry(startingPose);
 
     LimelightHelpers.SetRobotOrientation(CameraConstants.frontCamera.camname,
         m_robotContainer.drivebase.getPose().getRotation().getDegrees(),
@@ -181,8 +181,11 @@ public class Robot extends TimedRobot implements Logged {
   public void autonomousInit() {
     m_robotContainer.setMotorBrake(true);
 
+    m_robotContainer.preIn.preIntakeToStartCommand().schedule();
+
     new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+    //m_robotContainer.preIn.preIntakeToStartCommand().schedule();
 
     m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
     m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
@@ -212,6 +215,7 @@ public class Robot extends TimedRobot implements Logged {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     } else {

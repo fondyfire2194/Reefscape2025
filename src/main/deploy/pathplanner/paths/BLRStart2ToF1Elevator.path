@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "ElevatorL4Event",
-      "waypointRelativePos": 0.6338983050847444,
+      "waypointRelativePos": 0.5491525423728812,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -66,7 +66,7 @@
     "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "ProcessorElevator",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 119.99999999999999

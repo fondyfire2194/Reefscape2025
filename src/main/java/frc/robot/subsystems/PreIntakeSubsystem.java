@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.CANIDConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -49,18 +50,19 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public boolean presetOnce;
 
-    public double gearReduction = 100.;
+    public double gearReduction = 125;// 100.;
     double degperencderrev = (360) / gearReduction;
 
     double posConvFactor = degperencderrev;
 
     double velConvFactor = posConvFactor / 60;
 
-    double maxmotorrps = 5700 / 60;
+    double maxmotorrps = 11000 / 60;// 5700 / 60;
 
     double maxdegpersec = degperencderrev * maxmotorrps;//
 
-    public double preintakeKp = 0.075;
+    public double preintakeKp = 0.075;// 0.075;
+
     public final double preintakeKi = 0;
     public final double preintakeKd = 0;
 
@@ -85,14 +87,16 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
      */
 
     public final double minAngle = 0;
-    public final double maxAngle = 90;
+    public final double maxAngle = 100;
+
+    public IdleMode currentMode = IdleMode.kBrake;
 
     public PreIntakeSubsystem() {
 
         preintakeConfig = new SparkMaxConfig();
 
         preintakeConfig
-                .inverted(false)
+                .inverted(true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(40);
 
@@ -104,7 +108,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(preintakeKp)
-                .outputRange(-.4, 4);
+                .outputRange(-0.4, 0.4);
 
         preintakeConfig.softLimit.forwardSoftLimit(maxAngle)
                 .reverseSoftLimit(minAngle)
@@ -147,6 +151,28 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return Commands.run(() -> position(), this);
     }
 
+    public void setMotorToCoast() {
+        currentMode = IdleMode.kCoast;
+        preintakeConfig.idleMode(IdleMode.kCoast);
+        preIntakeMotor.configure(preintakeConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    public Command preIntakeToStartCommand() {
+        return Commands.sequence(Commands.runOnce(() -> setMotorToCoast()),
+                Commands.runOnce(() -> preIntakeMotor.setVoltage(-0.2)), new WaitCommand(1),
+                Commands.runOnce(() -> stop()),
+                new WaitCommand(1),
+                Commands.runOnce(() -> setMotorToBrake()),
+                Commands.runOnce(() -> preIntakeMotor.getEncoder().setPosition(0)));
+
+    }
+
+    public void setMotorToBrake() {
+        currentMode = IdleMode.kBrake;
+        preintakeConfig.idleMode(IdleMode.kBrake);
+        preIntakeMotor.configure(preintakeConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
     public Command goHome() {
         return Commands.runOnce(() -> m_goal.position = 0);
     }
@@ -175,6 +201,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
         SmartDashboard.putNumber("PIM/pos", preIntakeMotor.getEncoder().getPosition());
+        // SmartDashboard.putBoolean("PIM/atpos", preintakeAtStartPosition());
         SmartDashboard.putNumber("PIM/vel", preIntakeMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("PIM/volts",
                 preIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());

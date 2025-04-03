@@ -58,7 +58,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   public final double algaeKd = 0.00;
   public final double algaeKFF = .9 / 11000;
 
-  public double lockAlgaeSet = -.1;
+  public double lockAlgaeSet = -.15;
 
   public double getLockAlgaeSet() {
     return lockAlgaeSet;
@@ -68,7 +68,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     lockAlgaeSet = val;
   }
 
-  public double lockAlgaeAmps = 3;
+  public double lockAlgaeAmps = 4;
 
   public double getLockAlgaeAmps() {
     return lockAlgaeAmps;

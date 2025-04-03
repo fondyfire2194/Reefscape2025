@@ -4,9 +4,11 @@
   "holonomicMode": true,
   "pathFolders": [
     "CenterAuto",
-    "Test Paths",
+    "ProcessorElevator",
+    "NonProcessorElevator",
     "NonProcessorSide",
-    "ProcessorSide"
+    "ProcessorSide",
+    "Test Paths"
   ],
   "autoFolders": [
     "TestAutos",

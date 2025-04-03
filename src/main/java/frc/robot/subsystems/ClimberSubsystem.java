@@ -45,8 +45,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public Servo climber_servo;
 
-  public final double servo_lock_position = 0.7;
-  public final double servo_unlock_position = 0.5;
+  public final double servo_lock_position = 1;
+  public final double servo_unlock_position = 0.7;
+  public boolean servoLocked = false;
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
@@ -114,10 +115,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void lockClimber() {
     climber_servo.set(servo_lock_position);
+    servoLocked = true;
   }
 
   public void unlockClimber() {
     climber_servo.set(servo_unlock_position);
+    servoLocked = false;
   }
 
   public double getVolts() {

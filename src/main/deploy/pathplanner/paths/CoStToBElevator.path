@@ -3,36 +3,36 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.981,
-        "y": 7.34975
+        "x": 1.292208904109589,
+        "y": 1.0649400684931505
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.339218397042167,
-        "y": 6.50708223151302
+        "x": 2.6445205479452056,
+        "y": 2.056635273972603
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "RightCoralStationPoseElevator"
     },
     {
       "anchor": {
-        "x": 5.304066780821918,
-        "y": 5.212029109589041
+        "x": 3.065,
+        "y": 3.86
       },
       "prevControl": {
-        "x": 5.912634691184134,
-        "y": 5.987159643260714
+        "x": 2.448946917808219,
+        "y": 3.7698458904109584
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefIPose"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.6033898305084743,
+      "minWaypointRelativePos": 0.722033898305083,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
@@ -47,14 +47,14 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ElevatorToL4",
-      "waypointRelativePos": 0.5966101694915256,
+      "name": "ElevatorL2Event",
+      "waypointRelativePos": 0.5999999999999986,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
+    "maxVelocity": 3.0,
     "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -63,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "NonProcessorElevator",
+  "folder": "ProcessorElevator",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 54.0
   },
   "useDefaultConstraints": false
 }
