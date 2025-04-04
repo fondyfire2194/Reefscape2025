@@ -54,7 +54,10 @@ public class LimelightTagsUpdate {
 
                 SmartDashboard.putBoolean("RejectUpdateMT2" + m_cam.camname, rejectUpdate);
 
-                if (!rejectUpdate && inField(mt2.pose)) {
+                SmartDashboard.putNumber("LLMT2 X", mt2.pose.getTranslation().getX());
+                SmartDashboard.putNumber("LLMT2 X", mt2.pose.getTranslation().getY());
+
+                if (!rejectUpdate) {
                     double standard_devs = mt2.rawFiducials[0].distToCamera / 2;//0.5
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(standard_devs,
                             standard_devs, 9999999));
@@ -74,7 +77,10 @@ public class LimelightTagsUpdate {
 
                 SmartDashboard.putBoolean("RejectUpdateMT1" + m_cam.camname, rejectUpdate);
 
-                if (!rejectUpdate && inField(mt1.pose)) {
+                SmartDashboard.putNumber("LLMT2 X", mt1.pose.getTranslation().getX());
+                SmartDashboard.putNumber("LLMT2 X", mt1.pose.getTranslation().getY());
+
+                if (!rejectUpdate) {
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,
                             .7, 1));
                     m_swerve.getPoseEstimator().addVisionMeasurement(
@@ -85,10 +91,10 @@ public class LimelightTagsUpdate {
         }
     }
 
-    private boolean inField(Pose2d pose) {
-        boolean inLength = pose.getX() > 0 && pose.getX() < FieldConstants.FIELD_LENGTH;
-        boolean inWidth = pose.getY() > 0 && pose.getX() < FieldConstants.FIELD_WIDTH;
+    // private boolean inField(Pose2d pose) {
+    //     boolean inLength = pose.getX() > 0 && pose.getX() < FieldConstants.FIELD_LENGTH;
+    //     boolean inWidth = pose.getY() > 0 && pose.getX() < FieldConstants.FIELD_WIDTH;
 
-        return inLength && inWidth;
-    }
+    //     return inLength && inWidth;
+    // }
 }

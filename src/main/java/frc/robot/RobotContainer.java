@@ -299,7 +299,7 @@ public class RobotContainer implements Logged {
 
                 // driverXbox.a().onTrue(Commands.runOnce(() -> correctAngle = !correctAngle));
 
-                // driverXbox.a().onTrue(preIn.preIntakeToStartCommand());
+                driverXbox.a().onTrue(preIn.preIntakeToStartCommand());
 
                 driverXbox.b().onTrue(Commands.sequence(Commands.runOnce(() -> algae.run(-0.5)), new WaitCommand(0.05),
                                 algae.deliverAlgaeToBargeCommand()).withName("Deliver Algae Barge"));
@@ -317,8 +317,8 @@ public class RobotContainer implements Logged {
                                 .withName("IntakeCoral"))
                                 .whileTrue(new TeleopSwerveStation(drivebase,
                                                 () -> driverXbox.getLeftY() * getAllianceFactor(),
-                                                () -> driverXbox.getLeftY() * getAllianceFactor(),
-                                                () -> driverXbox.getLeftX()));
+                                                () -> driverXbox.getLeftX() * getAllianceFactor(),
+                                                () -> driverXbox.getRightX()));
 
                 driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralFasterCommand().withName("Deliver Coral"));
 
@@ -344,8 +344,6 @@ public class RobotContainer implements Logged {
                                                 Commands.sequence(
                                                                 drivebase.setSide(Side.CENTER),
                                                                 new WaitCommand(0.5),
-                                                                Commands.waitUntil(() -> elevator.atPosition()), // new
-                                                                                                                 // WaitCommand(0.5)
                                                                 new PIDDriveToPose(drivebase,
                                                                                 drivebase.reefTargetPose))),
                                                 Set.of(drivebase)).withName("Center Reef PID"))
@@ -368,7 +366,7 @@ public class RobotContainer implements Logged {
                                 drivebase.setSide(side),
                                 new ConditionalCommand(new PIDDriveToPose(drivebase,
                                                 drivebase.reefTargetPose.transformBy(new Transform2d(
-                                                                Units.inchesToMeters(30), 0, new Rotation2d())),
+                                                                Units.inchesToMeters(34), 0, new Rotation2d())),
                                                 0.1, 3),
                                                 new PIDDriveToPose(drivebase,
                                                                 drivebase.reefTargetPose.transformBy(new Transform2d(
