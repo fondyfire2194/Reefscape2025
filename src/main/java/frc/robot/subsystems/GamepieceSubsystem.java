@@ -77,7 +77,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     backupSpeed = val;
   }
   public int inOutCoralAmps = 40;
-  private double coralDelverSpeed = .6;
+  private double coralDelverSpeed = .7;
   public boolean motorLocked = false;
   public double detectThreshold;
 

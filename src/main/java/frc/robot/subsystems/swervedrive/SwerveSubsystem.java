@@ -51,6 +51,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.Side;
@@ -204,6 +205,9 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
     SmartDashboard.putNumber("MaxVel", swerveDrive.getMaximumChassisVelocity());
     SmartDashboard.putNumber("MaxRot", Units.radiansToDegrees(swerveDrive.getMaximumChassisAngularVelocity()));
 
+    // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
+
+    swerveDrive.stopOdometryThread();
   }
 
   /**
@@ -223,6 +227,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
     publisher.set(getPose());
+
+    swerveDrive.updateOdometry(); 
+    //This could be a potential fix 
+    //for our weird issue but add swerveDrive.stopOdometryThread(); to the constructor if this is called
 
     double x = getPose().getX();
 

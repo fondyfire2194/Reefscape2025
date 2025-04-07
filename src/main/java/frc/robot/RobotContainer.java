@@ -308,8 +308,10 @@ public class RobotContainer implements Logged {
 
                 driverXbox.y().onTrue(new DetectAlgaeWhileIntaking(algae).withName("Intake Algae"));
 
-                driverXbox.back().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
-                                arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
+                // driverXbox.back().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
+                //                 arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
+
+                driverXbox.back().onTrue(Commands.runOnce(() -> elevator.resetPosition(0)));
 
                 driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
 
@@ -388,6 +390,9 @@ public class RobotContainer implements Logged {
 
         public void configureCoDriverTeleopBindings() {
 
+                coCoDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
+
+
                 coCoDriverXbox.rightTrigger().whileTrue(
                                 Commands.defer(
                                                 () -> preIn.jogMotorCommand(
@@ -401,6 +406,9 @@ public class RobotContainer implements Logged {
                 coCoDriverXbox.start().onTrue(Commands.runOnce(() -> climber.lockClimber()));
 
                 coCoDriverXbox.back().onTrue(Commands.runOnce(() -> climber.unlockClimber()));
+
+                coCoDriverXbox.povDown().onTrue(Commands.runOnce(() -> drivebase.frontUpdate.setUseMegatag2(false)));
+                
 
                 coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
 
@@ -461,7 +469,7 @@ public class RobotContainer implements Logged {
                 // coDriverXbox.getLeftX()))
                 // .onFalse(Commands.runOnce(() -> climber.stop()));
 
-                coDriverXbox.start().onTrue(Commands.runOnce(() -> climber.lockClimber())); // lock
+                // coDriverXbox.start().onTrue(Commands.runOnce(() -> elevator)); // lock
 
                 coDriverXbox.povUp().onTrue(Commands.none()); // setup for climb
 
